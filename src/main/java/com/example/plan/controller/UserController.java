@@ -1,7 +1,6 @@
 package com.example.plan.controller;
 
 import com.example.plan.dto.AuthRequest;
-import com.example.plan.dto.Product;
 import com.example.plan.entity.UserInfo;
 import com.example.plan.repository.UserInfoRepository;
 import com.example.plan.service.JwtService;
@@ -46,9 +45,9 @@ public class UserController {
         return new ResponseEntity<>(userService.getUser(id), HttpStatus.OK);
     }
 
-    @PostMapping("/new")
+    @PostMapping("/singUp")
     public ResponseEntity<String> addNewUser(@RequestBody UserInfo userInfo) {
-        return new ResponseEntity<>(userService.addUser(userInfo), HttpStatus.CREATED);
+        return new ResponseEntity<>(userService.singUp(userInfo), HttpStatus.CREATED);
     }
 
     @PostMapping("/authenticate")
