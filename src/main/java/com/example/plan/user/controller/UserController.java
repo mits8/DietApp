@@ -1,21 +1,16 @@
-package com.example.plan.controller;
+package com.example.plan.user.controller;
 
-import com.example.plan.PlanUtils;
-import com.example.plan.constants.PlanConstants;
-import com.example.plan.dto.AuthRequest;
-import com.example.plan.entity.UserInfo;
-import com.example.plan.repository.UserInfoRepository;
-import com.example.plan.service.JwtService;
-import com.example.plan.service.userService.UserService;
+import com.example.plan.auth.AuthRequest;
+import com.example.plan.user.entity.UserInfo;
+import com.example.plan.user.repository.UserInfoRepository;
+import com.example.plan.config.filter.JwtService;
+import com.example.plan.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

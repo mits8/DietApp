@@ -1,7 +1,6 @@
-package com.example.plan.filter;
+package com.example.plan.config.filter;
 
 import com.example.plan.config.UserInfoUserDetailsService;
-import com.example.plan.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

@@ -1,4 +1,4 @@
-package com.example.plan.dto;
+package com.example.plan.product.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

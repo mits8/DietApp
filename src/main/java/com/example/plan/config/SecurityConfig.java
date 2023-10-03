@@ -1,6 +1,6 @@
 package com.example.plan.config;
 
-import com.example.plan.filter.JwtAuthFilter;
+import com.example.plan.config.filter.JwtAuthFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

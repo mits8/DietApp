@@ -1,4 +1,4 @@
-package com.example.plan.service;
+package com.example.plan.config.filter;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

@@ -1,10 +1,9 @@
-package com.example.plan.repository;
+package com.example.plan.user.repository;
 
-import com.example.plan.entity.UserInfo;
+import com.example.plan.user.entity.UserInfo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository

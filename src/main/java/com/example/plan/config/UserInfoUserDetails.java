@@ -1,6 +1,6 @@
 package com.example.plan.config;
 
-import com.example.plan.entity.UserInfo;
+import com.example.plan.user.entity.UserInfo;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

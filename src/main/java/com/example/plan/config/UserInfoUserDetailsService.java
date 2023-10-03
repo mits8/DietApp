@@ -1,7 +1,7 @@
 package com.example.plan.config;
 
-import com.example.plan.entity.UserInfo;
-import com.example.plan.repository.UserInfoRepository;
+import com.example.plan.user.entity.UserInfo;
+import com.example.plan.user.repository.UserInfoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

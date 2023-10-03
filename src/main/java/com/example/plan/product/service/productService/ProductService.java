@@ -1,8 +1,7 @@
-package com.example.plan.service.productService;
+package com.example.plan.product.service.productService;
 
-import com.example.plan.dto.Product;
-import com.example.plan.entity.UserInfo;
-import com.example.plan.repository.UserInfoRepository;
+import com.example.plan.product.dto.Product;
+import com.example.plan.user.repository.UserInfoRepository;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;

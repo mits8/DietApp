@@ -1,7 +1,7 @@
-package com.example.plan.service.userService;
+package com.example.plan.user.service;
 
-import com.example.plan.dto.AuthRequest;
-import com.example.plan.entity.UserInfo;
+import com.example.plan.auth.AuthRequest;
+import com.example.plan.user.entity.UserInfo;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
