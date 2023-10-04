@@ -1,7 +1,7 @@
 package com.example.plan.product.controller;
 
 import com.example.plan.product.dto.Product;
-import com.example.plan.config.filter.JwtService;
+import com.example.plan.security.config.filter.JwtService;
 import com.example.plan.product.service.productService.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

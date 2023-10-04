@@ -1,6 +1,6 @@
-package com.example.plan.config.filter;
+package com.example.plan.security.config.filter;
 
-import com.example.plan.config.UserInfoUserDetailsService;
+import com.example.plan.security.config.UserInfoUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

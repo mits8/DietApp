@@ -1,19 +1,12 @@
 package com.example.plan.user.service.Impl;
 
-import com.example.plan.PlanUtils;
-import com.example.plan.constants.PlanConstants;
-import com.example.plan.auth.AuthRequest;
 import com.example.plan.user.entity.UserInfo;
 import com.example.plan.user.repository.UserInfoRepository;
-import com.example.plan.config.filter.JwtService;
+import com.example.plan.security.config.filter.JwtService;
 import com.example.plan.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -32,53 +25,23 @@ public class UserServiceImpl implements UserService {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    AuthenticationManager authenticationManager;
+    private AuthenticationManager authenticationManager;
 
     @Autowired
-    JwtService jwtService;
+    private JwtService jwtService;
+
+    public List<UserInfo> usersList = null;
 
     @Override
-    public List<UserInfo> findUsers() {
-        List<UserInfo> userInfoList = userInfoRepository.findAll();
-        return userInfoList;
-    }
-
-    @Override
-    public ResponseEntity<String> singUp(UserInfo userInfo) {
-        try {
-            userInfo.setPassword(passwordEncoder.encode(userInfo.getPassword()));
-            userInfoRepository.save(userInfo);
-        }catch (Exception ex) {
-            log.info("{}", ex);
-        }
-        return new ResponseEntity<>("{\"message\":\"" + "Ο χρήστης " + userInfo.getName() + " εγγράφτηκε επιτυχώς!" + "\"}", HttpStatus.OK);
-    }
-
-    @Override
-    public ResponseEntity<String> auth(AuthRequest authRequest) {
-        try{
-            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
-                if (authentication.isAuthenticated()) {
-                    return new ResponseEntity<>("{\"token\":\"" + jwtService.generateToken(authRequest.getUsername()), HttpStatus.OK);
-                } else {
-                    return PlanUtils.getResponseEntity(PlanConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
-                }
-        } catch (Exception ex) {
-            log.error("{}", ex);
-        }
-        return new ResponseEntity<>("{\"message\":\"" + "Λάθος Διαπιστευτήρια" + "\"}", HttpStatus.BAD_REQUEST);
+    public List<UserInfo> findAll() {
+        List<UserInfo> findAll = userInfoRepository.findAll();
+        return findAll;
     }
 
 
-    List<UserInfo> userInfoList = null;
-    @Override
-    public List<UserInfo> getUserInfoList() {
-        List<UserInfo> getAllUser = userInfoRepository.findAll();
-        return getAllUser;
-    }
 
     @Override
-    public Optional<UserInfo> getUserById(int id) throws UsernameNotFoundException {
+    public Optional<UserInfo> findById(int id) throws UsernameNotFoundException {
         Optional<UserInfo> userInfo = userInfoRepository.findUserInfoById(id);
         return userInfo;
     }

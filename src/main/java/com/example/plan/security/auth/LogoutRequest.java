@@ -1,4 +1,4 @@
-package com.example.plan.auth;
+package com.example.plan.security.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class LogOutRequest {
+public class LogoutRequest {
     private String username;
     private String password;
     private String token;

@@ -1,6 +1,6 @@
-package com.example.plan.config;
+package com.example.plan.security.config;
 
-import com.example.plan.config.filter.JwtAuthFilter;
+import com.example.plan.security.config.filter.JwtAuthFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,9 +37,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests()
                 .requestMatchers("/products/new","/products/authenticate").permitAll()
                 .requestMatchers("/user/singUp","/user/authenticate", "/user/login").permitAll()
+                .requestMatchers("/auth/login","/auth/authenticate", "/auth/logout").permitAll()
                 .and()
                 .authorizeHttpRequests()
-                .requestMatchers("/user/**", "/products/**")
+                .requestMatchers("/user/**", "/products/**", "/auth/**")
                 .authenticated().and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

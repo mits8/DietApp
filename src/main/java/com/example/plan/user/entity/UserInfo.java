@@ -1,9 +1,7 @@
 package com.example.plan.user.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.example.plan.enums.Role;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,5 +17,7 @@ public class UserInfo {
     private String name;
     private String email;
     private String password;
-    private String roles;
+    private boolean isLoggedIn;
+    @Enumerated(EnumType.STRING)
+    private Role role;
 }

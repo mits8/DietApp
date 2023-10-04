@@ -1,4 +1,4 @@
-package com.example.plan.config;
+package com.example.plan.security.config;
 
 import com.example.plan.user.entity.UserInfo;
 import com.example.plan.user.repository.UserInfoRepository;

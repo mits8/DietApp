@@ -1,9 +1,9 @@
 package com.example.plan.user.controller;
 
-import com.example.plan.auth.AuthRequest;
+import com.example.plan.security.auth.service.Impl.AuthServiceImpl;
+import com.example.plan.security.config.filter.JwtService;
 import com.example.plan.user.entity.UserInfo;
 import com.example.plan.user.repository.UserInfoRepository;
-import com.example.plan.config.filter.JwtService;
 import com.example.plan.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,31 +33,25 @@ public class UserController {
     @Autowired
     JwtService jwtService;
 
+    @Autowired
+    private AuthServiceImpl authService;
+
+    @PostMapping("/singUp")
+    public ResponseEntity<String> singUp (@RequestBody UserInfo userInfo){
+        return (authService.singUp(userInfo));
+    }
 
     @GetMapping("/findAll")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<List<UserInfo>> findAllUsers() {
-        return new ResponseEntity<>(userService.getUserInfoList(), HttpStatus.OK);
+    @PreAuthorize("hasRole('ADMIN') OR hasRole('ROLE_USER')")
+    public ResponseEntity<List<UserInfo>> findAll() {
+        return new ResponseEntity<>(userService.findAll(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('ROLE_USER')")
-    public ResponseEntity<Optional<UserInfo>> getProductById(@PathVariable int id) {
-        return new ResponseEntity<>(userService.getUserById(id), HttpStatus.OK);
+    public ResponseEntity<Optional<UserInfo>> findById(@PathVariable int id) {
+        return new ResponseEntity<>(userService.findById(id), HttpStatus.OK);
     }
 
-    @PostMapping("/singUp")
-    public ResponseEntity<String> addNewUser(@RequestBody UserInfo userInfo) {
-        return userService.singUp(userInfo);
-    }
 
-    @PostMapping("/authenticate")
-    public ResponseEntity<String> authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
-        return userService.auth(authRequest);
-    }
-    @PostMapping("/login")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public ResponseEntity<String> login (@RequestBody AuthRequest authRequest){
-        return userService.auth(authRequest);
-    }
 }
