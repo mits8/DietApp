@@ -1,5 +1,6 @@
 package com.example.plan.security.auth;
 
+import com.example.plan.security.auth.service.AuthService;
 import com.example.plan.security.auth.service.Impl.AuthServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     @Autowired
-    private AuthServiceImpl authService;
+    private AuthService authService;
 
     @PostMapping("/login")
     @PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_USER')")

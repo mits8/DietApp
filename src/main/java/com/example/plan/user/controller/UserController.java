@@ -42,16 +42,28 @@ public class UserController {
     }
 
     @GetMapping("/findAll")
-    @PreAuthorize("hasRole('ADMIN') OR hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UserInfo>> findAll() {
         return new ResponseEntity<>(userService.findAll(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('ROLE_USER')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Optional<UserInfo>> findById(@PathVariable int id) {
         return new ResponseEntity<>(userService.findById(id), HttpStatus.OK);
     }
 
+    @PutMapping("/update/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<String> updateUser(@RequestBody UserInfo userInfo, @PathVariable int id) {
+        return userService.updateUser(userInfo, id);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<String> deleteUser(@PathVariable int id) {
+        UserInfo userInfo = userInfoRepository.findUserById(id);
+        return  new ResponseEntity<>(userService.deleteUser(userInfo, id), HttpStatus.OK);
+    }
 
 }

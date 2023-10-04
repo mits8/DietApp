@@ -1,5 +1,6 @@
 package com.example.plan.security.auth.service.Impl;
 
+import ch.qos.logback.core.joran.conditional.IfAction;
 import com.example.plan.PlanUtils;
 import com.example.plan.security.auth.AuthRequest;
 import com.example.plan.security.auth.LogoutRequest;
@@ -74,12 +75,19 @@ import org.springframework.stereotype.Service;
 
     @Override
     public ResponseEntity<String> userLogout(LogoutRequest logoutRequest) {
-
-        UserInfo user = userInfoRepository.findByName(logoutRequest.getUsername()).orElseThrow();
-        user.setLoggedIn(false);
-        userInfoRepository.save(user);
-
-        return new ResponseEntity<>("Αποσυνδεθήκατε επιτυχώς!", HttpStatus.OK);
+        try {
+            UserInfo user = userInfoRepository.findByName(logoutRequest.getUsername()).orElseThrow();
+            if (user != null) {
+                user.setLoggedIn(false);
+                userInfoRepository.save(user);
+                return new ResponseEntity<>("{\"message\":\"" + "Αποσυνδεθήκατε επιτυχώς!", HttpStatus.OK);
+            } else {
+                return PlanUtils.getResponseEntity(PlanConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } catch (Exception ex) {
+            log.error("{}", ex);
+        }
+        return new ResponseEntity<>("{\"message\":\"" + "Λάθος Διαπιστευτήρια" + "\"}", HttpStatus.BAD_REQUEST);
     }
 
     @Override
