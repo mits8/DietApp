@@ -34,17 +34,17 @@ public class AuthEncryptDecrypt {
 
     public boolean checkPassword(String inputPassword, String storedEncryptedPassword) {
         try {
-            encrypt(inputPassword);
-            String decryptedPassword = decrypt(storedEncryptedPassword);// Συγκρίνετε τον αποκρυπτογραφημένο αποθηκευμένο κωδικό με τον κωδικό που δώσατε
-            return inputPassword.equals(decryptedPassword);
-        } catch (Exception ex) {
-            // Κατά τη διάρκεια της αποκρυπτογράφησης μπορεί να προκύψει εξαίρεση
-            // Μπορείτε να χειριστείτε αυτή την εξαίρεση ανάλογα με τις ανάγκες σας
-            ex.printStackTrace();
-            return false;
-        }
-    }
+            String decryptedPassword = decrypt(storedEncryptedPassword);
+            if (inputPassword.equals(decryptedPassword)) {
+                return true;
+            }
 
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return false;
+    }
+}
         /*public boolean checkEmail(String inputEmail, String storedEmail) {
             try {
                 if (inputEmail.equals(storedEmail)){
@@ -57,4 +57,4 @@ public class AuthEncryptDecrypt {
         }
 
     boolean checkEmail = authEncryptDecrypt.checkEmail(authRequest.getEmail(), userInfo.getEmail());*/
-}
+

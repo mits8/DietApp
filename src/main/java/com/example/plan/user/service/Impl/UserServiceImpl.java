@@ -63,11 +63,11 @@ public class UserServiceImpl implements UserService {
 
             if (!userInfo.equals(null) || userInfo != null) {
 
-                String decryptedFromDatabase = authEncryptDecrypt.decrypt(userInfo.getPassword());
+                String passwordFromDatabase = userInfo.getPassword();
                 String declaredOldPassword = changePasswordDTO.getOldPassword();
                 String newPassword = changePasswordDTO.getNewPassword();
 
-                boolean checkPassword = authEncryptDecrypt.checkPassword(declaredOldPassword, decryptedFromDatabase);
+                boolean checkPassword = authEncryptDecrypt.checkPassword(declaredOldPassword, passwordFromDatabase);
 
                 if (checkPassword) {
                     userInfo.setPassword(authEncryptDecrypt.encrypt(newPassword));
