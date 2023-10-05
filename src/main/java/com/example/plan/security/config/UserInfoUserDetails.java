@@ -18,7 +18,7 @@ public class UserInfoUserDetails implements UserDetails {
 
 
     public UserInfoUserDetails(UserInfo userInfo) {
-        name=userInfo.getName();
+        name=userInfo.getEmail();
         password=userInfo.getPassword();
         role=userInfo.getRole();
 

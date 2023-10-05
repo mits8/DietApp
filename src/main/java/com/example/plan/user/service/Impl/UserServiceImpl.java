@@ -2,6 +2,10 @@ package com.example.plan.user.service.Impl;
 
 import com.example.plan.PlanUtils;
 import com.example.plan.constants.PlanConstants;
+import com.example.plan.security.auth.service.Impl.AuthEncryptDecrypt;
+import com.example.plan.security.auth.service.Impl.AuthServiceImpl;
+import com.example.plan.security.config.filter.JwtAuthFilter;
+import com.example.plan.user.dto.ChangePasswordDTO;
 import com.example.plan.user.entity.UserInfo;
 import com.example.plan.user.repository.UserInfoRepository;
 import com.example.plan.security.config.filter.JwtService;
@@ -16,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -29,12 +34,12 @@ public class UserServiceImpl implements UserService {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private AuthenticationManager authenticationManager;
+    private AuthServiceImpl authService;
 
     @Autowired
-    private JwtService jwtService;
+    private AuthEncryptDecrypt authEncryptDecrypt;
 
-    public List<UserInfo> usersList = null;
+
 
     @Override
     public List<UserInfo> findAll() {
@@ -51,6 +56,34 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public ResponseEntity<String> changePassword(ChangePasswordDTO changePasswordDTO) {
+        try {
+            String email = changePasswordDTO.getEmail();
+            UserInfo userInfo = userInfoRepository.findUserByEmail(email);
+
+            if (!userInfo.equals(null) || userInfo != null) {
+
+                String decryptedFromDatabase = authEncryptDecrypt.decrypt(userInfo.getPassword());
+                String declaredOldPassword = changePasswordDTO.getOldPassword();
+                String newPassword = changePasswordDTO.getNewPassword();
+
+                boolean checkPassword = authEncryptDecrypt.checkPassword(declaredOldPassword, decryptedFromDatabase);
+
+                if (checkPassword) {
+                    userInfo.setPassword(authEncryptDecrypt.encrypt(newPassword));
+                    userInfoRepository.save(userInfo);
+
+                    return PlanUtils.getResponseEntity("Ο κωδικός σας άλλαξε επιτυχώς!", HttpStatus.OK);
+                }
+                return PlanUtils.getResponseEntity("Ο παλιός κωδικός είναι λάθος!", HttpStatus.BAD_REQUEST);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return PlanUtils.getResponseEntity(PlanConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
     public ResponseEntity<String> updateUser(UserInfo userInfo, int id) {
         try {
             Optional<UserInfo> existingUser = userInfoRepository.findById(id);
@@ -58,8 +91,8 @@ public class UserServiceImpl implements UserService {
                 UserInfo updateUser = existingUser.get();
                 updateUser.setName(userInfo.getName());
                 updateUser.setEmail(userInfo.getEmail());
-                updateUser.setPassword(passwordEncoder.encode(userInfo.getPassword()));
-                updateUser.setRole(userInfo.getRole());
+            //    updateUser.setPassword(authEncryptDecrypt.encrypt(userInfo.getPassword()));
+            //    updateUser.setRole(userInfo.getRole());
                 userInfoRepository.save(updateUser);
                 return new ResponseEntity<>("{\"message\":\"" + "Ο χρήστης " + userInfo.getName() + " ενημερώθηκε επιτυχώς!", HttpStatus.OK);
             } else {

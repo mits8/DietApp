@@ -1,7 +1,7 @@
 package com.example.plan.security.auth.service.Impl;
 
-import ch.qos.logback.core.joran.conditional.IfAction;
 import com.example.plan.PlanUtils;
+import com.example.plan.enums.Role;
 import com.example.plan.security.auth.AuthRequest;
 import com.example.plan.security.auth.LogoutRequest;
 import com.example.plan.security.auth.service.AuthService;
@@ -19,14 +19,15 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.IllegalFormatCodePointException;
+
 @Slf4j
 @Service
     public class AuthServiceImpl implements AuthService {
 
+
     @Autowired
     private AuthenticationManager authenticationManager;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private JwtService jwtService;
@@ -34,18 +35,20 @@ import org.springframework.stereotype.Service;
     @Autowired
     private UserInfoRepository userInfoRepository;
 
-    /*public String singUp(UserInfo userInfo) {
-        userInfo.setPassword(passwordEncoder.encode(userInfo.getPassword()));
-        userInfoRepository.save(userInfo);
-        return "user added to system ";
-    }
-*/
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private AuthEncryptDecrypt authEncryptDecrypt;
+
+
+
 
     @Override
     public ResponseEntity<String> singUp(UserInfo userInfo) {
 
         try {
-            userInfo.setPassword(passwordEncoder.encode(userInfo.getPassword()));
+            userInfo.setPassword(authEncryptDecrypt.encrypt(userInfo.getPassword()));
             userInfoRepository.save(userInfo);
             if (userInfo.isLoggedIn()) {
                 userInfo.setLoggedIn(true);
@@ -59,9 +62,9 @@ import org.springframework.stereotype.Service;
     @Override
     public ResponseEntity<String> login(AuthRequest authRequest) {
         try{
-            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
+            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getPassword()));
             if (authentication.isAuthenticated()) {
-                UserInfo user = userInfoRepository.findByName(authRequest.getUsername()).orElseThrow();
+                UserInfo user = userInfoRepository.findByName(authRequest.getEmail()).orElseThrow();
                 user.setLoggedIn(true);
                 return new ResponseEntity<>("{\"message\":\"" + "Καλωςήρθατε!", HttpStatus.OK);
             } else {
@@ -76,7 +79,8 @@ import org.springframework.stereotype.Service;
     @Override
     public ResponseEntity<String> userLogout(LogoutRequest logoutRequest) {
         try {
-            UserInfo user = userInfoRepository.findByName(logoutRequest.getUsername()).orElseThrow();
+            String email = logoutRequest.getUsername();
+            UserInfo user = userInfoRepository.findUserByEmail(email);
             if (user != null) {
                 user.setLoggedIn(false);
                 userInfoRepository.save(user);
@@ -93,15 +97,24 @@ import org.springframework.stereotype.Service;
     @Override
     public ResponseEntity<String> auth(AuthRequest authRequest) {
         try{
-            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
-            if (authentication.isAuthenticated()) {
-                return new ResponseEntity<>("token: " + jwtService.generateToken(authRequest.getUsername()), HttpStatus.OK);
-            } else {
-                return PlanUtils.getResponseEntity(PlanConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+           // Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
+           // if (authentication.isAuthenticated()) {
+
+            String email = authRequest.getEmail();
+            UserInfo userInfo = userInfoRepository.findUserByEmail(email);
+
+             boolean userNotNull = userInfo != null && !userInfo.equals(null);
+             boolean checkPassword = authEncryptDecrypt.checkPassword(authRequest.getPassword(), userInfo.getPassword());
+
+            if ((userNotNull)){
+                if (!checkPassword) {
+                    return PlanUtils.getResponseEntity(PlanConstants.INVALID_PASSWORD, HttpStatus.BAD_REQUEST);
+                }
+                return new ResponseEntity<>("token: " + jwtService.generateToken(authRequest.getEmail()), HttpStatus.OK);
             }
         } catch (Exception ex) {
             log.error("{}", ex);
         }
-        return new ResponseEntity<>("{\"message\":\"" + "Λάθος Διαπιστευτήρια" + "\"}", HttpStatus.BAD_REQUEST);
+        return PlanUtils.getResponseEntity(PlanConstants.INVALID_EMAIL, HttpStatus.BAD_REQUEST);
     }
 }

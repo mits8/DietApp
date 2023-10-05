@@ -14,8 +14,6 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class UserInfo implements Serializable {
 
-    private static final int UID = 1;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
