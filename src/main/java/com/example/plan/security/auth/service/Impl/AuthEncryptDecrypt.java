@@ -1,6 +1,5 @@
 package com.example.plan.security.auth.service.Impl;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.Cipher;

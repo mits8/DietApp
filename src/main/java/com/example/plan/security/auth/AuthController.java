@@ -1,7 +1,6 @@
 package com.example.plan.security.auth;
 
 import com.example.plan.security.auth.service.AuthService;
-import com.example.plan.security.auth.service.Impl.AuthServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

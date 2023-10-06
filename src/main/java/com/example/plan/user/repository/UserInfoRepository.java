@@ -21,5 +21,4 @@ public interface UserInfoRepository extends JpaRepository<UserInfo, Integer> {
     @Query("select u from UserInfo u where u.email=:email")
     UserInfo findUserByEmail(@Param("email") String email);
 
-
 }

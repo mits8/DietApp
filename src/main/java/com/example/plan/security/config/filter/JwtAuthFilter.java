@@ -1,8 +1,6 @@
 package com.example.plan.security.config.filter;
 
-import com.example.plan.security.auth.service.Impl.AuthEncryptDecrypt;
 import com.example.plan.security.config.UserInfoUserDetailsService;
-import com.example.plan.user.entity.UserInfo;
 import com.example.plan.user.repository.UserInfoRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -17,7 +15,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.List;
 
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
