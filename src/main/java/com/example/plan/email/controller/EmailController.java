@@ -1,7 +1,8 @@
-package com.example.plan.user.controller;
+package com.example.plan.email.controller;
 
+import com.example.plan.email.service.EmailService;
+import com.example.plan.security.auth.AuthRequest;
 import com.example.plan.user.dto.EmailDTO;
-import com.example.plan.user.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,12 @@ public class EmailController {
     @PostMapping("/sendEmail")
     public ResponseEntity<String> sendEmail(@RequestBody EmailDTO emailDTO) {
         emailService.sendEmail(emailDTO);
+        return new ResponseEntity<>("{\"message\":\"" + "Το email στάλθηκε!" + "\"}", HttpStatus.OK);
+    }
+
+    @PostMapping("/forgotEmail")
+    public ResponseEntity<String> forgotPassword(@RequestBody EmailDTO emailDTO) {
+        emailService.forgotPassword(emailDTO);
         return new ResponseEntity<>("{\"message\":\"" + "Το email στάλθηκε!" + "\"}", HttpStatus.OK);
     }
 

@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 @NoArgsConstructor
 public class EmailDTO {
 
+    private String email;
     private MultipartFile[] file;
     private String to;
     private String[] cc;
