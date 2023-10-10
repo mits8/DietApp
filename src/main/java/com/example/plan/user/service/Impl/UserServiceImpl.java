@@ -12,8 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,14 +27,13 @@ public class UserServiceImpl implements UserService {
     private UserInfoRepository userInfoRepository;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
     private AuthServiceImpl authService;
 
     @Autowired
     private AuthEncryptDecrypt authEncryptDecrypt;
 
+    @Autowired
+    JavaMailSender javaMailSender;
 
 
     @Override

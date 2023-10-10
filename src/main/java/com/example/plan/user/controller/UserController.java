@@ -3,8 +3,10 @@ package com.example.plan.user.controller;
 import com.example.plan.security.auth.service.Impl.AuthServiceImpl;
 import com.example.plan.security.config.filter.JwtService;
 import com.example.plan.user.dto.ChangePasswordDTO;
+import com.example.plan.user.dto.EmailDTO;
 import com.example.plan.user.entity.UserInfo;
 import com.example.plan.user.repository.UserInfoRepository;
+import com.example.plan.user.service.EmailService;
 import com.example.plan.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +38,9 @@ public class UserController {
 
     @Autowired
     private AuthServiceImpl authService;
+
+    @Autowired
+    EmailService emailService;
 
     @PostMapping("/singUp")
     public ResponseEntity<String> singUp (@RequestBody UserInfo userInfo){
@@ -74,5 +79,11 @@ public class UserController {
         UserInfo userInfo = userInfoRepository.findUserById(id);
         return  new ResponseEntity<>(userService.deleteUser(userInfo, id), HttpStatus.OK);
     }
+
+    /*@PostMapping("/sendEmail")
+    public ResponseEntity<String> sendEmail(@RequestBody EmailDTO emailDTO) {
+        emailService.sendEmail(emailDTO);
+        return new ResponseEntity<String>("Success", HttpStatus.OK);
+    }*/
 
 }
