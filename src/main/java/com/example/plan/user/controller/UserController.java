@@ -24,16 +24,16 @@ import java.util.Optional;
 public class UserController {
 
     @Autowired
-    UserInfoRepository userInfoRepository;
+    private UserInfoRepository userInfoRepository;
 
     @Autowired
-    UserService userService;
+    private UserService userService;
 
     @Autowired
-    AuthenticationManager authenticationManager;
+    private AuthenticationManager authenticationManager;
 
     @Autowired
-    JwtService jwtService;
+    private JwtService jwtService;
 
     @Autowired
     private AuthServiceImpl authService;
@@ -78,11 +78,4 @@ public class UserController {
         UserInfo userInfo = userInfoRepository.findUserById(id);
         return  new ResponseEntity<>(userService.deleteUser(userInfo, id), HttpStatus.OK);
     }
-
-    /*@PostMapping("/sendEmail")
-    public ResponseEntity<String> sendEmail(@RequestBody EmailDTO emailDTO) {
-        emailService.sendEmail(emailDTO);
-        return new ResponseEntity<String>("Success", HttpStatus.OK);
-    }*/
-
 }

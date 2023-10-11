@@ -25,9 +25,8 @@ public class EmailController {
     }
 
     @PostMapping("/forgotEmail")
-    public ResponseEntity<String> forgotPassword(@RequestBody EmailDTO emailDTO) {
-        emailService.forgotPassword(emailDTO);
-        return new ResponseEntity<>("{\"message\":\"" + "Το email στάλθηκε!" + "\"}", HttpStatus.OK);
+    public ResponseEntity<String> forgotPassword(@RequestBody EmailDTO emailDTO) throws Exception {
+        return emailService.forgotPassword(emailDTO);
     }
 
 }

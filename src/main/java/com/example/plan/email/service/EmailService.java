@@ -9,5 +9,5 @@ public interface EmailService {
 
     ResponseEntity<String> sendEmail(EmailDTO emailDTO);
 
-    ResponseEntity<String> forgotPassword(EmailDTO emailDTO);
+    ResponseEntity<String> forgotPassword(EmailDTO emailDTO) throws Exception;
 }

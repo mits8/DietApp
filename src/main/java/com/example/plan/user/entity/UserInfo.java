@@ -21,6 +21,7 @@ public class UserInfo implements Serializable {
     private String name;
     private String email;
     private String password;
+    private String contactInfo;
     private boolean isLoggedIn;
     @Enumerated(EnumType.STRING)
     private Role role;

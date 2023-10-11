@@ -22,18 +22,11 @@ import java.util.Objects;
 @Service
     public class AuthServiceImpl implements AuthService {
 
-
-    @Autowired
-    private AuthenticationManager authenticationManager;
-
     @Autowired
     private JwtService jwtService;
 
     @Autowired
     private UserInfoRepository userInfoRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private AuthEncryptDecrypt authEncryptDecrypt;

@@ -2,7 +2,6 @@ package com.example.plan.user.service.Impl;
 
 import com.example.plan.constants.PlanConstants;
 import com.example.plan.security.auth.service.Impl.AuthEncryptDecrypt;
-import com.example.plan.security.auth.service.Impl.AuthServiceImpl;
 import com.example.plan.user.dto.ChangePasswordDTO;
 import com.example.plan.user.entity.UserInfo;
 import com.example.plan.user.repository.UserInfoRepository;
@@ -25,9 +24,6 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserInfoRepository userInfoRepository;
-
-    @Autowired
-    private AuthServiceImpl authService;
 
     @Autowired
     private AuthEncryptDecrypt authEncryptDecrypt;
@@ -86,19 +82,18 @@ public class UserServiceImpl implements UserService {
                 UserInfo updateUser = existingUser.get();
                 updateUser.setName(userInfo.getName());
                 updateUser.setEmail(userInfo.getEmail());
-            //    updateUser.setPassword(authEncryptDecrypt.encrypt(userInfo.getPassword()));
+                updateUser.setContactInfo(userInfo.getContactInfo());
                 updateUser.setRole(userInfo.getRole());
                 userInfoRepository.save(updateUser);
                 return new ResponseEntity<>("{\"message\":\"" + "Ο χρήστης " + userInfo.getName() + " ενημερώθηκε επιτυχώς!", HttpStatus.OK);
             } else {
-                return PlanUtils.getResponseEntity(PlanConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
 
+            return new ResponseEntity<>("{\"message\":\"" + "Λάθος Διαπιστευτήρια" + "\"}", HttpStatus.BAD_REQUEST);
             }
         } catch (Exception ex) {
             log.info("{}", ex);
-
         }
-        return new ResponseEntity<>("{\"message\":\"" + "Λάθος Διαπιστευτήρια" + "\"}", HttpStatus.BAD_REQUEST);
+        return PlanUtils.getResponseEntity(PlanConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override

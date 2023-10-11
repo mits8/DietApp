@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class EmailDTO {
 
     private String email;
+    private String contactInfo;
     private MultipartFile[] file;
     private String to;
     private String[] cc;
