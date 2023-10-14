@@ -1,12 +1,10 @@
 package com.example.plan.email.service.Impl;
 
 import com.example.plan.email.service.EmailService;
-import com.example.plan.security.auth.AuthRequest;
 import com.example.plan.security.auth.service.Impl.AuthEncryptDecrypt;
 import com.example.plan.user.dto.EmailDTO;
 import com.example.plan.user.entity.UserInfo;
 import com.example.plan.user.repository.UserInfoRepository;
-import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,18 +43,6 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public ResponseEntity<String> sendEmail(EmailDTO emailDTO) {
-
-        /*SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
-
-        simpleMailMessage.setFrom("xatzic8@gmail.com");
-        simpleMailMessage.setTo(emailDTO.getTo());
-        simpleMailMessage.setCc(emailDTO.getCc());
-        simpleMailMessage.setSubject(emailDTO.getSubject());
-        simpleMailMessage.setText(emailDTO.getBody());
-
-        this.mailSender.send(simpleMailMessage);*/
-
-
         try {
             MimeMessage mimeMessage = mailSender.createMimeMessage();
 
@@ -80,7 +66,7 @@ public class EmailServiceImpl implements EmailService {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return new ResponseEntity<>("{\"message\":\"" + "Το email στάλθηκε!" + "\"}", HttpStatus.OK);
+        return new ResponseEntity<>("Το email στάλθηκε!", HttpStatus.OK);
     }
 
     @Override
@@ -102,18 +88,18 @@ public class EmailServiceImpl implements EmailService {
                 mimeMessageHelper.setSubject(subject);
                 String htmlMsg = "<html><head><meta charset=\"UTF-8\"></head><body>" +
                         "<p><b>Πρόσβαση στο Σύστημα Διαχείρησης Διατροφής</b><br>\n" +
-                        "<b>Όνομα Χρήστη: </b>" + emailDTO.getTo() + "<br>\n" +
+                        "<b>Όνομα Χρήστη: </b>" + user.getEmail() + "<br>\n" +
                         "<b>Κωδικός: </b>" + password + "<br>\n" +
                         "<a href=\"http://localhost:8081/auth/login-\">Click here to login</a></p>";
                 mimeMessageHelper.setText(htmlMsg, true);
                 mailSender.send(mimeMessage);
-                return new ResponseEntity<>("{\"message\":\"" + "Το email στάλθηκε!" + "\"}", HttpStatus.OK);
+                return new ResponseEntity<>("Το email στάλθηκε!", HttpStatus.OK);
             } else {
-                return new ResponseEntity<>("{\"message\":\"" + "Λάθος email ή τηλέφωνο.." + "\"}", HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>("Λάθος email ή τηλέφωνο..", HttpStatus.BAD_REQUEST);
             }
         } catch (Exception ex) {
             log.info("{}", ex);
         }
-        return new ResponseEntity<>("{\"message\":\"" + "Το email ΔΕΝ στάλθηκε.." + "\"}", HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>("Το email ΔΕΝ στάλθηκε..", HttpStatus.BAD_REQUEST);
     }
 }

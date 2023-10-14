@@ -27,7 +27,7 @@ public class AuthController {
     @PostMapping("/logout")
     @PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_USER')")
     public ResponseEntity<String> logout (@RequestBody LogoutRequest logoutRequest){
-        return authService.userLogout(logoutRequest);
+        return authService.logout(logoutRequest);
     }
 
     @PostMapping("/authenticate")

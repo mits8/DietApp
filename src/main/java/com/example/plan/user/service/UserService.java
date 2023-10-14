@@ -14,9 +14,11 @@ public interface UserService {
 
     Optional<UserInfo> findById(int id) throws UsernameNotFoundException;
 
+    ResponseEntity<String> singUp(UserInfo userInfo);
+
     ResponseEntity<String> changePassword(ChangePasswordDTO changePasswordDTO);
 
     ResponseEntity<String> updateUser(UserInfo userInfo, int id);
 
-    String deleteUser(UserInfo userInfo, int id);
+    ResponseEntity<String> deleteUser(int id);
 }

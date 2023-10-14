@@ -16,6 +16,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -38,12 +39,30 @@ public class UserServiceImpl implements UserService {
         return findAll;
     }
 
-
-
     @Override
     public Optional<UserInfo> findById(int id) throws UsernameNotFoundException {
         Optional<UserInfo> userInfo = userInfoRepository.findUserInfoById(id);
         return userInfo;
+    }
+
+    @Override
+    public ResponseEntity<String> singUp(UserInfo userInfo) {
+        try {
+            UserInfo userEmail = userInfoRepository.findUserByEmail(userInfo.getEmail());
+            if (Objects.isNull(userEmail)) {
+                userInfo.setPassword(authEncryptDecrypt.encrypt(userInfo.getPassword()));
+                userInfoRepository.save(userInfo);
+                if (userInfo.isLoggedIn()) {
+                    userInfo.setLoggedIn(true);
+                }
+                return new ResponseEntity<>("Ο χρήστης " + userInfo.getEmail() + " γράφτηκε επιτυχώς!", HttpStatus.OK);
+            }
+            return new ResponseEntity<>("Το email " + userInfo.getEmail() + " υπάρχει ήδη..", HttpStatus.OK);
+
+        }catch (Exception ex) {
+            log.info("{}", ex);
+        }
+        return new ResponseEntity<>("Ο χρήστης " + userInfo.getEmail() + " γράφτηκε επιτυχώς!", HttpStatus.OK);
     }
 
     @Override
@@ -64,14 +83,14 @@ public class UserServiceImpl implements UserService {
                     userInfo.setPassword(authEncryptDecrypt.encrypt(newPassword));
                     userInfoRepository.save(userInfo);
 
-                    return PlanUtils.getResponseEntity("Ο κωδικός σας άλλαξε επιτυχώς!", HttpStatus.OK);
+                    return new ResponseEntity<>("Ο κωδικός σας άλλαξε επιτυχώς!", HttpStatus.OK);
                 }
-                return PlanUtils.getResponseEntity("Ο παλιός κωδικός είναι λάθος!", HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>("Ο παλιός κωδικός είναι λάθος!", HttpStatus.BAD_REQUEST);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return new ResponseEntity<>("{\"message\":\"" + "Το email: " + changePasswordDTO.getEmail() + " είναι λάθος.." + "\"}", HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>("Το email " + changePasswordDTO.getEmail() + " είναι λάθος..", HttpStatus.BAD_REQUEST);
     }
 
     @Override
@@ -85,11 +104,10 @@ public class UserServiceImpl implements UserService {
                 updateUser.setContactInfo(userInfo.getContactInfo());
                 updateUser.setRole(userInfo.getRole());
                 userInfoRepository.save(updateUser);
-                return new ResponseEntity<>("{\"message\":\"" + "Ο χρήστης " + userInfo.getName() + " ενημερώθηκε επιτυχώς!", HttpStatus.OK);
             } else {
-
-            return new ResponseEntity<>("{\"message\":\"" + "Λάθος Διαπιστευτήρια" + "\"}", HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>( "Ο χρήστης ΔΕΝ βρέθηκε..", HttpStatus.BAD_REQUEST);
             }
+            return new ResponseEntity<>("Ο χρήστης ενημερώθηκε επιτυχώς!", HttpStatus.OK);
         } catch (Exception ex) {
             log.info("{}", ex);
         }
@@ -97,13 +115,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String deleteUser(UserInfo userInfo , int id) {
+    public ResponseEntity<String> deleteUser(int id) {
         try {
-            userInfoRepository.deleteById(id);
-                return ("{\"message\":\"" + "Ο χρήστης " + userInfo.getName() + " διαγράφτηκε επιτυχώς!");
+            Optional<UserInfo> user = userInfoRepository.findById(id);
+            if (user.isPresent()) {
+                userInfoRepository.deleteById(id);
+            } else {
+                return new ResponseEntity<>("Ο χρήστης ΔΕΝ βρέθηκε..", HttpStatus.BAD_REQUEST);
+            }
+            return new ResponseEntity<> ("Ο χρήστης διαγράφτηκε επιτυχώς!", HttpStatus.OK);
         } catch (Exception ex) {
             log.info("{}", ex);
         }
-        return ("{\"message\":\"" + "Ο χρήστης ΔΕΝ διαγράφτηκε..");
+        return PlanUtils.getResponseEntity(PlanConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
