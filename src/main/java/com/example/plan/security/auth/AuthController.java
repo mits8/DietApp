@@ -35,5 +35,8 @@ public class AuthController {
         return authService.auth(authRequest);
     }
 
-
+    @PostMapping("/generateToken")
+    public ResponseEntity<String> generateToken(AuthRequest authRequest) {
+        return authService.generateToken(authRequest);
+    }
 }

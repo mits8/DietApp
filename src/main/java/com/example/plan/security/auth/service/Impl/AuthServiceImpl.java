@@ -87,4 +87,9 @@ import org.springframework.stereotype.Service;
         }
         return new ResponseEntity<>("Το email " + authRequest.getEmail() + " είναι λάθος..", HttpStatus.BAD_REQUEST);
     }
+
+    @Override
+    public ResponseEntity<String> generateToken(AuthRequest authRequest) {
+        return new ResponseEntity<>("token: " + jwtService.generateToken(authRequest.getEmail()), HttpStatus.OK);
+    }
 }

@@ -12,4 +12,6 @@ public interface AuthService {
     ResponseEntity<String> logout(LogoutRequest logoutRequest);
 
     ResponseEntity<String> auth(AuthRequest authRequest);
+
+    ResponseEntity<String> generateToken(AuthRequest authRequest);
 }

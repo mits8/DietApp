@@ -49,10 +49,10 @@ public class CustomerServiceImpl implements CustomerService {
                 if ((lengthFirstName > 5 && lengthFirstName < 30) && (lengthLastName > 5 && lengthLastName < 30)) {
                     customerRepository.save(customer);
                 }else {
-                    return new ResponseEntity<>("Το μήκος πρέπει να είναι ανάμεσα '5-30", HttpStatus.BAD_REQUEST);
+                    return new ResponseEntity<>("Το μήκος πρέπει να είναι ανάμεσα '5-30..", HttpStatus.BAD_REQUEST);
                 }
             } else {
-                return new ResponseEntity<>("Ο πελάτης με email" + customer.getEmail() + " υπάρχει ήδη", HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>("Ο πελάτης με email" + customer.getEmail() + " υπάρχει ήδη..", HttpStatus.BAD_REQUEST);
             }
             return new ResponseEntity<>("Ο πελάτης " + customer.getFirstName() + "\t" + customer.getLastName() + " γράφτηκε επιτυχώς!", HttpStatus.OK);
 
