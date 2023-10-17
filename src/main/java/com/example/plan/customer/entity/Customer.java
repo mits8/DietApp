@@ -1,7 +1,6 @@
 package com.example.plan.customer.entity;
 
 import com.example.plan.enums.Gender;
-import com.example.plan.food.entity.Food;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
@@ -12,8 +11,6 @@ import org.hibernate.validator.constraints.Length;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Data
@@ -56,8 +53,8 @@ public class Customer {
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
-    /*@OneToMany(mappedBy = "customer")
-    private List<Food> foods = new ArrayList<>();*/
+    /*@ManyToMany(mappedBy = "customers")
+    private Set<Food> foods = new HashSet<>();*/
 
     public Customer(Customer customer) {
     }

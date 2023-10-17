@@ -1,5 +1,6 @@
 package com.example.plan.food.controller;
 
+import com.example.plan.enums.Type;
 import com.example.plan.food.entity.Food;
 import com.example.plan.food.service.FoodService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/food")
@@ -28,7 +30,12 @@ public class FoodController {
         return new ResponseEntity<>(foodService.findById(id), HttpStatus.OK);
     }
 
-    @PostMapping("/create")
+    @GetMapping("/type")
+    public ResponseEntity<List<Food>> findByType(@RequestParam("type") Type type) {
+        return new ResponseEntity<>(foodService.findByType(type), HttpStatus.OK);
+    }
+
+    @PostMapping("/save/{id}")
     public ResponseEntity<String> save(@RequestBody Food food) {
         return foodService.save(food);
     }

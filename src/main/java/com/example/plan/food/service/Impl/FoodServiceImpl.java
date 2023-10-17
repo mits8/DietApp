@@ -3,17 +3,21 @@ package com.example.plan.food.service.Impl;
 import com.example.plan.constants.PlanConstants;
 import com.example.plan.customer.entity.Customer;
 import com.example.plan.customer.repository.CustomerRepository;
+import com.example.plan.enums.Type;
 import com.example.plan.food.entity.Food;
 import com.example.plan.food.repository.FoodRepository;
 import com.example.plan.food.service.FoodService;
 import com.example.plan.utils.PlanUtils;
+import jakarta.persistence.ManyToOne;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -45,10 +49,22 @@ public class FoodServiceImpl implements FoodService {
     }
 
     @Override
+    public List<Food> findByType(Type type) {
+            List<Food> food = foodRepository.findByType(type);
+            return food;
+    }
+
+    @Override
     public ResponseEntity<String> save(Food inputFood) {
         try {
             Food food = foodRepository.findByName(inputFood.getName());
+           // Customer customer = customerRepository.findCustomerById(id);
             if (Objects.isNull(food)) {
+                    inputFood.setName(inputFood.getName());
+                    inputFood.setGram(inputFood.getGram());
+                    inputFood.setCalories(inputFood.getCalories());
+                    inputFood.setType(inputFood.getType());
+            //        inputFood.setCustomer(customer);
                     foodRepository.save(inputFood);
             }else {
                 return new ResponseEntity<>("To φαγητό " + "\"" + food.getName() + "\"" + " υπάρχει ήδη..", HttpStatus.BAD_REQUEST);

@@ -46,7 +46,7 @@ public class CustomerServiceImpl implements CustomerService {
             int lengthLastName = customer.getLastName().length();
             Customer email = customerRepository.findByEmail(customer.getEmail());
             if (Objects.isNull(email)) {
-                if ((lengthFirstName > 5 && lengthFirstName < 30) && (lengthLastName > 5 && lengthLastName < 30)) {
+                if ((lengthFirstName >= 5 && lengthFirstName < 30) && (lengthLastName >= 5 && lengthLastName < 30)) {
                     customerRepository.save(customer);
                 }else {
                     return new ResponseEntity<>("Το μήκος πρέπει να είναι ανάμεσα '5-30..", HttpStatus.BAD_REQUEST);
@@ -54,7 +54,7 @@ public class CustomerServiceImpl implements CustomerService {
             } else {
                 return new ResponseEntity<>("Ο πελάτης με email" + customer.getEmail() + " υπάρχει ήδη..", HttpStatus.BAD_REQUEST);
             }
-            return new ResponseEntity<>("Ο πελάτης " + customer.getFirstName() + "\t" + customer.getLastName() + " γράφτηκε επιτυχώς!", HttpStatus.OK);
+            return new ResponseEntity<>("Ο πελάτης " + "\"" + customer.getFirstName() + " " + customer.getLastName() + "\"" + " γράφτηκε επιτυχώς!", HttpStatus.OK);
 
         } catch (Exception ex) {
             log.info("{}", ex);
@@ -80,7 +80,7 @@ public class CustomerServiceImpl implements CustomerService {
            } else {
                return new ResponseEntity<>( "Ο πελάτης ΔΕΝ βρέθηκε..", HttpStatus.BAD_REQUEST);
            }
-            return new ResponseEntity<>("Ο πελάτης " + customer.getFirstName() + "\t" + customer.getLastName() + " ενημερώθηκε επιτυχώς!", HttpStatus.OK);
+            return new ResponseEntity<>("Ο πελάτης " + "\"" + customer.getFirstName() + " " + customer.getLastName() + "\"" + " ενημερώθηκε επιτυχώς!", HttpStatus.OK);
         } catch (Exception ex) {
             log.info("{}", ex);
         }
@@ -96,7 +96,7 @@ public class CustomerServiceImpl implements CustomerService {
             } else {
                 return new ResponseEntity<>("Ο πελάτης ΔΕΝ βρέθηκε..", HttpStatus.BAD_REQUEST);
             }
-            return new ResponseEntity<> ("Ο πελάτης " + customer.get().getFirstName() + "\t" + customer.get().getLastName() + " διαγράφτηκε επιτυχώς!", HttpStatus.OK);
+            return new ResponseEntity<> ("Ο πελάτης " + "\"" + customer.get().getFirstName() + " " + customer.get().getLastName() + "\"" + " διαγράφτηκε επιτυχώς!", HttpStatus.OK);
         } catch (Exception ex) {
             log.info("{}", ex);
         }
