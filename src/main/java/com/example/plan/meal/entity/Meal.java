@@ -1,6 +1,5 @@
 package com.example.plan.meal.entity;
 
-import com.example.plan.customer.entity.Customer;
 import com.example.plan.enums.Type;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -28,10 +27,4 @@ public class Meal {
     @Enumerated(EnumType.STRING)
     private Type type;
 
-    /*@OneToMany(mappedBy = "meal",cascade = CascadeType.ALL)
-    Set<Food> foods = new HashSet<>();*/
-
-    /*@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "customer_id")
-    private Customer customer;*/
 }

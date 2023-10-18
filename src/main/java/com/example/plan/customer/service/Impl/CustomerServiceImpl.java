@@ -49,7 +49,6 @@ public class CustomerServiceImpl implements CustomerService {
             Customer email = customerRepository.findByEmail(customer.getEmail());
             if (Objects.isNull(email)) {
                 if ((lengthFirstName >= 5 && lengthFirstName < 30) && (lengthLastName >= 5 && lengthLastName < 30)) {
-                    customer.setMeals(customer.getMeals());
                     customerRepository.save(customer);
                 }else {
                     return new ResponseEntity<>("Το μήκος πρέπει να είναι ανάμεσα '5-30..", HttpStatus.BAD_REQUEST);

@@ -7,6 +7,7 @@ import com.example.plan.meal.entity.Meal;
 import com.example.plan.meal.repository.MealRepository;
 import com.example.plan.meal.service.MealService;
 import com.example.plan.utils.PlanUtils;
+import com.example.plan.weeklyPlan.repository.WeeklyPlanRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,14 +15,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+
 @Slf4j
 @Service
 public class MealServiceImpl implements MealService {
     @Autowired
     private MealRepository mealRepository;
+
+    @Autowired
+    private WeeklyPlanRepository weeklyPlanRepository;
 
     @Autowired
     private CustomerRepository customerRepository;
@@ -54,7 +58,6 @@ public class MealServiceImpl implements MealService {
     public ResponseEntity<String> save(Meal inputMeal) {
         try {
             Meal meal = mealRepository.findByName(inputMeal.getName());
-            // Customer customer = customerRepository.findCustomerById(id);
             if (Objects.isNull(meal)) {
                 inputMeal.setName(inputMeal.getName());
                 inputMeal.setQuantity(inputMeal.getQuantity());
@@ -69,14 +72,6 @@ public class MealServiceImpl implements MealService {
         }
         return PlanUtils.getResponseEntity(PlanConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
-   /* public Meal getMealFromMap(Map<String,String> requestMap) {
-        Meal meal = new Meal();
-        meal.setName(requestMap.get("name"));
-        meal.setQuantity(Double.parseDouble(requestMap.get("quantity")));
-        meal.setType(Type.valueOf(requestMap.get("type")));
-        return meal;
-    }*/
 
     @Override
     public ResponseEntity<String> update(Meal meal, int id) {

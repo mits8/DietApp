@@ -5,7 +5,6 @@ import com.example.plan.meal.entity.Meal;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
-import java.util.Map;
 
 public interface MealService {
     List<Meal> findAll();
