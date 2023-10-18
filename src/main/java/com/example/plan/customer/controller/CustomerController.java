@@ -29,10 +29,10 @@ public class CustomerController {
         return new ResponseEntity<>(customerService.findById(id), HttpStatus.OK);
     }
 
-    @PostMapping("/createCustomer")
+    @PostMapping("/save")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<String> createCustomer(@RequestBody Customer customer) {
-        return customerService.createCustomer(customer);
+        return customerService.save(customer);
     }
 
     @PutMapping("/update/{id}")

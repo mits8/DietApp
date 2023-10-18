@@ -4,6 +4,7 @@ import com.example.plan.constants.PlanConstants;
 import com.example.plan.customer.entity.Customer;
 import com.example.plan.customer.repository.CustomerRepository;
 import com.example.plan.customer.service.CustomerService;
+import com.example.plan.meal.entity.Meal;
 import com.example.plan.utils.PlanUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -40,13 +42,14 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public ResponseEntity<String> createCustomer(Customer customer) {
+    public ResponseEntity<String> save(Customer customer) {
         try {
             int lengthFirstName = customer.getFirstName().length();
             int lengthLastName = customer.getLastName().length();
             Customer email = customerRepository.findByEmail(customer.getEmail());
             if (Objects.isNull(email)) {
                 if ((lengthFirstName >= 5 && lengthFirstName < 30) && (lengthLastName >= 5 && lengthLastName < 30)) {
+                    customer.setMeals(customer.getMeals());
                     customerRepository.save(customer);
                 }else {
                     return new ResponseEntity<>("Το μήκος πρέπει να είναι ανάμεσα '5-30..", HttpStatus.BAD_REQUEST);

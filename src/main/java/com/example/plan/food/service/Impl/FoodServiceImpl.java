@@ -64,6 +64,7 @@ public class FoodServiceImpl implements FoodService {
                     inputFood.setGram(inputFood.getGram());
                     inputFood.setCalories(inputFood.getCalories());
                     inputFood.setType(inputFood.getType());
+            //        inputFood.setMeal(inputFood.getMeal());
             //        inputFood.setCustomer(customer);
                     foodRepository.save(inputFood);
             }else {

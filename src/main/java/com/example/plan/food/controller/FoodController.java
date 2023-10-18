@@ -35,7 +35,7 @@ public class FoodController {
         return new ResponseEntity<>(foodService.findByType(type), HttpStatus.OK);
     }
 
-    @PostMapping("/save/{id}")
+    @PostMapping("/save")
     public ResponseEntity<String> save(@RequestBody Food food) {
         return foodService.save(food);
     }

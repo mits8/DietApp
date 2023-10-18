@@ -1,22 +1,18 @@
-package com.example.plan.food.entity;
+package com.example.plan.meal.entity;
 
 import com.example.plan.customer.entity.Customer;
 import com.example.plan.enums.Type;
-import com.example.plan.meal.entity.Meal;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.HashSet;
-import java.util.Set;
-
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "food")
-public class Food {
+@Table(name = "meal")
+public class Meal {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,16 +22,16 @@ public class Food {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "gram")
-    private double gram;
-
-    @Column(name = "calories")
-    private double calories;
+    @Column(name = "quantity")
+    private double quantity;
 
     @Enumerated(EnumType.STRING)
     private Type type;
 
-    /*@ManyToOne
-    @JoinColumn(name = "meal_id")
-    private Meal meal = new Meal();*/
+    /*@OneToMany(mappedBy = "meal",cascade = CascadeType.ALL)
+    Set<Food> foods = new HashSet<>();*/
+
+    /*@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "customer_id")
+    private Customer customer;*/
 }

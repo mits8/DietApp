@@ -10,7 +10,7 @@ public interface CustomerService {
 
     Customer findById(int id);
 
-    ResponseEntity<String> createCustomer(Customer customer);
+    ResponseEntity<String> save(Customer customer);
 
     ResponseEntity<String> updateCustomer(Customer customer, int id);
 
