@@ -1,0 +1,29 @@
+package com.example.plan.weeklyPlan.controller;
+
+import com.example.plan.weeklyPlan.dto.WeeklyPlanMealDTO;
+import com.example.plan.weeklyPlan.entity.WeeklyPlan;
+import com.example.plan.weeklyPlan.service.WeeklyPlanService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/weeklyPlan")
+public class WeeklyPlanController {
+
+    @Autowired
+    private WeeklyPlanService weeklyPlanService;
+
+    @GetMapping("/findAll")
+    public ResponseEntity<List<WeeklyPlanMealDTO>> findAll(){
+        return new ResponseEntity<>(weeklyPlanService.findAll(), HttpStatus.OK);
+    }
+
+    @PostMapping("/save")
+    public ResponseEntity<String> save(@RequestBody WeeklyPlan weeklyPlan){
+        return weeklyPlanService.save(weeklyPlan);
+    }
+}

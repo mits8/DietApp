@@ -53,17 +53,13 @@ public class FoodServiceImpl implements FoodService {
     @Override
     public ResponseEntity<String> save(Food inputFood) {
         try {
-            Food food = foodRepository.findByName(inputFood.getName());
-            if (Objects.isNull(food)) {
-                    inputFood.setName(inputFood.getName());
-                    inputFood.setGram(inputFood.getGram());
-                    inputFood.setCalories(inputFood.getCalories());
-                    inputFood.setType(inputFood.getType());
+            Food existingFood = foodRepository.findByName(inputFood.getName());
+            if (Objects.isNull(existingFood)) {
                     foodRepository.save(inputFood);
             }else {
-                return new ResponseEntity<>("To φαγητό " + "\"" + food.getName() + "\"" + " υπάρχει ήδη..", HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>("To φαγητό " + "\"" + inputFood.getName() + "\"" + " υπάρχει ήδη..", HttpStatus.BAD_REQUEST);
             }
-            return new ResponseEntity<>("To φαγητό " + inputFood.getName() + " γράφτηκε επιτυχώς!", HttpStatus.OK);
+            return new ResponseEntity<>("To φαγητό " + inputFood.getName() + " γράφτηκε επιτυχώς!", HttpStatus.CREATED);
         } catch (Exception ex) {
             log.info("{}", ex);
         }
@@ -71,19 +67,22 @@ public class FoodServiceImpl implements FoodService {
     }
 
     @Override
-    public ResponseEntity<String> update(Food food, int id) {
+    public ResponseEntity<String> update(Food inputFood, int id) {
         try {
             Optional<Food> existingFood = foodRepository.findById(id);
             if (existingFood.isPresent()){
-                Food updateFood = existingFood.get();
-                updateFood.setName(food.getName());
-                updateFood.setGram(food.getGram());
-                updateFood.setCalories(food.getCalories());
-                foodRepository.save(updateFood);
+                Food food = existingFood.get();
+                food.setName(inputFood.getName());
+                food.setDescription(inputFood.getDescription());
+                food.setQuantity(inputFood.getQuantity());
+                food.setGram(inputFood.getGram());
+                food.setCalories(inputFood.getCalories());
+                food.setType(inputFood.getType());
+                foodRepository.save(food);
             } else {
                 return new ResponseEntity<>("Το φαγητό ΔΕΝ βρέθηκε..", HttpStatus.BAD_REQUEST);
             }
-            return new ResponseEntity<>("Το φαγητό " + food.getName() + " ενημερώθηκε επιτυχώς!", HttpStatus.OK);
+            return new ResponseEntity<>("Το φαγητό " + inputFood.getName() + " ενημερώθηκε επιτυχώς!", HttpStatus.OK);
         } catch (Exception ex) {
             log.info("{}", ex);
         }

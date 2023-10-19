@@ -26,6 +26,12 @@ public class Food {
     @Column(name = "name")
     private String name;
 
+    @Column(name = "description")
+    private String description;
+
+    @Column(name = "quantity")
+    private double quantity;
+
     @Column(name = "gram")
     private double gram;
 
@@ -35,7 +41,6 @@ public class Food {
     @Enumerated(EnumType.STRING)
     private Type type;
 
-    /*@ManyToOne
-    @JoinColumn(name = "meal_id")
-    private Meal meal = new Meal();*/
+    @ManyToMany(mappedBy = "foods")
+    private Set<Meal> meals = new HashSet<>();
 }

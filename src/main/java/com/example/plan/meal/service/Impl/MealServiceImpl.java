@@ -59,14 +59,11 @@ public class MealServiceImpl implements MealService {
         try {
             Meal meal = mealRepository.findByName(inputMeal.getName());
             if (Objects.isNull(meal)) {
-                inputMeal.setName(inputMeal.getName());
-                inputMeal.setQuantity(inputMeal.getQuantity());
-                inputMeal.setType(inputMeal.getType());
                 mealRepository.save(inputMeal);
             }else {
                 return new ResponseEntity<>("Το γεύμα " + "\"" + inputMeal.getName() + "\"" + " υπάρχει ήδη..", HttpStatus.BAD_REQUEST);
             }
-            return new ResponseEntity<>("Το γεύμα " + "\"" + inputMeal.getName() + "\"" + " γράφτηκε επιτυχώς!", HttpStatus.OK);
+            return new ResponseEntity<>("Το γεύμα " + "\"" + inputMeal.getName() + "\"" + " γράφτηκε επιτυχώς!", HttpStatus.CREATED);
         } catch (Exception ex) {
             log.info("{}", ex);
         }
@@ -80,7 +77,7 @@ public class MealServiceImpl implements MealService {
             if (existingMeal.isPresent()){
                 Meal updateMeal = existingMeal.get();
                 updateMeal.setName(meal.getName());
-                updateMeal.setQuantity(meal.getQuantity());
+                updateMeal.setDescription(meal.getDescription());
                 updateMeal.setType(meal.getType());
                 mealRepository.save(updateMeal);
             } else {
