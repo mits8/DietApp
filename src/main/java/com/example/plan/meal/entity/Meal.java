@@ -9,8 +9,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -39,9 +39,9 @@ public class Meal {
             joinColumns = @JoinColumn(name = "meal_id"),
             inverseJoinColumns = @JoinColumn(name = "food_id")
     )
-    private Set<Food> foods = new HashSet<>();
+    private List<Food> foods = new ArrayList<>();
 
     @ManyToMany(mappedBy = "meals")
-    private Set<WeeklyPlan> plans = new HashSet<>();
+    private List<WeeklyPlan> plans = new ArrayList<>();
 
 }

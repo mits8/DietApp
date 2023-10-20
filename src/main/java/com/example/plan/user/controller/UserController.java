@@ -1,6 +1,6 @@
 package com.example.plan.user.controller;
 
-import com.example.plan.user.dto.ChangePasswordDTO;
+import com.example.plan.dto.ChangePasswordDTO;
 import com.example.plan.user.entity.UserInfo;
 import com.example.plan.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;

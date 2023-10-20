@@ -2,7 +2,7 @@ package com.example.plan.user.service.Impl;
 
 import com.example.plan.constants.PlanConstants;
 import com.example.plan.security.auth.service.Impl.AuthEncryptDecrypt;
-import com.example.plan.user.dto.ChangePasswordDTO;
+import com.example.plan.dto.ChangePasswordDTO;
 import com.example.plan.user.entity.UserInfo;
 import com.example.plan.user.repository.UserInfoRepository;
 import com.example.plan.user.service.UserService;

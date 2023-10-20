@@ -1,6 +1,5 @@
 package com.example.plan.food.entity;
 
-import com.example.plan.customer.entity.Customer;
 import com.example.plan.enums.Type;
 import com.example.plan.meal.entity.Meal;
 import jakarta.persistence.*;
@@ -8,8 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -42,5 +41,5 @@ public class Food {
     private Type type;
 
     @ManyToMany(mappedBy = "foods")
-    private Set<Meal> meals = new HashSet<>();
+    private List<Meal> meals = new ArrayList<>();
 }

@@ -1,9 +1,12 @@
 package com.example.plan.customer.service.Impl;
 
 import com.example.plan.constants.PlanConstants;
+import com.example.plan.dto.CustomerDTO;
 import com.example.plan.customer.entity.Customer;
 import com.example.plan.customer.repository.CustomerRepository;
 import com.example.plan.customer.service.CustomerService;
+import com.example.plan.dto.CustomerWeeklyPlanDTO;
+import com.example.plan.map.Mapper;
 import com.example.plan.utils.PlanUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -22,10 +26,30 @@ public class CustomerServiceImpl implements CustomerService {
     @Autowired
     private CustomerRepository customerRepository;
 
+    @Autowired
+    private Mapper mapper;
+
+
     @Override
-    public List<Customer> findAll() {
-        return customerRepository.findAll();
+    public List<CustomerDTO> findAll() {
+        List<Customer> customers = customerRepository.findAll();
+        List<CustomerDTO> customerDTOS= customers.stream()
+                .map(mapper::mapCustomerToCustomerDTO)
+                .collect(Collectors.toList());
+
+        return customerDTOS;
     }
+
+    @Override
+    public List<CustomerWeeklyPlanDTO> findCustomerWithWeeklyPlan() {
+        List<Customer> customers = customerRepository.findAll();
+        List<CustomerWeeklyPlanDTO> customerWeeklyPlanDTOS= customers.stream()
+                .map(mapper::customerWeeklyPlanDTO)
+                .collect(Collectors.toList());
+
+        return customerWeeklyPlanDTOS;
+    }
+
 
     @Override
     public Customer findById(int id) {
@@ -63,24 +87,23 @@ public class CustomerServiceImpl implements CustomerService {
         }
 
     @Override
-    public ResponseEntity<String> updateCustomer(Customer customer, int id) {
+    public ResponseEntity<String> updateCustomer(CustomerDTO customerDTO, int id) {
         try {
            Optional<Customer> existingCustomer = customerRepository.findById(id);
            if (existingCustomer.isPresent()) {
                Customer updateCustomer = existingCustomer.get();
-               updateCustomer.setFirstName(customer.getFirstName());
-               updateCustomer.setLastName(customer.getLastName());
-               updateCustomer.setEmail(customer.getEmail());
-               updateCustomer.setPhone(customer.getPhone());
-               updateCustomer.setCity(customer.getCity());
-               updateCustomer.setAddress(customer.getAddress());
-               updateCustomer.setBirthday(customer.getBirthday());
-               updateCustomer.setGender(customer.getGender());
+               updateCustomer.setFirstName(customerDTO.getFirstName());
+               updateCustomer.setLastName(customerDTO.getLastName());
+               updateCustomer.setEmail(customerDTO.getEmail());
+               updateCustomer.setPhone(customerDTO.getPhone());
+               updateCustomer.setAddress(customerDTO.getAddress());
+               updateCustomer.setBirthday(customerDTO.getBirthday());
+               updateCustomer.setGender(customerDTO.getGender());
                customerRepository.save(updateCustomer);
            } else {
                return new ResponseEntity<>( "Ο πελάτης ΔΕΝ βρέθηκε..", HttpStatus.BAD_REQUEST);
            }
-            return new ResponseEntity<>("Ο πελάτης " + "\"" + customer.getFirstName() + " " + customer.getLastName() + "\"" + " ενημερώθηκε επιτυχώς!", HttpStatus.OK);
+            return new ResponseEntity<>("Ο πελάτης " + "\"" + customerDTO.getFirstName() + " " + customerDTO.getLastName() + "\"" + " ενημερώθηκε επιτυχώς!", HttpStatus.OK);
         } catch (Exception ex) {
             log.info("{}", ex);
         }

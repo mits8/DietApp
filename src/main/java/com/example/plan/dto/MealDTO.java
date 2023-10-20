@@ -1,4 +1,4 @@
-package com.example.plan.meal.dto;
+package com.example.plan.dto;
 
 import com.example.plan.enums.Type;
 import jakarta.persistence.EnumType;

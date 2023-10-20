@@ -1,7 +1,6 @@
 package com.example.plan.email.service;
 
-import com.example.plan.security.auth.AuthRequest;
-import com.example.plan.user.dto.EmailDTO;
+import com.example.plan.dto.EmailDTO;
 import org.springframework.http.ResponseEntity;
 
 public interface EmailService {

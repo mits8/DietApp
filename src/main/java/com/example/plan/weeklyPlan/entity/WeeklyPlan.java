@@ -7,15 +7,18 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "weekly_plan")
+@ToString(exclude = "meals")
 public class WeeklyPlan {
 
     @Id
@@ -38,9 +41,15 @@ public class WeeklyPlan {
             joinColumns = @JoinColumn(name = "weekly_plan_id"),
             inverseJoinColumns = @JoinColumn(name = "meal_id")
     )
-    private Set<Meal> meals = new HashSet<>();
+    private List<Meal> meals = new ArrayList<>();
 
-    @ManyToMany(mappedBy = "plans")
-    private Set<Customer> customers = new HashSet<>();
+    @ManyToMany
+    @JoinTable(
+            name = "customer_weekly_plan",
+            joinColumns = @JoinColumn(name = "customer_id"),
+            inverseJoinColumns = @JoinColumn(name = "weekly_plan_id")
+    )
+
+    private List<Customer> customers = new ArrayList<>();
 
 }

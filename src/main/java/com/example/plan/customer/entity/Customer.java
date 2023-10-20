@@ -4,21 +4,21 @@ import com.example.plan.enums.Gender;
 import com.example.plan.weeklyPlan.entity.WeeklyPlan;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@ToString(exclude = "plans")
 @Table(name = "customer")
 public class Customer {
     @Id
@@ -34,7 +34,7 @@ public class Customer {
     @Column(name = "lastName")
     private String lastName;
 
-    @NotNull
+
     @Email
     @Column(name = "email",  unique = true)
     private String email;
@@ -56,14 +56,8 @@ public class Customer {
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
-
-    @ManyToMany
-    @JoinTable(
-            name = "customer_weekly_plan",
-            joinColumns = @JoinColumn(name = "customer_id"),
-            inverseJoinColumns = @JoinColumn(name = "weekly_plan_id")
-    )
-    private Set<WeeklyPlan> plans = new HashSet<>();
+    @ManyToMany (mappedBy = "customers")
+    private List<WeeklyPlan> plans = new ArrayList<>();
 
 
     public Customer(Customer customer) {

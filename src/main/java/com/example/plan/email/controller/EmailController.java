@@ -1,7 +1,7 @@
 package com.example.plan.email.controller;
 
 import com.example.plan.email.service.EmailService;
-import com.example.plan.user.dto.EmailDTO;
+import com.example.plan.dto.EmailDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

@@ -1,6 +1,7 @@
 package com.example.plan.weeklyPlan.controller;
 
-import com.example.plan.weeklyPlan.dto.WeeklyPlanMealDTO;
+import com.example.plan.utils.ResponseMessageWithEntity;
+import com.example.plan.dto.WeeklyPlanMealCustomerDTO;
 import com.example.plan.weeklyPlan.entity.WeeklyPlan;
 import com.example.plan.weeklyPlan.service.WeeklyPlanService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +19,12 @@ public class WeeklyPlanController {
     private WeeklyPlanService weeklyPlanService;
 
     @GetMapping("/findAll")
-    public ResponseEntity<List<WeeklyPlanMealDTO>> findAll(){
+    public ResponseEntity<List<WeeklyPlanMealCustomerDTO>> findAll(){
         return new ResponseEntity<>(weeklyPlanService.findAll(), HttpStatus.OK);
     }
 
     @PostMapping("/save")
-    public ResponseEntity<String> save(@RequestBody WeeklyPlan weeklyPlan){
+    public ResponseEntity<ResponseMessageWithEntity> save(@RequestBody WeeklyPlan weeklyPlan){
         return weeklyPlanService.save(weeklyPlan);
     }
 }

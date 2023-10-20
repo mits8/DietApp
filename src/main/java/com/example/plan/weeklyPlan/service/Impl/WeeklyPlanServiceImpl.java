@@ -1,102 +1,112 @@
 package com.example.plan.weeklyPlan.service.Impl;
 
 import com.example.plan.constants.PlanConstants;
-import com.example.plan.meal.dto.MealDTO;
+import com.example.plan.customer.entity.Customer;
+import com.example.plan.customer.repository.CustomerRepository;
+import com.example.plan.map.Mapper;
 import com.example.plan.meal.entity.Meal;
 import com.example.plan.meal.repository.MealRepository;
-import com.example.plan.meal.service.MealService;
-import com.example.plan.utils.PlanUtils;
-import com.example.plan.weeklyPlan.dto.WeeklyPlanMealDTO;
+import com.example.plan.utils.ResponseMessageWithEntity;
+import com.example.plan.dto.WeeklyPlanMealCustomerDTO;
 import com.example.plan.weeklyPlan.entity.WeeklyPlan;
 import com.example.plan.weeklyPlan.repository.WeeklyPlanRepository;
 import com.example.plan.weeklyPlan.service.WeeklyPlanService;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@Transactional
 public class WeeklyPlanServiceImpl implements WeeklyPlanService {
 
     @Autowired
-    private MealService mealService;
+    private CustomerRepository customerRepository;
     @Autowired
     private MealRepository mealRepository;
 
     @Autowired
     private WeeklyPlanRepository weeklyPlanRepository;
 
+    private final Mapper mapper;
+
+    public WeeklyPlanServiceImpl(Mapper mapper) {
+        this.mapper = mapper;
+    }
+
+
+
+
     @Override
-    public List<WeeklyPlanMealDTO> findAll() {
+    public List<WeeklyPlanMealCustomerDTO> findAll() {
 
         List<WeeklyPlan> weeklyPlans = weeklyPlanRepository.findAll();
-        List<WeeklyPlanMealDTO> weeklyPlanMealDTOs = new ArrayList<>();
-
-
-        for (WeeklyPlan weeklyPlan : weeklyPlans) {
-            WeeklyPlanMealDTO dto = mapToWeeklyPlanMealDTO(weeklyPlan);
-            weeklyPlanMealDTOs.add(dto);
-        }
+        List<WeeklyPlanMealCustomerDTO> weeklyPlanMealDTOs = weeklyPlans.stream()
+                .map(mapper::mapWeeklyPlanToMealDTO)
+                .collect(Collectors.toList());
 
         return weeklyPlanMealDTOs;
     }
 
-    private WeeklyPlanMealDTO mapToWeeklyPlanMealDTO(WeeklyPlan weeklyPlan) {
-        WeeklyPlanMealDTO dto = new WeeklyPlanMealDTO();
-        dto.setId(weeklyPlan.getId());
-        dto.setWeeklyPlanName(weeklyPlan.getName());
 
-        // You'll need to map the set of Meal entities to MealDTO objects
-        Set<MealDTO> mealDTOs = weeklyPlan.getMeals().stream()
-                .map(this::mapMealToMealDTO)
-                .collect(Collectors.toSet());
-        dto.setMeals(mealDTOs);
-
-        return dto;
-    }
-
-    private MealDTO mapMealToMealDTO(Meal meal) {
-        MealDTO mealDTO = new MealDTO();
-        mealDTO.setId(meal.getId());
-        mealDTO.setName(meal.getName());
-        mealDTO.setDescription(meal.getDescription());
-        mealDTO.setType(meal.getType());
-
-        // You can map any associated entities (e.g., foods) to DTOs here
-
-        return mealDTO;
-    }
 
     @Override
-    public ResponseEntity<String> save(WeeklyPlan inputWeeklyPlan) {
+    public ResponseEntity<ResponseMessageWithEntity> save(WeeklyPlan inputWeeklyPlan) {
         try {
             WeeklyPlan existingPlan = weeklyPlanRepository.findByName(inputWeeklyPlan.getName());
 
             if (Objects.isNull(existingPlan)) {
 
-                Set<Meal> mealsToSave = inputWeeklyPlan.getMeals().stream()
+                boolean allCustomerEmailsNonNull = inputWeeklyPlan.getCustomers().stream()
+                        .allMatch(customer -> customer.getEmail() != null);
+
+                if (!allCustomerEmailsNonNull) {
+                    String message = "Το email είναι υποχρεωτικό..";
+                    ResponseMessageWithEntity response = new ResponseMessageWithEntity(message, null);
+                    return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+                }
+
+                List<Meal> meals = inputWeeklyPlan.getMeals().stream()
                         .filter(meal -> meal.getId() == 0)
                         .map(meal -> mealRepository.save(meal))
-                        .collect(Collectors.toSet());
+                        .collect(Collectors.toList());
+                inputWeeklyPlan.setMeals(meals);
 
-                inputWeeklyPlan.setMeals(mealsToSave);
+
+                    List<Customer> customers = inputWeeklyPlan.getCustomers().stream()
+                            .filter(customer -> customer.getId() == 0)
+                            .filter(customer -> { Customer existingCustomer = customerRepository.findByEmail(customer.getEmail());
+                            if (!Objects.isNull(existingCustomer)) {
+                                throw new RuntimeException("To email " + existingCustomer.getEmail() + " υπάρχει ήδη..");
+                            }
+                            return true;
+                            })
+                            .map(customer -> customerRepository.save(customer))
+                            .collect(Collectors.toList());
+                    inputWeeklyPlan.setCustomers(customers);
+
                 weeklyPlanRepository.save(inputWeeklyPlan);
 
-                return new ResponseEntity<>("Το πλάνο " + "\"" + inputWeeklyPlan.getName() + "\"" + " γράφτηκε επιτυχώς!", HttpStatus.CREATED);
+                String message = "Το πλάνο " +  inputWeeklyPlan.getName() +  " γράφτηκε επιτυχώς!";
+                ResponseMessageWithEntity response = new ResponseMessageWithEntity(message, inputWeeklyPlan);
+                return new ResponseEntity<>(response, HttpStatus.CREATED);
             } else {
-                return new ResponseEntity<>("Το πλάνο " + "\"" + existingPlan.getName() + "\"" + " υπάρχει ήδη..", HttpStatus.BAD_REQUEST);
+                String message = "Το πλάνο " + "'" + existingPlan.getName() + "'" + " υπάρχει ήδη..";
+                ResponseMessageWithEntity response = new ResponseMessageWithEntity(message, null);
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
         } catch (Exception ex) {
             log.error("Error while saving WeeklyPlan: {}", ex);
-            return PlanUtils.getResponseEntity(PlanConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+            String message = PlanConstants.SOMETHING_WENT_WRONG;
+            ResponseMessageWithEntity response = new ResponseMessageWithEntity(message, null);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

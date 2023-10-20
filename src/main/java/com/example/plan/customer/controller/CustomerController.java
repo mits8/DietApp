@@ -1,7 +1,9 @@
 package com.example.plan.customer.controller;
 
+import com.example.plan.dto.CustomerDTO;
 import com.example.plan.customer.entity.Customer;
 import com.example.plan.customer.service.CustomerService;
+import com.example.plan.dto.CustomerWeeklyPlanDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,8 +21,14 @@ public class CustomerController {
 
     @GetMapping("/findAll")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<List<Customer>> findAll() {
+    public ResponseEntity<List<CustomerDTO>> findAll() {
         return new ResponseEntity<>(customerService.findAll(), HttpStatus.OK);
+    }
+
+    @GetMapping("/find/customer-weekly_plan")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<List<CustomerWeeklyPlanDTO>> findCustomerWithWeeklyPlan() {
+        return new ResponseEntity<>(customerService.findCustomerWithWeeklyPlan(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
@@ -37,7 +45,7 @@ public class CustomerController {
 
     @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<String> updateCustomer(@RequestBody Customer customer, @PathVariable int id) {
+    public ResponseEntity<String> updateCustomer(@RequestBody CustomerDTO customer, @PathVariable int id) {
         return customerService.updateCustomer(customer, id);
     }
 

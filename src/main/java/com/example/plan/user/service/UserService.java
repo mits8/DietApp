@@ -1,6 +1,6 @@
 package com.example.plan.user.service;
 
-import com.example.plan.user.dto.ChangePasswordDTO;
+import com.example.plan.dto.ChangePasswordDTO;
 import com.example.plan.user.entity.UserInfo;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

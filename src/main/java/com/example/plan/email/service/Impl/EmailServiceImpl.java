@@ -2,7 +2,7 @@ package com.example.plan.email.service.Impl;
 
 import com.example.plan.email.service.EmailService;
 import com.example.plan.security.auth.service.Impl.AuthEncryptDecrypt;
-import com.example.plan.user.dto.EmailDTO;
+import com.example.plan.dto.EmailDTO;
 import com.example.plan.user.entity.UserInfo;
 import com.example.plan.user.repository.UserInfoRepository;
 import jakarta.mail.internet.MimeMessage;

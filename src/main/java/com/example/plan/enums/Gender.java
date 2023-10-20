@@ -1,7 +1,7 @@
 package com.example.plan.enums;
 
 public enum Gender {
-    MALE,
-    FEMALE,
-    OTHER
+    Άντρας,
+    Γυναίκα,
+    Κάτι_Άλλο
 }
