@@ -33,8 +33,7 @@ public class Customer {
     @Length(min= 5, max = 30)
     @Column(name = "lastName")
     private String lastName;
-
-
+    
     @Email
     @Column(name = "email",  unique = true)
     private String email;

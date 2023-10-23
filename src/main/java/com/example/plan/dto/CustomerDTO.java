@@ -27,6 +27,8 @@ public class CustomerDTO {
     @Length(min = 10, max = 10)
     private String phone;
 
+    private String city;
+
     private String address;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")

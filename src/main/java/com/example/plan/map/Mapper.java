@@ -75,6 +75,35 @@ public class Mapper {
         return customerDTO;
     }
 
+    public Customer mapCustomerDTOToCustomer(CustomerDTO customerDTO) {
+        Customer customer = new Customer();
+        customer.setId(customerDTO.getId());
+        customer.setFirstName(customerDTO.getFirstName());
+        customer.setLastName(customerDTO.getLastName());
+        customer.setEmail(customerDTO.getEmail());
+        customer.setPhone(customerDTO.getPhone());
+        customer.setCity(customerDTO.getCity());
+        customer.setAddress(customer.getAddress());
+        customer.setBirthday(customerDTO.getBirthday());
+        customer.setGender(customerDTO.getGender());
+        return customer;
+    }
+
+    public Customer mapCustomerWeeklyPlanDTOToCustomer(CustomerWeeklyPlanDTO customerWeeklyPlanDTO) {
+        Customer customer = new Customer();
+        customer.setId(customerWeeklyPlanDTO.getId());
+        customer.setFirstName(customerWeeklyPlanDTO.getFirstName());
+        customer.setLastName(customerWeeklyPlanDTO.getLastName());
+        customer.setEmail(customerWeeklyPlanDTO.getEmail());
+        customer.setPhone(customerWeeklyPlanDTO.getPhone());
+        customer.setCity(customerWeeklyPlanDTO.getCity());
+        customer.setAddress(customer.getAddress());
+        customer.setBirthday(customerWeeklyPlanDTO.getBirthday());
+        customer.setGender(customerWeeklyPlanDTO.getGender());
+        return customer;
+    }
+
+
     public WeeklyPlanDTO weeklyPlanToWeeklyPlanDTO(WeeklyPlan weeklyPlan) {
         WeeklyPlanDTO weeklyPlanDTO = new WeeklyPlanDTO();
         weeklyPlanDTO.setId(weeklyPlan.getId());
@@ -84,6 +113,19 @@ public class Mapper {
 
         return weeklyPlanDTO;
     }
+
+    public WeeklyPlan mapWeeklyPlanDTOToWeeklyPlan(WeeklyPlanDTO weeklyPlanDTO) {
+        WeeklyPlan weeklyPlan = new WeeklyPlan();
+        weeklyPlan.setId(weeklyPlanDTO.getId());
+        weeklyPlan.setName(weeklyPlanDTO.getName());
+        weeklyPlan.setDuration(weeklyPlanDTO.getDuration());
+        weeklyPlan.setStartDate(weeklyPlanDTO.getStartDate());
+        weeklyPlan.setEndDate(weeklyPlanDTO.getEndDate());
+
+        return weeklyPlan;
+    }
+
+
 
     public Mapper() {
     }

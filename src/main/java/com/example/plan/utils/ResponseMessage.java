@@ -11,7 +11,6 @@ public class ResponseMessage {
 
     private String message;
     private WeeklyPlan weeklyPlan;
-
     private CustomerDTO customerDTO;
 
     public ResponseMessage(String message, WeeklyPlan weeklyPlan) {
