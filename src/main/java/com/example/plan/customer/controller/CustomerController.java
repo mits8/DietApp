@@ -33,7 +33,7 @@ public class CustomerController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<Customer> getById(@PathVariable int id) {
+    public ResponseEntity<CustomerDTO> getById(@PathVariable int id) {
         return new ResponseEntity<>(customerService.findById(id), HttpStatus.OK);
     }
 
@@ -41,6 +41,12 @@ public class CustomerController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<String> createCustomer(@RequestBody Customer customer) {
         return customerService.save(customer);
+    }
+
+    @PostMapping("/save/customer/weekly-plan")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<String> createCustomerWithWeeklyPlan(@RequestBody Customer customer) {
+        return customerService.saveCustomerWithWeeklyPlan(customer);
     }
 
     @PutMapping("/update/{id}")
@@ -53,5 +59,10 @@ public class CustomerController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<String> deleteCustomer(@PathVariable int  id) {
         return customerService.deleteCustomer(id);
+    }
+    @DeleteMapping("/delete/customer/{customerId}/weekly-plan/{weeklyPlanId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<String> deleteCustomerAndWeeklyPlanById(@PathVariable int  customerId, @PathVariable int weeklyPlanId) {
+        return customerService.deleteCustomerAndWeeklyPlanById(customerId, weeklyPlanId);
     }
 }

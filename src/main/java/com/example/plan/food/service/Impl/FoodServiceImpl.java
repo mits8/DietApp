@@ -6,6 +6,8 @@ import com.example.plan.enums.Type;
 import com.example.plan.food.entity.Food;
 import com.example.plan.food.repository.FoodRepository;
 import com.example.plan.food.service.FoodService;
+import com.example.plan.meal.entity.Meal;
+import com.example.plan.meal.repository.MealRepository;
 import com.example.plan.utils.PlanUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -26,6 +29,9 @@ public class FoodServiceImpl implements FoodService {
 
     @Autowired
     private CustomerRepository customerRepository;
+
+    @Autowired
+    private MealRepository mealRepository;
 
     @Override
     public List<Food> findAll() {
@@ -55,6 +61,13 @@ public class FoodServiceImpl implements FoodService {
         try {
             Food existingFood = foodRepository.findByName(inputFood.getName());
             if (Objects.isNull(existingFood)) {
+                if (!inputFood.getMeals().isEmpty()) {
+                    List<Meal> meals = inputFood.getMeals().stream()
+                            .filter(meal -> meal.getId() == 0)
+                            .map(meal -> mealRepository.save(meal))
+                            .collect(Collectors.toList());
+                    inputFood.setMeals(meals);
+                }
                     foodRepository.save(inputFood);
             }else {
                 return new ResponseEntity<>("To φαγητό " + "\"" + inputFood.getName() + "\"" + " υπάρχει ήδη..", HttpStatus.BAD_REQUEST);

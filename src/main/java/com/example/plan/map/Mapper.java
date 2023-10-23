@@ -63,18 +63,22 @@ public class Mapper {
 
     public CustomerDTO mapCustomerToCustomerDTO(Customer customer){
         CustomerDTO customerDTO = new CustomerDTO();
+        customerDTO.setId(customer.getId());
         customerDTO.setFirstName(customer.getFirstName());
         customerDTO.setLastName(customer.getLastName());
         customerDTO.setEmail(customer.getEmail());
         customerDTO.setPhone(customer.getPhone());
+        customerDTO.setAddress(customer.getAddress());
+        customerDTO.setBirthday(customer.getBirthday());
+        customerDTO.setGender(customer.getGender());
 
         return customerDTO;
     }
 
     public WeeklyPlanDTO weeklyPlanToWeeklyPlanDTO(WeeklyPlan weeklyPlan) {
         WeeklyPlanDTO weeklyPlanDTO = new WeeklyPlanDTO();
-        weeklyPlanDTO.setId(weeklyPlanDTO.getId());
-        weeklyPlan.setName(weeklyPlan.getName());
+        weeklyPlanDTO.setId(weeklyPlan.getId());
+        weeklyPlanDTO.setName(weeklyPlan.getName());
         weeklyPlanDTO.setStartDate(weeklyPlan.getStartDate());
         weeklyPlanDTO.setEndDate(weeklyPlan.getEndDate());
 

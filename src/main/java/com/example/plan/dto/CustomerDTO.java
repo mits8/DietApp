@@ -36,5 +36,6 @@ public class CustomerDTO {
     private Gender gender;
 
 
-
+    public CustomerDTO(String errorMessage, Object o) {
+    }
 }

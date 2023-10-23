@@ -3,11 +3,10 @@ package com.example.plan.weeklyPlan.service.Impl;
 import com.example.plan.constants.PlanConstants;
 import com.example.plan.customer.entity.Customer;
 import com.example.plan.customer.repository.CustomerRepository;
-import com.example.plan.map.Mapper;
-import com.example.plan.meal.entity.Meal;
-import com.example.plan.meal.repository.MealRepository;
-import com.example.plan.utils.ResponseMessageWithEntity;
 import com.example.plan.dto.WeeklyPlanMealCustomerDTO;
+import com.example.plan.map.Mapper;
+import com.example.plan.meal.repository.MealRepository;
+import com.example.plan.utils.ResponseMessage;
 import com.example.plan.weeklyPlan.entity.WeeklyPlan;
 import com.example.plan.weeklyPlan.repository.WeeklyPlanRepository;
 import com.example.plan.weeklyPlan.service.WeeklyPlanService;
@@ -58,7 +57,7 @@ public class WeeklyPlanServiceImpl implements WeeklyPlanService {
 
 
     @Override
-    public ResponseEntity<ResponseMessageWithEntity> save(WeeklyPlan inputWeeklyPlan) {
+    public ResponseEntity<ResponseMessage> save(WeeklyPlan inputWeeklyPlan) {
         try {
             WeeklyPlan existingPlan = weeklyPlanRepository.findByName(inputWeeklyPlan.getName());
 
@@ -69,43 +68,44 @@ public class WeeklyPlanServiceImpl implements WeeklyPlanService {
 
                 if (!allCustomerEmailsNonNull) {
                     String message = "Το email είναι υποχρεωτικό..";
-                    ResponseMessageWithEntity response = new ResponseMessageWithEntity(message, null);
+                    ResponseMessage response = new ResponseMessage(message, (WeeklyPlan) null);
                     return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
                 }
-
+                /*if (!inputWeeklyPlan.getMeals().isEmpty()) {
                 List<Meal> meals = inputWeeklyPlan.getMeals().stream()
                         .filter(meal -> meal.getId() == 0)
                         .map(meal -> mealRepository.save(meal))
                         .collect(Collectors.toList());
                 inputWeeklyPlan.setMeals(meals);
-
-
+                }*/
+                if (!inputWeeklyPlan.getCustomers().isEmpty()) {
                     List<Customer> customers = inputWeeklyPlan.getCustomers().stream()
                             .filter(customer -> customer.getId() == 0)
-                            .filter(customer -> { Customer existingCustomer = customerRepository.findByEmail(customer.getEmail());
-                            if (!Objects.isNull(existingCustomer)) {
-                                throw new RuntimeException("To email " + existingCustomer.getEmail() + " υπάρχει ήδη..");
-                            }
-                            return true;
+                            .filter(customer -> {
+                                Customer existingCustomer = customerRepository.findByEmail(customer.getEmail());
+                                if (!Objects.isNull(existingCustomer)) {
+                                    throw new RuntimeException("To email " + existingCustomer.getEmail() + " υπάρχει ήδη..");
+                                }
+                                return true;
                             })
                             .map(customer -> customerRepository.save(customer))
                             .collect(Collectors.toList());
                     inputWeeklyPlan.setCustomers(customers);
-
+                }
                 weeklyPlanRepository.save(inputWeeklyPlan);
 
                 String message = "Το πλάνο " +  inputWeeklyPlan.getName() +  " γράφτηκε επιτυχώς!";
-                ResponseMessageWithEntity response = new ResponseMessageWithEntity(message, inputWeeklyPlan);
+                ResponseMessage response = new ResponseMessage(message, inputWeeklyPlan);
                 return new ResponseEntity<>(response, HttpStatus.CREATED);
             } else {
                 String message = "Το πλάνο " + "'" + existingPlan.getName() + "'" + " υπάρχει ήδη..";
-                ResponseMessageWithEntity response = new ResponseMessageWithEntity(message, null);
+                ResponseMessage response = new ResponseMessage(message, (WeeklyPlan) null);
                 return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
         } catch (Exception ex) {
             log.error("Error while saving WeeklyPlan: {}", ex);
             String message = PlanConstants.SOMETHING_WENT_WRONG;
-            ResponseMessageWithEntity response = new ResponseMessageWithEntity(message, null);
+            ResponseMessage response = new ResponseMessage(message, (WeeklyPlan) null);
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

@@ -8,6 +8,9 @@ import com.example.plan.customer.service.CustomerService;
 import com.example.plan.dto.CustomerWeeklyPlanDTO;
 import com.example.plan.map.Mapper;
 import com.example.plan.utils.PlanUtils;
+import com.example.plan.weeklyPlan.entity.WeeklyPlan;
+import com.example.plan.weeklyPlan.repository.WeeklyPlanRepository;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,6 +28,10 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Autowired
     private CustomerRepository customerRepository;
+
+    @Autowired
+    private WeeklyPlanRepository weeklyPlanRepository;
+
 
     @Autowired
     private Mapper mapper;
@@ -52,15 +59,16 @@ public class CustomerServiceImpl implements CustomerService {
 
 
     @Override
-    public Customer findById(int id) {
+    public CustomerDTO findById(int id) {
         Optional<Customer> optional = customerRepository.findById(id);
-        Customer customer = null;
         if (optional.isPresent()) {
-            customer = optional.get();
+        Customer customer = optional.get();
+        CustomerDTO customerDTO = mapper.mapCustomerToCustomerDTO(customer);
+        return  customerDTO;
         } else {
-            throw new RuntimeException("Ο πελάτης " + customer.getFirstName() + "\t" + customer.getLastName() + " δεν βρέθηκε..");
+            throw new RuntimeException("Ο πελάτης δεν βρέθηκε..");
         }
-        return customer;
+
     }
 
     @Override
@@ -87,6 +95,34 @@ public class CustomerServiceImpl implements CustomerService {
         }
 
     @Override
+    public ResponseEntity<String> saveCustomerWithWeeklyPlan(Customer customer) {
+        try {
+            int lengthFirstName = customer.getFirstName().length();
+            int lengthLastName = customer.getLastName().length();
+            Customer email = customerRepository.findByEmail(customer.getEmail());
+            if (Objects.isNull(email)) {
+                if ((lengthFirstName >= 5 && lengthFirstName < 30) && (lengthLastName >= 5 && lengthLastName < 30)) {
+                    List<WeeklyPlan> weeklyPlans = customer.getPlans().stream()
+                                    .filter(weeklyPlan -> weeklyPlan.getId() == 0)
+                                    .map(weeklyPlan -> weeklyPlanRepository.save(weeklyPlan))
+                                    .collect(Collectors.toList());
+                    customer.setPlans(weeklyPlans);
+                    customerRepository.save(customer);
+                }else {
+                    return new ResponseEntity<>("Το μήκος πρέπει να είναι ανάμεσα '5-30..", HttpStatus.BAD_REQUEST);
+                }
+            } else {
+                return new ResponseEntity<>("Ο πελάτης με email" + customer.getEmail() + " υπάρχει ήδη..", HttpStatus.BAD_REQUEST);
+            }
+            return new ResponseEntity<>("Ο πελάτης " + "\"" + customer.getFirstName() + " " + customer.getLastName() + "\"" + " γράφτηκε επιτυχώς!", HttpStatus.OK);
+
+        } catch (Exception ex) {
+            log.info("{}", ex);
+        }
+        return new ResponseEntity<>("Το email είναι υποχρεωτκό..", HttpStatus.BAD_REQUEST);
+    }
+
+    @Override
     public ResponseEntity<String> updateCustomer(CustomerDTO customerDTO, int id) {
         try {
            Optional<Customer> existingCustomer = customerRepository.findById(id);
@@ -94,7 +130,11 @@ public class CustomerServiceImpl implements CustomerService {
                Customer updateCustomer = existingCustomer.get();
                updateCustomer.setFirstName(customerDTO.getFirstName());
                updateCustomer.setLastName(customerDTO.getLastName());
-               updateCustomer.setEmail(customerDTO.getEmail());
+               if (!Objects.equals(updateCustomer.getEmail(), customerDTO.getEmail())) {
+                   updateCustomer.setEmail(customerDTO.getEmail());
+               } else {
+                   return new ResponseEntity<>("Το email υπάρχη ήδη..", HttpStatus.BAD_REQUEST);
+               }
                updateCustomer.setPhone(customerDTO.getPhone());
                updateCustomer.setAddress(customerDTO.getAddress());
                updateCustomer.setBirthday(customerDTO.getBirthday());
@@ -113,13 +153,33 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public ResponseEntity<String> deleteCustomer(int id) {
         try {
-            Optional<Customer> customer = customerRepository.findById(id);
-            if (customer.isPresent()) {
+            Optional<Customer> optionalCustomer = customerRepository.findById(id);
+            if (optionalCustomer.isPresent()) {
+
                 customerRepository.deleteById(id);
             } else {
                 return new ResponseEntity<>("Ο πελάτης ΔΕΝ βρέθηκε..", HttpStatus.BAD_REQUEST);
             }
-            return new ResponseEntity<> ("Ο πελάτης " + "\"" + customer.get().getFirstName() + " " + customer.get().getLastName() + "\"" + " διαγράφτηκε επιτυχώς!", HttpStatus.OK);
+            return new ResponseEntity<> ("Ο πελάτης " + "\"" + optionalCustomer.get().getFirstName() + " " + optionalCustomer.get().getLastName() + "\"" + " διαγράφτηκε επιτυχώς!", HttpStatus.OK);
+        } catch (Exception ex) {
+            log.info("{}", ex);
+        }
+        return PlanUtils.getResponseEntity(PlanConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Transactional
+    @Override
+    public ResponseEntity<String> deleteCustomerAndWeeklyPlanById(int customerId, int weeklyPlanId) {
+        try {
+            Optional<Customer> optionalCustomer = customerRepository.findById(customerId);
+            Optional<WeeklyPlan> optionalWeeklyPlan = weeklyPlanRepository.findById(weeklyPlanId);
+            if (optionalCustomer.isPresent()) {
+                weeklyPlanRepository.deleteById(weeklyPlanId);
+                customerRepository.deleteById(customerId);
+            } else {
+                return new ResponseEntity<>("Ο πελάτης ή το πλάνο ΔΕΝ βρέθηκαν..", HttpStatus.BAD_REQUEST);
+            }
+            return new ResponseEntity<> ("Ο πελάτης " + "\"" + optionalCustomer.get().getFirstName() + " " + optionalCustomer.get().getLastName() + "\"" + "και το πλάνο " + "\"" + optionalWeeklyPlan.get().getName() + "\"" + " διαγράφτηκε επιτυχώς!", HttpStatus.OK);
         } catch (Exception ex) {
             log.info("{}", ex);
         }

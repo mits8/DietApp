@@ -1,6 +1,6 @@
 package com.example.plan.weeklyPlan.controller;
 
-import com.example.plan.utils.ResponseMessageWithEntity;
+import com.example.plan.utils.ResponseMessage;
 import com.example.plan.dto.WeeklyPlanMealCustomerDTO;
 import com.example.plan.weeklyPlan.entity.WeeklyPlan;
 import com.example.plan.weeklyPlan.service.WeeklyPlanService;
@@ -24,7 +24,7 @@ public class WeeklyPlanController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<ResponseMessageWithEntity> save(@RequestBody WeeklyPlan weeklyPlan){
+    public ResponseEntity<ResponseMessage> save(@RequestBody WeeklyPlan weeklyPlan){
         return weeklyPlanService.save(weeklyPlan);
     }
 }

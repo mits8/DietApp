@@ -43,11 +43,11 @@ public class WeeklyPlan {
     )
     private List<Meal> meals = new ArrayList<>();
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name = "customer_weekly_plan",
-            joinColumns = @JoinColumn(name = "customer_id"),
-            inverseJoinColumns = @JoinColumn(name = "weekly_plan_id")
+            joinColumns = @JoinColumn(name = "weekly_plan_id"),
+            inverseJoinColumns = @JoinColumn(name = "customer_id")
     )
 
     private List<Customer> customers = new ArrayList<>();
