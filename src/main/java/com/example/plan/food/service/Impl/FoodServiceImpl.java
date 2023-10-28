@@ -1,14 +1,15 @@
 package com.example.plan.food.service.Impl;
 
-import com.example.plan.constants.PlanConstants;
 import com.example.plan.customer.repository.CustomerRepository;
+import com.example.plan.dto.food.FoodDTO;
 import com.example.plan.enums.Type;
 import com.example.plan.food.entity.Food;
 import com.example.plan.food.repository.FoodRepository;
 import com.example.plan.food.service.FoodService;
-import com.example.plan.meal.entity.Meal;
+import com.example.plan.map.Mapper;
 import com.example.plan.meal.repository.MealRepository;
-import com.example.plan.utils.PlanUtils;
+import com.example.plan.utils.food.FoodResponseMessage;
+import com.example.plan.validation.Validation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,88 +34,127 @@ public class FoodServiceImpl implements FoodService {
     @Autowired
     private MealRepository mealRepository;
 
+    @Autowired
+    private Mapper mapper;
+
+    @Autowired
+    private Validation validation;
+
     @Override
-    public List<Food> findAll() {
-        return foodRepository.findAll();
+    public List<FoodDTO> findAll() {
+        List<Food> foods = foodRepository.findAll();
+        List<FoodDTO> foodDTOS = foods.stream()
+                .map(mapper::mapFoodToFoodDTO)
+                .collect(Collectors.toList());
+        return foodDTOS;
     }
 
     @Override
-    public Food findById(int id) {
+    public FoodDTO findById(int id) {
         Optional<Food> optional = foodRepository.findById(id);
         Food food = null;
         if (optional.isPresent()){
            food = optional.get();
+           FoodDTO foodDTO = mapper.mapFoodToFoodDTO(food);
+        return foodDTO;
         } else {
-            throw new RuntimeException("Ο φαγητό " + optional.get().getName() + " δεν βρέθηκε..");
+            throw new RuntimeException("Το φαγητό δεν βρέθηκε..");
         }
-        return food;
     }
 
     @Override
-    public List<Food> findByType(Type type) {
-            List<Food> food = foodRepository.findByType(type);
-            return food;
+    public List<FoodDTO> findByType(Type type) {
+            List<Food> foods = foodRepository.findByType(type);
+            List<FoodDTO> foodDTOS = foods.stream()
+                    .map(food -> mapper.mapFoodToFoodDTO(food))
+                    .collect(Collectors.toList());
+            return foodDTOS;
     }
 
     @Override
-    public ResponseEntity<String> save(Food inputFood) {
+    public FoodDTO findByName(String name) {
+        Food food = foodRepository.findByName(name);
+        FoodDTO foodDTO = mapper.mapFoodToFoodDTO(food);
+        return foodDTO;
+    }
+
+    @Override
+    public ResponseEntity<FoodResponseMessage> saveFood(FoodDTO foodDTO) {
         try {
-            Food existingFood = foodRepository.findByName(inputFood.getName());
-            if (Objects.isNull(existingFood)) {
-                if (!inputFood.getMeals().isEmpty()) {
-                    List<Meal> meals = inputFood.getMeals().stream()
-                            .filter(meal -> meal.getId() == 0)
-                            .map(meal -> mealRepository.save(meal))
-                            .collect(Collectors.toList());
-                    inputFood.setMeals(meals);
+            Food name = foodRepository.findByName(foodDTO.getName());
+            if (Objects.isNull(name)) {
+                if (validation.isValidFieldLetters(foodDTO) && validation.isValidFieldNumbers(foodDTO)) {
+                    Food food = mapper.mapFoodDTOToFood(foodDTO);
+                    foodRepository.save(food);
+                    String message = "Το φαγητό " + "'" + foodDTO.getName() + "'" + " γράφτηκε επιτυχώς!";
+                    FoodResponseMessage response = new FoodResponseMessage(message, foodDTO);
+                    return new ResponseEntity<>(response, HttpStatus.OK);
+                } else {
+                    String message = "Κάποιο πεδίο είναι λάθος..";
+                    FoodResponseMessage response = new FoodResponseMessage(message, foodDTO);
+                    return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
                 }
-                    foodRepository.save(inputFood);
             }else {
-                return new ResponseEntity<>("To φαγητό " + "\"" + inputFood.getName() + "\"" + " υπάρχει ήδη..", HttpStatus.BAD_REQUEST);
+                String message = "Το φαγητό " + "'" + foodDTO.getName() + "'" + " υπάρχει ήδη..";
+                FoodResponseMessage response = new FoodResponseMessage(message, foodDTO);
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
-            return new ResponseEntity<>("To φαγητό " + inputFood.getName() + " γράφτηκε επιτυχώς!", HttpStatus.CREATED);
         } catch (Exception ex) {
             log.info("{}", ex);
         }
-        return PlanUtils.getResponseEntity(PlanConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+        String message = "Κάτι πήγε λάθος..";
+        FoodResponseMessage response = new FoodResponseMessage(message, null);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     @Override
-    public ResponseEntity<String> update(Food inputFood, int id) {
+    public ResponseEntity<FoodResponseMessage> updateFood(FoodDTO foodDTO, int id) {
         try {
             Optional<Food> existingFood = foodRepository.findById(id);
             if (existingFood.isPresent()){
                 Food food = existingFood.get();
-                food.setName(inputFood.getName());
-                food.setDescription(inputFood.getDescription());
-                food.setQuantity(inputFood.getQuantity());
-                food.setGram(inputFood.getGram());
-                food.setCalories(inputFood.getCalories());
-                food.setType(inputFood.getType());
-                foodRepository.save(food);
+                if (validation.isValidFieldLetters(foodDTO) && validation.isValidFieldNumbers(foodDTO)) {
+                        foodRepository.save(food);
+                        String message = "Το φαγητό " + "'" + foodDTO.getName() + "'" + " ενημερώθηκε επιτυχώς!";
+                        FoodResponseMessage response = new FoodResponseMessage(message, foodDTO);
+                        return new ResponseEntity<>(response, HttpStatus.OK);
+                } else {
+                    String message = "Κάποιο πεδίο είναι λάθος";
+                    FoodResponseMessage response = new FoodResponseMessage(message, foodDTO);
+                    return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+                }
             } else {
-                return new ResponseEntity<>("Το φαγητό ΔΕΝ βρέθηκε..", HttpStatus.BAD_REQUEST);
+                String message = "Το φαγητό ΔΕΝ βρέθηκε..";
+                FoodResponseMessage response = new FoodResponseMessage(message, foodDTO);
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
-            return new ResponseEntity<>("Το φαγητό " + inputFood.getName() + " ενημερώθηκε επιτυχώς!", HttpStatus.OK);
         } catch (Exception ex) {
             log.info("{}", ex);
         }
-        return PlanUtils.getResponseEntity(PlanConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+        String message = "Κάτι πήγε λάθος..";
+        FoodResponseMessage response = new FoodResponseMessage(message, null);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     @Override
-    public ResponseEntity<String> delete(int id) {
+    public ResponseEntity<FoodResponseMessage> deleteFood(int id) {
         try {
             Optional<Food> food = foodRepository.findById(id);
             if (food.isPresent()) {
                 foodRepository.deleteById(id);
+                String message = "Το φαγητό "+ food.get().getName() + " διαγράφτηκε επιτυχώς!";
+                FoodResponseMessage response = new FoodResponseMessage(message, null);
+                return new ResponseEntity<>(response, HttpStatus.OK);
             } else {
-                return new ResponseEntity<>("Το φαγητό ΔΕΝ βρέθηκε..", HttpStatus.BAD_REQUEST);
+                String message = "Το φαγητό ΔΕΝ βρέθηκε..";
+                FoodResponseMessage response = new FoodResponseMessage(message, null);
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
-            return new ResponseEntity<> ("Το φαγητό "+ food.get().getName() + " διαγράφτηκε επιτυχώς!", HttpStatus.OK);
         } catch (Exception ex) {
             log.info("{}", ex);
         }
-        return PlanUtils.getResponseEntity(PlanConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+        String message = "Κάτι πήγε λάθος..";
+        FoodResponseMessage response = new FoodResponseMessage(message, null);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 }

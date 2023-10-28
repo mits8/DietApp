@@ -3,7 +3,7 @@ package com.example.plan.weeklyPlan.service.Impl;
 import com.example.plan.constants.PlanConstants;
 import com.example.plan.customer.entity.Customer;
 import com.example.plan.customer.repository.CustomerRepository;
-import com.example.plan.dto.WeeklyPlanMealCustomerDTO;
+import com.example.plan.dto.weeklyPlan.WeeklyPlanMealCustomerDTO;
 import com.example.plan.map.Mapper;
 import com.example.plan.meal.repository.MealRepository;
 import com.example.plan.utils.ResponseMessage;

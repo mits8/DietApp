@@ -1,10 +1,9 @@
 package com.example.plan.customer.service;
 
-import com.example.plan.customer.entity.Customer;
-import com.example.plan.dto.CustomerDTO;
-import com.example.plan.dto.CustomerWeeklyPlanDTO;
-import com.example.plan.utils.CustomerResponseMessage;
-import com.example.plan.utils.CustomerWeeklyPlanResponseMessage;
+import com.example.plan.dto.customer.CustomerDTO;
+import com.example.plan.dto.customer.CustomerWeeklyPlanDTO;
+import com.example.plan.utils.customer.CustomerResponseMessage;
+import com.example.plan.utils.customer.CustomerWeeklyPlanResponseMessage;
 import jakarta.transaction.Transactional;
 import org.springframework.http.ResponseEntity;
 
@@ -17,15 +16,12 @@ public interface CustomerService {
 
     CustomerDTO findById(int id);
 
-/*    ResponseEntity<String> save(Customer customer);
 
-    ResponseEntity<String> saveCustomerWithWeeklyPlan(Customer customer);*/
-
-    ResponseEntity<String> updateCustomer(CustomerDTO customerDTO, int id);
+    ResponseEntity<CustomerResponseMessage> updateCustomer(CustomerDTO customerDTO, int id);
 
 //    ResponseEntity<String> deleteCustomer(int id);
 
-    ResponseEntity<String> deleteCustomerAndWeeklyPlanById(int  customerId, int weeklyPlanId);
+    ResponseEntity<CustomerWeeklyPlanResponseMessage> deleteCustomerAndWeeklyPlanById(int  customerId, int weeklyPlanId);
 
     /*--------------------------------------------------*/
     @Transactional

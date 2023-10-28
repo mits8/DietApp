@@ -1,6 +1,6 @@
-package com.example.plan.utils;
+package com.example.plan.utils.customer;
 
-import com.example.plan.dto.CustomerWeeklyPlanDTO;
+import com.example.plan.dto.customer.CustomerWeeklyPlanDTO;
 import lombok.Getter;
 import lombok.Setter;
 

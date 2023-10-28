@@ -1,15 +1,14 @@
 package com.example.plan.customer.service.Impl;
 
-import com.example.plan.constants.PlanConstants;
-import com.example.plan.dto.CustomerDTO;
+import com.example.plan.validation.Validation;
 import com.example.plan.customer.entity.Customer;
 import com.example.plan.customer.repository.CustomerRepository;
 import com.example.plan.customer.service.CustomerService;
-import com.example.plan.dto.CustomerWeeklyPlanDTO;
+import com.example.plan.dto.customer.CustomerDTO;
+import com.example.plan.dto.customer.CustomerWeeklyPlanDTO;
 import com.example.plan.map.Mapper;
-import com.example.plan.utils.CustomerWeeklyPlanResponseMessage;
-import com.example.plan.utils.PlanUtils;
-import com.example.plan.utils.CustomerResponseMessage;
+import com.example.plan.utils.customer.CustomerResponseMessage;
+import com.example.plan.utils.customer.CustomerWeeklyPlanResponseMessage;
 import com.example.plan.weeklyPlan.entity.WeeklyPlan;
 import com.example.plan.weeklyPlan.repository.WeeklyPlanRepository;
 import jakarta.transaction.Transactional;
@@ -38,6 +37,9 @@ public class CustomerServiceImpl implements CustomerService {
     @Autowired
     private Mapper mapper;
 
+    @Autowired
+    private Validation validation;
+
 
     @Override
     public List<CustomerDTO> findAll() {
@@ -45,7 +47,6 @@ public class CustomerServiceImpl implements CustomerService {
         List<CustomerDTO> customerDTOS= customers.stream()
                 .map(mapper::mapCustomerToCustomerDTO)
                 .collect(Collectors.toList());
-
         return customerDTOS;
     }
 
@@ -55,7 +56,6 @@ public class CustomerServiceImpl implements CustomerService {
         List<CustomerWeeklyPlanDTO> customerWeeklyPlanDTOS= customers.stream()
                 .map(mapper::customerWeeklyPlanDTO)
                 .collect(Collectors.toList());
-
         return customerWeeklyPlanDTOS;
     }
 
@@ -70,125 +70,7 @@ public class CustomerServiceImpl implements CustomerService {
         } else {
             throw new RuntimeException("Ο πελάτης δεν βρέθηκε..");
         }
-
     }
-
-    /*@Override
-    public ResponseEntity<String> save(Customer customer) {
-        try {
-            int lengthFirstName = customer.getFirstName().length();
-            int lengthLastName = customer.getLastName().length();
-            Customer email = customerRepository.findByEmail(customer.getEmail());
-            if (Objects.isNull(email)) {
-                if ((lengthFirstName >= 5 && lengthFirstName < 30) && (lengthLastName >= 5 && lengthLastName < 30)) {
-                    customerRepository.save(customer);
-                }else {
-                    return new ResponseEntity<>("Το μήκος πρέπει να είναι ανάμεσα '5-30..", HttpStatus.BAD_REQUEST);
-                }
-            } else {
-                return new ResponseEntity<>("Ο πελάτης με email" + customer.getEmail() + " υπάρχει ήδη..", HttpStatus.BAD_REQUEST);
-            }
-            return new ResponseEntity<>("Ο πελάτης " + "\"" + customer.getFirstName() + " " + customer.getLastName() + "\"" + " γράφτηκε επιτυχώς!", HttpStatus.OK);
-
-        } catch (Exception ex) {
-            log.info("{}", ex);
-        }
-        return new ResponseEntity<>("Το email είναι υποχρεωτκό..", HttpStatus.BAD_REQUEST);
-        }
-
-    @Override
-    public ResponseEntity<String> saveCustomerWithWeeklyPlan(Customer customer) {
-        try {
-            int lengthFirstName = customer.getFirstName().length();
-            int lengthLastName = customer.getLastName().length();
-            Customer email = customerRepository.findByEmail(customer.getEmail());
-            if (Objects.isNull(email)) {
-                if ((lengthFirstName >= 5 && lengthFirstName < 30) && (lengthLastName >= 5 && lengthLastName < 30)) {
-                    List<WeeklyPlan> weeklyPlans = customer.getPlans().stream()
-                                    .filter(weeklyPlan -> weeklyPlan.getId() == 0)
-                                    .map(weeklyPlan -> weeklyPlanRepository.save(weeklyPlan))
-                                    .collect(Collectors.toList());
-                    customer.setPlans(weeklyPlans);
-                    customerRepository.save(customer);
-                }else {
-                    return new ResponseEntity<>("Το μήκος πρέπει να είναι ανάμεσα '5-30..", HttpStatus.BAD_REQUEST);
-                }
-            } else {
-                return new ResponseEntity<>("Ο πελάτης με email" + customer.getEmail() + " υπάρχει ήδη..", HttpStatus.BAD_REQUEST);
-            }
-            return new ResponseEntity<>("Ο πελάτης " + "\"" + customer.getFirstName() + " " + customer.getLastName() + "\"" + " γράφτηκε επιτυχώς!", HttpStatus.OK);
-
-        } catch (Exception ex) {
-            log.info("{}", ex);
-        }
-        return new ResponseEntity<>("Το email είναι υποχρεωτκό..", HttpStatus.BAD_REQUEST);
-    }*/
-
-    @Override
-    public ResponseEntity<String> updateCustomer(CustomerDTO customerDTO, int id) {
-        try {
-           Optional<Customer> existingCustomer = customerRepository.findById(id);
-           if (existingCustomer.isPresent()) {
-               Customer updateCustomer = existingCustomer.get();
-               updateCustomer.setFirstName(customerDTO.getFirstName());
-               updateCustomer.setLastName(customerDTO.getLastName());
-               if (!Objects.equals(updateCustomer.getEmail(), customerDTO.getEmail())) {
-                   updateCustomer.setEmail(customerDTO.getEmail());
-               } else {
-                   return new ResponseEntity<>("Το email υπάρχη ήδη..", HttpStatus.BAD_REQUEST);
-               }
-               updateCustomer.setPhone(customerDTO.getPhone());
-               updateCustomer.setAddress(customerDTO.getAddress());
-               updateCustomer.setBirthday(customerDTO.getBirthday());
-               updateCustomer.setGender(customerDTO.getGender());
-               customerRepository.save(updateCustomer);
-           } else {
-               return new ResponseEntity<>( "Ο πελάτης ΔΕΝ βρέθηκε..", HttpStatus.BAD_REQUEST);
-           }
-            return new ResponseEntity<>("Ο πελάτης " + "\"" + customerDTO.getFirstName() + " " + customerDTO.getLastName() + "\"" + " ενημερώθηκε επιτυχώς!", HttpStatus.OK);
-        } catch (Exception ex) {
-            log.info("{}", ex);
-        }
-        return PlanUtils.getResponseEntity(PlanConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    /*@Override
-    public ResponseEntity<String> deleteCustomer(int id) {
-        try {
-            Optional<Customer> optionalCustomer = customerRepository.findById(id);
-            if (optionalCustomer.isPresent()) {
-
-                customerRepository.deleteById(id);
-            } else {
-                return new ResponseEntity<>("Ο πελάτης ΔΕΝ βρέθηκε..", HttpStatus.BAD_REQUEST);
-            }
-            return new ResponseEntity<> ("Ο πελάτης " + "\"" + optionalCustomer.get().getFirstName() + " " + optionalCustomer.get().getLastName() + "\"" + " διαγράφτηκε επιτυχώς!", HttpStatus.OK);
-        } catch (Exception ex) {
-            log.info("{}", ex);
-        }
-        return PlanUtils.getResponseEntity(PlanConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
-    }*/
-
-    @Transactional
-    @Override
-    public ResponseEntity<String> deleteCustomerAndWeeklyPlanById(int customerId, int weeklyPlanId) {
-        try {
-            Optional<Customer> optionalCustomer = customerRepository.findById(customerId);
-            Optional<WeeklyPlan> optionalWeeklyPlan = weeklyPlanRepository.findById(weeklyPlanId);
-            if (optionalCustomer.isPresent()) {
-                weeklyPlanRepository.deleteById(weeklyPlanId);
-                customerRepository.deleteById(customerId);
-            } else {
-                return new ResponseEntity<>("Ο πελάτης ή το πλάνο ΔΕΝ βρέθηκαν..", HttpStatus.BAD_REQUEST);
-            }
-            return new ResponseEntity<> ("Ο πελάτης " + "\"" + optionalCustomer.get().getFirstName() + " " + optionalCustomer.get().getLastName() + "\"" + "και το πλάνο " + "\"" + optionalWeeklyPlan.get().getName() + "\"" + " διαγράφτηκε επιτυχώς!", HttpStatus.OK);
-        } catch (Exception ex) {
-            log.info("{}", ex);
-        }
-        return PlanUtils.getResponseEntity(PlanConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-
 
     @Transactional
     @Override
@@ -196,14 +78,21 @@ public class CustomerServiceImpl implements CustomerService {
         try {
             Customer email = customerRepository.findByEmail(customerDTO.getEmail());
             if (Objects.isNull(email)) {
-                if (isValidNameLengthCustomerDTO(customerDTO)) {
-                    Customer customer = mapper.mapCustomerDTOToCustomer(customerDTO);
-                    customerRepository.save(customer);
-                    String message = "Ο πελάτης " + "'" + customer.getFirstName() + " " + customer.getLastName() + "'" + " γράφτηκε επιτυχώς!";
-                    CustomerResponseMessage response = new CustomerResponseMessage(message, customerDTO);
-                    return new ResponseEntity<>(response, HttpStatus.OK);
+                if (validation.isValidNameLengthCustomerDTO(customerDTO)) {
+                    if (validation.isValidNumbersAndLengthCustomerDTO(customerDTO)) {
+                        Customer customer = mapper.mapCustomerDTOToCustomer(customerDTO);
+                        customerRepository.save(customer);
+
+                        String message = "Ο πελάτης " + "'" + customer.getFirstName() + " " + customer.getLastName() + "'" + " γράφτηκε επιτυχώς!";
+                        CustomerResponseMessage response = new CustomerResponseMessage(message, customerDTO);
+                        return new ResponseEntity<>(response, HttpStatus.OK);
+                    } else {
+                        String message = "Το τηλέφωνο πρέπει να περιέχει 10 αριθμούς ..";
+                        CustomerResponseMessage response = new CustomerResponseMessage(message, null);
+                        return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
+                    }
                 }else {
-                    String message = "Το μήκος πρέπει να είναι ανάμεσα '5-30..";
+                    String message = "Οι χαρακτήρες πρέπει να είναι γράμματα '5-30'..";
                     CustomerResponseMessage response = new CustomerResponseMessage(message, null);
                     return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
                 }
@@ -216,7 +105,7 @@ public class CustomerServiceImpl implements CustomerService {
         } catch (Exception ex) {
             log.info("{}", ex);
         }
-        String message = "Το email είναι υποχρεωτκό..";
+        String message = "Τα βασικά στοιχεία είναι υποχρεωτκά..";
         CustomerResponseMessage response = new CustomerResponseMessage(message, null);
         return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
     }
@@ -228,24 +117,30 @@ public class CustomerServiceImpl implements CustomerService {
 
             Customer email = customerRepository.findByEmail(customerWeeklyPlanDTO.getEmail());
             if (Objects.isNull(email)) {
-                if (isValidNameLengthCustomerWeeklyPlanDTO(customerWeeklyPlanDTO)) {
-                    Customer customer = mapper.mapCustomerWeeklyPlanDTOToCustomer(customerWeeklyPlanDTO);
-                    List<WeeklyPlan> weeklyPlanEntities = customerWeeklyPlanDTO.getPlans().stream()
-                            .filter(weeklyPlanDTO -> weeklyPlanDTO.getId() == 0)
-                            .map(weeklyPlanDTO -> {
-                                WeeklyPlan weeklyPlan = mapper.mapWeeklyPlanDTOToWeeklyPlan(weeklyPlanDTO);
-                                return weeklyPlanRepository.save(weeklyPlan);
-                            })
-                            .collect(Collectors.toList());
+                if (validation.isValidNameLengthCustomerWeeklyPlanDTO(customerWeeklyPlanDTO)) {
+                    if (validation.isValidNumbersAndLengthCustomerWeeklyPlanDTO(customerWeeklyPlanDTO)) {
+                        Customer customer = mapper.mapCustomerWeeklyPlanDTOToCustomer(customerWeeklyPlanDTO);
+                        List<WeeklyPlan> weeklyPlanEntities = customerWeeklyPlanDTO.getPlans().stream()
+                                .filter(weeklyPlanDTO -> weeklyPlanDTO.getId() == 0)
+                                .map(weeklyPlanDTO -> {
+                                    WeeklyPlan weeklyPlan = mapper.mapWeeklyPlanDTOToWeeklyPlan(weeklyPlanDTO);
+                                    return weeklyPlanRepository.save(weeklyPlan);
+                                })
+                                .collect(Collectors.toList());
 
-                    customer.setPlans(weeklyPlanEntities);
-                    customerRepository.save(customer);
+                        customer.setPlans(weeklyPlanEntities);
+                        customerRepository.save(customer);
 
-                    String message = "Ο πελάτης " + "'" + customer.getFirstName() + " " + customer.getLastName() + "'" + " με τα πλάνα γράφτηκαν επιτυχώς!";
-                    CustomerWeeklyPlanResponseMessage response = new CustomerWeeklyPlanResponseMessage(message, customerWeeklyPlanDTO);
-                    return new ResponseEntity<>(response, HttpStatus.OK);
+                        String message = "Ο πελάτης " + "'" + customer.getFirstName() + " " + customer.getLastName() + "'" + " με τα πλάνα γράφτηκαν επιτυχώς!";
+                        CustomerWeeklyPlanResponseMessage response = new CustomerWeeklyPlanResponseMessage(message, customerWeeklyPlanDTO);
+                        return new ResponseEntity<>(response, HttpStatus.OK);
+                    } else {
+                        String message = "Το τηλέφωνο πρέπει να περιέχει 10 αριθμούς ..";
+                        CustomerWeeklyPlanResponseMessage response = new CustomerWeeklyPlanResponseMessage(message, null);
+                        return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
+                    }
                 }else {
-                    String message = "Το μήκος πρέπει να είναι ανάμεσα '5-30..";
+                    String message = "Οι χαρακτήρες πρέπει να είναι γράμματα  '5-30'..";
                     CustomerWeeklyPlanResponseMessage response = new CustomerWeeklyPlanResponseMessage(message, null);
                     return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
                 }
@@ -264,6 +159,50 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    public ResponseEntity<CustomerResponseMessage> updateCustomer(CustomerDTO customerDTO, int id) {
+        try {
+           Optional<Customer> existingCustomer = customerRepository.findById(id);
+           if (existingCustomer.isPresent()) {
+               Customer updateCustomer = existingCustomer.get();
+               if (validation.isValidNameLengthCustomerDTO(customerDTO)) {
+                   updateCustomer.setFirstName(customerDTO.getFirstName());
+                   updateCustomer.setLastName(customerDTO.getLastName());
+               }else {
+                   String message = "Οι χαρακτήρες πρέπει να είναι γράμματα  '5-30'..";
+                   CustomerResponseMessage response = new CustomerResponseMessage(message, null);
+                   return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
+               }
+               if (!Objects.equals(updateCustomer.getEmail(), customerDTO.getEmail())) {
+                   updateCustomer.setEmail(customerDTO.getEmail());
+               }
+               if (validation.isValidNumbersAndLengthCustomerDTO(customerDTO)) {
+               updateCustomer.setPhone(customerDTO.getPhone());
+               } else {
+                   String message = "Το τηλέφωνο πρέπει να περιέχει 10 αριθμούς ..";
+                   CustomerResponseMessage response = new CustomerResponseMessage(message, null);
+                   return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
+               }
+               updateCustomer.setAddress(customerDTO.getAddress());
+               updateCustomer.setBirthday(customerDTO.getBirthday());
+               updateCustomer.setGender(customerDTO.getGender());
+               customerRepository.save(updateCustomer);
+           } else {
+               String message = "Ο πελάτης ΔΕΝ βρέθηκε..";
+               CustomerResponseMessage response = new CustomerResponseMessage(message, null);
+               return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
+           }
+            String message = "Ο πελάτης " + "'" + customerDTO.getFirstName() + " " + customerDTO.getLastName() + "'" + " ενημερώθηκε επιτυχώς!";
+            CustomerResponseMessage response = new CustomerResponseMessage(message, customerDTO);
+            return new ResponseEntity<>(response , HttpStatus.OK);
+        } catch (Exception ex) {
+            log.info("{}", ex);
+        }
+        String message = "Κάτι πήγε λάθος..";
+        CustomerResponseMessage response = new CustomerResponseMessage(message, null);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @Override
     public ResponseEntity<CustomerResponseMessage> deleteCustomer(int id) {
         try {
             Customer optionalCustomer = customerRepository.findCustomerById(id);
@@ -271,7 +210,7 @@ public class CustomerServiceImpl implements CustomerService {
                   customerRepository.delete(optionalCustomer);
                 String message = "Ο πελάτης " + "'" + optionalCustomer.getFirstName() + " " + optionalCustomer.getLastName() + "'" + " διαγράφτηκε επιτυχώς!";
                 CustomerResponseMessage response = new CustomerResponseMessage(message, null);
-                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(response, HttpStatus.OK);
             } else {
                 String message = "Ο πελάτης ΔΕΝ βρέθηκε..";
                 CustomerResponseMessage response = new CustomerResponseMessage(message, null);
@@ -284,16 +223,31 @@ public class CustomerServiceImpl implements CustomerService {
         CustomerResponseMessage response = new CustomerResponseMessage(message, null);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
+    @Override
+    public ResponseEntity<CustomerWeeklyPlanResponseMessage> deleteCustomerAndWeeklyPlanById(int customerId, int weeklyPlanId) {
+        try {
+            Optional<Customer> optionalCustomer = customerRepository.findById(customerId);
+            Optional<WeeklyPlan> optionalWeeklyPlan = weeklyPlanRepository.findById(weeklyPlanId);
+            if (optionalCustomer.isPresent()) {
+                if (optionalWeeklyPlan.isPresent()) {
+                    weeklyPlanRepository.deleteById(weeklyPlanId);
+                    customerRepository.deleteById(customerId);
+                }
+                String message = "Ο πελάτης " + "'" + optionalCustomer.get().getFirstName() + " " + optionalCustomer.get().getLastName() + "'" + "και το πλάνο " + "'" + optionalWeeklyPlan.get().getName() + "'" + " διαγράφτηκε επιτυχώς!";
+                CustomerWeeklyPlanResponseMessage response = new CustomerWeeklyPlanResponseMessage(message, null);
+                return new ResponseEntity<> (response, HttpStatus.OK);
 
-    public boolean isValidNameLengthCustomerDTO(CustomerDTO customerDTO) {
-        int lengthFirstName = customerDTO.getFirstName().length();
-        int lengthLastName = customerDTO.getLastName().length();
-        return (lengthFirstName >= 5 && lengthFirstName < 30) && (lengthLastName >= 5 && lengthLastName < 30);
+            } else {
+                String message = "Ο πελάτης ή το πλάνο ΔΕΝ βρέθηκαν..";
+                CustomerWeeklyPlanResponseMessage response = new CustomerWeeklyPlanResponseMessage(message, null);
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            }
+        } catch (Exception ex) {
+            log.info("{}", ex);
+        }
+        String message = "Κάτι πήγε λάθος..";
+        CustomerWeeklyPlanResponseMessage response = new CustomerWeeklyPlanResponseMessage(message, null);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
-    public boolean isValidNameLengthCustomerWeeklyPlanDTO(CustomerWeeklyPlanDTO customerWeeklyPlanDTO) {
-        int lengthFirstName = customerWeeklyPlanDTO.getFirstName().length();
-        int lengthLastName = customerWeeklyPlanDTO.getLastName().length();
-        return (lengthFirstName >= 5 && lengthFirstName < 30) && (lengthLastName >= 5 && lengthLastName < 30);
-    }
 }

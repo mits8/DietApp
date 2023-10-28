@@ -28,8 +28,6 @@ public class Food {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "quantity")
-    private double quantity;
 
     @Column(name = "gram")
     private double gram;

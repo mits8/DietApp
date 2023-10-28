@@ -1,4 +1,4 @@
-package com.example.plan.dto;
+package com.example.plan.dto.customer;
 
 import com.example.plan.enums.Gender;
 import jakarta.persistence.EnumType;
@@ -10,13 +10,12 @@ import org.hibernate.validator.constraints.Length;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CustomerWeeklyPlanDTO {
+public class CustomerDTO {
 
     private int id;
     private String firstName;
@@ -38,5 +37,7 @@ public class CustomerWeeklyPlanDTO {
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
-    private List<WeeklyPlanDTO> plans = new ArrayList<>();
+
+    public CustomerDTO(String errorMessage, Object o) {
+    }
 }

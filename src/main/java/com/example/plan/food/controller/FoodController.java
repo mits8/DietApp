@@ -1,8 +1,10 @@
 package com.example.plan.food.controller;
 
+import com.example.plan.dto.food.FoodDTO;
 import com.example.plan.enums.Type;
 import com.example.plan.food.entity.Food;
 import com.example.plan.food.service.FoodService;
+import com.example.plan.utils.food.FoodResponseMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,35 +22,40 @@ public class FoodController {
     private FoodService foodService;
 
     @GetMapping("/findAll")
-    public ResponseEntity<List<Food>> findAll(){
+    public ResponseEntity<List<FoodDTO>> findAll(){
         return new ResponseEntity<>(foodService.findAll(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<Food> findById(@PathVariable int id) {
+    public ResponseEntity<FoodDTO> findById(@PathVariable int id) {
         return new ResponseEntity<>(foodService.findById(id), HttpStatus.OK);
     }
 
     @GetMapping("/type")
-    public ResponseEntity<List<Food>> findByType(@RequestParam("type") Type type) {
+    public ResponseEntity<List<FoodDTO>> findByType(@RequestParam("type") Type type) {
         return new ResponseEntity<>(foodService.findByType(type), HttpStatus.OK);
     }
 
-    @PostMapping("/save")
-    public ResponseEntity<String> save(@RequestBody Food food) {
-        return foodService.save(food);
+    @GetMapping("/name")
+    public ResponseEntity<FoodDTO> findByName(@RequestParam("name") String name) {
+        return new ResponseEntity<>(foodService.findByName(name), HttpStatus.OK);
+    }
+
+    @PostMapping("/addFood")
+    public ResponseEntity<FoodResponseMessage> saveFood(@RequestBody FoodDTO foodDTO) {
+        return foodService.saveFood(foodDTO);
     }
 
     @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<String> updateCustomer(@RequestBody Food food, @PathVariable int id) {
-        return foodService.update(food, id);
+    public ResponseEntity<FoodResponseMessage> updateCustomer(@RequestBody FoodDTO foodDTO, @PathVariable int id) {
+        return foodService.updateFood(foodDTO, id);
     }
 
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<String> deleteCustomer(@PathVariable int  id) {
-        return foodService.delete(id);
+    public ResponseEntity<FoodResponseMessage> deleteCustomer(@PathVariable int  id) {
+        return foodService.deleteFood(id);
     }
 }

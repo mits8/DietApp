@@ -1,22 +1,27 @@
 package com.example.plan.food.service;
 
+import com.example.plan.dto.food.FoodDTO;
 import com.example.plan.enums.Type;
 import com.example.plan.food.entity.Food;
+import com.example.plan.utils.food.FoodResponseMessage;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 import java.util.Map;
 
 public interface FoodService {
-    List<Food> findAll();
+    List<FoodDTO> findAll();
 
-    Food findById(int id);
+    FoodDTO findById(int id);
 
-    List<Food> findByType (Type type);
+    List<FoodDTO> findByType (Type type);
 
-    ResponseEntity<String> save(Food inputFood);
+    FoodDTO findByName(String name);
 
-    ResponseEntity<String> update(Food food, int id);
+    ResponseEntity<FoodResponseMessage> saveFood(FoodDTO foodDTO);
 
-    ResponseEntity<String> delete(int id);
+
+    ResponseEntity<FoodResponseMessage> updateFood(FoodDTO foodDTO, int id);
+
+    ResponseEntity<FoodResponseMessage> deleteFood(int id);
 }

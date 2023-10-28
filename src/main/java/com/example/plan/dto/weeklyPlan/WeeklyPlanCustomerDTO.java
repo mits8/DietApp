@@ -1,21 +1,22 @@
-package com.example.plan.dto;
+package com.example.plan.dto.weeklyPlan;
 
-import com.example.plan.enums.Duration;
+import com.example.plan.dto.customer.CustomerDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class WeeklyPlanDTO {
+public class WeeklyPlanCustomerDTO {
 
     private int id;
     private String name;
-    private Duration duration;
     private LocalDate startDate;
     private LocalDate endDate;
+    private List<CustomerDTO> customers = new ArrayList<>();
 }

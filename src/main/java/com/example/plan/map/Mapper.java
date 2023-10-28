@@ -1,7 +1,13 @@
 package com.example.plan.map;
 
-import com.example.plan.dto.*;
 import com.example.plan.customer.entity.Customer;
+import com.example.plan.dto.customer.CustomerDTO;
+import com.example.plan.dto.customer.CustomerWeeklyPlanDTO;
+import com.example.plan.dto.food.FoodDTO;
+import com.example.plan.dto.meal.MealDTO;
+import com.example.plan.dto.weeklyPlan.WeeklyPlanDTO;
+import com.example.plan.dto.weeklyPlan.WeeklyPlanMealCustomerDTO;
+import com.example.plan.food.entity.Food;
 import com.example.plan.meal.entity.Meal;
 import com.example.plan.weeklyPlan.entity.WeeklyPlan;
 import org.springframework.stereotype.Component;
@@ -47,7 +53,6 @@ public class Mapper {
                 .map(this::weeklyPlanToWeeklyPlanDTO)
                 .collect(Collectors.toList());
         customerWeeklyPlanDTO.setPlans(weeklyPlanDTOS);
-
         return customerWeeklyPlanDTO;
     }
 
@@ -57,7 +62,6 @@ public class Mapper {
         mealDTO.setName(meal.getName());
         mealDTO.setDescription(meal.getDescription());
         mealDTO.setType(meal.getType());
-
         return mealDTO;
     }
 
@@ -71,7 +75,6 @@ public class Mapper {
         customerDTO.setAddress(customer.getAddress());
         customerDTO.setBirthday(customer.getBirthday());
         customerDTO.setGender(customer.getGender());
-
         return customerDTO;
     }
 
@@ -110,7 +113,6 @@ public class Mapper {
         weeklyPlanDTO.setName(weeklyPlan.getName());
         weeklyPlanDTO.setStartDate(weeklyPlan.getStartDate());
         weeklyPlanDTO.setEndDate(weeklyPlan.getEndDate());
-
         return weeklyPlanDTO;
     }
 
@@ -121,8 +123,27 @@ public class Mapper {
         weeklyPlan.setDuration(weeklyPlanDTO.getDuration());
         weeklyPlan.setStartDate(weeklyPlanDTO.getStartDate());
         weeklyPlan.setEndDate(weeklyPlanDTO.getEndDate());
-
         return weeklyPlan;
+    }
+
+    public FoodDTO mapFoodToFoodDTO(Food food) {
+        FoodDTO foodDTO = new FoodDTO();
+        foodDTO.setName(food.getName());
+        foodDTO.setDescription(food.getDescription());
+        foodDTO.setGram(food.getGram());
+        foodDTO.setCalories(food.getCalories());
+        foodDTO.setType(food.getType());
+        return foodDTO;
+    }
+
+    public Food mapFoodDTOToFood(FoodDTO foodDTO) {
+        Food food = new Food();
+        food.setName(foodDTO.getName());
+        food.setDescription(foodDTO.getDescription());
+        food.setGram(foodDTO.getGram());
+        food.setCalories(foodDTO.getCalories());
+        food.setType(foodDTO.getType());
+        return food;
     }
 
 
