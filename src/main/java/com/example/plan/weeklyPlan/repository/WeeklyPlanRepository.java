@@ -8,4 +8,6 @@ public interface WeeklyPlanRepository extends JpaRepository<WeeklyPlan, Integer>
 
     @Query("SELECT w FROM WeeklyPlan w WHERE w.name=:name")
     WeeklyPlan findByName(String name);
+
+    WeeklyPlan findWeeklyPlanById(int id);
 }

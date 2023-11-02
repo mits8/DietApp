@@ -18,6 +18,8 @@ import java.time.LocalDate;
 public class CustomerDTO {
 
     private int id;
+
+    private String fullName ;
     private String firstName;
 
     private String lastName;

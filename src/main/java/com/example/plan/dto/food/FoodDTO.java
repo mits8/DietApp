@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class FoodDTO {
 
+    private int id;
     private String name;
     private String description;
     private double quantity;

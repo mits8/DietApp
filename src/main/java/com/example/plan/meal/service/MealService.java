@@ -1,21 +1,30 @@
 package com.example.plan.meal.service;
 
+import com.example.plan.dto.meal.MealDTO;
+import com.example.plan.dto.meal.MealFoodDTO;
 import com.example.plan.enums.Type;
-import com.example.plan.meal.entity.Meal;
+import com.example.plan.utils.meal.MealResponseMessage;
+import jakarta.transaction.Transactional;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
 public interface MealService {
-    List<Meal> findAll();
+    List<MealDTO> findAll();
 
-    Meal findById(int id);
+    MealDTO findById(int id);
 
-    List<Meal> findByTypeBreakfast(Type type);
+    List<MealDTO> findByTypeBreakfast(Type type);
 
-    ResponseEntity<String> save(Meal meal);
+    ResponseEntity<MealResponseMessage> saveMeal(MealDTO mealDTO);
 
-    ResponseEntity<String> update(Meal meal, int id);
+    @Transactional
+    ResponseEntity<MealResponseMessage> addMealWithFoods(MealFoodDTO mealFoodDTO);
 
-    ResponseEntity<String> delete(int id);
+    @Transactional
+    ResponseEntity<MealResponseMessage> addFoodToMeal(MealFoodDTO mealFoodDTO, int id);
+
+    ResponseEntity<MealResponseMessage> updateMeal(MealDTO mealDTO, int id);
+
+    ResponseEntity<MealResponseMessage> deleteMeal(int id);
 }

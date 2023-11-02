@@ -10,6 +10,7 @@ import com.example.plan.map.Mapper;
 import com.example.plan.meal.repository.MealRepository;
 import com.example.plan.utils.food.FoodResponseMessage;
 import com.example.plan.validation.Validation;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -73,15 +74,16 @@ public class FoodServiceImpl implements FoodService {
 
     @Override
     public FoodDTO findByName(String name) {
-        Food food = foodRepository.findByName(name);
-        FoodDTO foodDTO = mapper.mapFoodToFoodDTO(food);
+        Optional<Food> food = foodRepository.findByName(name);
+        FoodDTO foodDTO = mapper.mapFoodToFoodDTO(food.get());
         return foodDTO;
     }
 
+    @Transactional
     @Override
     public ResponseEntity<FoodResponseMessage> saveFood(FoodDTO foodDTO) {
         try {
-            Food name = foodRepository.findByName(foodDTO.getName());
+            Optional<Food> name = foodRepository.findByName(foodDTO.getName());
             if (Objects.isNull(name)) {
                 if (validation.isValidFieldLetters(foodDTO) && validation.isValidFieldNumbers(foodDTO)) {
                     Food food = mapper.mapFoodDTOToFood(foodDTO);
@@ -107,6 +109,7 @@ public class FoodServiceImpl implements FoodService {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
+    @Transactional
     @Override
     public ResponseEntity<FoodResponseMessage> updateFood(FoodDTO foodDTO, int id) {
         try {

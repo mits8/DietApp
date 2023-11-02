@@ -17,7 +17,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CustomerWeeklyPlanDTO {
+public class CustomerWeeklyPlanDTO extends CustomerDTO {
 
     private int id;
     private String firstName;

@@ -5,12 +5,19 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, Integer> {
 
 
-    Customer findByEmail(String email);
+    @Query("SELECT c FROM Customer c  WHERE c.firstName=:firstName and c.lastName=:lastName")
+    Customer findCustomerByName(String firstName, String lastName);
 
-    Customer findCustomerById(int id);
+    @Query("SELECT c FROM Customer c WHERE c.lastName=:lastName")
+    Customer findByName (String lastName);
+
+    Optional<Customer> findByEmail(String email);
+
 
 }

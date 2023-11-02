@@ -4,7 +4,6 @@ import com.example.plan.customer.service.CustomerService;
 import com.example.plan.dto.customer.CustomerDTO;
 import com.example.plan.dto.customer.CustomerWeeklyPlanDTO;
 import com.example.plan.utils.customer.CustomerResponseMessage;
-import com.example.plan.utils.customer.CustomerWeeklyPlanResponseMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,8 +33,20 @@ public class CustomerController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<CustomerDTO> getById(@PathVariable int id) {
+    public ResponseEntity<CustomerDTO> findById(@PathVariable int id) {
         return new ResponseEntity<>(customerService.findById(id), HttpStatus.OK);
+    }
+
+    @GetMapping("/name")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<CustomerDTO> findByName(@RequestParam("lastName") String lastName) {
+        return new ResponseEntity<>(customerService.findByName(lastName), HttpStatus.OK);
+    }
+
+    @GetMapping("/fullName")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<CustomerDTO> findCustomerByName(@RequestParam("firstName") String firstName,@RequestParam("lastName") String lastName) {
+        return new ResponseEntity<>(customerService.findCustomerByName(firstName, lastName), HttpStatus.OK);
     }
 
     @PostMapping("/addCustomer")
@@ -46,7 +57,7 @@ public class CustomerController {
 
     @PostMapping("/save/customer-weekly-plan")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<CustomerWeeklyPlanResponseMessage> addCustomerWithWeeklyPlan(@RequestBody CustomerWeeklyPlanDTO customerWeeklyPlanDTO) {
+    public ResponseEntity<CustomerResponseMessage> addCustomerWithWeeklyPlan(@RequestBody CustomerWeeklyPlanDTO customerWeeklyPlanDTO) {
         return customerService.addCustomerWithWeeklyPlan(customerWeeklyPlanDTO);
     }
     @PutMapping("/update/{id}")
@@ -57,7 +68,7 @@ public class CustomerController {
 
     @DeleteMapping("/delete/customer/{customerId}/weekly-plan/{weeklyPlanId}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<CustomerWeeklyPlanResponseMessage> deleteCustomerAndWeeklyPlanById(@PathVariable int  customerId, @PathVariable int weeklyPlanId) {
+    public ResponseEntity<CustomerResponseMessage> deleteCustomerAndWeeklyPlanById(@PathVariable int  customerId, @PathVariable int weeklyPlanId) {
         return customerService.deleteCustomerAndWeeklyPlanById(customerId, weeklyPlanId);
     }
 
@@ -66,4 +77,5 @@ public class CustomerController {
     public ResponseEntity<CustomerResponseMessage> deleteCustomer(@PathVariable int  id) {
         return customerService.deleteCustomer(id);
     }
+
 }
