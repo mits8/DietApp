@@ -16,7 +16,6 @@ public class FoodDTO {
     private int id;
     private String name;
     private String description;
-    private double quantity;
     private double gram;
     private double calories;
     @Enumerated(EnumType.STRING)

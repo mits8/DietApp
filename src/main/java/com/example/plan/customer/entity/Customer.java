@@ -1,7 +1,7 @@
 package com.example.plan.customer.entity;
 
 import com.example.plan.enums.Gender;
-import com.example.plan.weeklyPlan.entity.WeeklyPlan;
+import com.example.plan.plan.entity.Plan;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
@@ -56,7 +56,7 @@ public class Customer {
     private Gender gender;
 
     @ManyToMany (mappedBy = "customers")
-    private List<WeeklyPlan> plans = new ArrayList<>();
+    private List<Plan> plans = new ArrayList<>();
 
 
     public Customer(Customer customer) {

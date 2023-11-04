@@ -18,7 +18,7 @@ public interface FoodService {
 
     FoodDTO findByName(String name);
 
-    ResponseEntity<FoodResponseMessage> saveFood(FoodDTO foodDTO);
+    ResponseEntity<FoodResponseMessage> addFood(FoodDTO foodDTO);
 
 
     ResponseEntity<FoodResponseMessage> updateFood(FoodDTO foodDTO, int id);

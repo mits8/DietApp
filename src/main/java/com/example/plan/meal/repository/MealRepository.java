@@ -14,8 +14,10 @@ import java.util.Optional;
 public interface MealRepository extends JpaRepository<Meal, Integer> {
 
     @Query("SELECT m FROM Meal m WHERE m.name=:name")
-    Optional<Meal> findByName(@Param("name") String name);
+    Meal findByName(@Param("name") String name);
 
     @Query("SELECT m FROM Meal m WHERE m.type=:type")
     List<Meal> findByType(@Param("type") Type type);
+
+    Meal findMealById(int id);
 }

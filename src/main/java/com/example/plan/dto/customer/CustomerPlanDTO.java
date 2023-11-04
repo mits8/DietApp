@@ -1,6 +1,6 @@
 package com.example.plan.dto.customer;
 
-import com.example.plan.dto.weeklyPlan.WeeklyPlanDTO;
+import com.example.plan.dto.plan.PlanDTO;
 import com.example.plan.enums.Gender;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -17,7 +17,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CustomerWeeklyPlanDTO extends CustomerDTO {
+public class CustomerPlanDTO extends CustomerDTO {
 
     private int id;
     private String firstName;
@@ -39,5 +39,5 @@ public class CustomerWeeklyPlanDTO extends CustomerDTO {
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
-    private List<WeeklyPlanDTO> plans = new ArrayList<>();
+    private List<PlanDTO> plans = new ArrayList<>();
 }

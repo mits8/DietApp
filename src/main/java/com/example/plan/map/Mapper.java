@@ -2,18 +2,19 @@ package com.example.plan.map;
 
 import com.example.plan.customer.entity.Customer;
 import com.example.plan.dto.customer.CustomerDTO;
-import com.example.plan.dto.customer.CustomerWeeklyPlanDTO;
+import com.example.plan.dto.customer.CustomerPlanDTO;
 import com.example.plan.dto.food.FoodDTO;
 import com.example.plan.dto.meal.MealDTO;
 import com.example.plan.dto.meal.MealFoodDTO;
-import com.example.plan.dto.meal.MealFoodWeeklyPlanDTO;
-import com.example.plan.dto.weeklyPlan.WeeklyPlanDTO;
-import com.example.plan.dto.weeklyPlan.WeeklyPlanMealCustomerDTO;
+import com.example.plan.dto.meal.MealFoodPlanDTO;
+import com.example.plan.dto.plan.PlanDTO;
+import com.example.plan.dto.plan.PlanMealCustomerDTO;
 import com.example.plan.food.entity.Food;
 import com.example.plan.meal.entity.Meal;
-import com.example.plan.weeklyPlan.entity.WeeklyPlan;
+import com.example.plan.plan.entity.Plan;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -23,37 +24,38 @@ public class Mapper {
 
     private Customer customer = new Customer();
     private CustomerDTO customerDTO = new CustomerDTO();
-    private CustomerWeeklyPlanDTO customerWeeklyPlanDTO = new CustomerWeeklyPlanDTO();
+    private CustomerPlanDTO customerPlanDTO = new CustomerPlanDTO();
 
     private Food food = new Food();
     private FoodDTO foodDTO = new FoodDTO();
+    private List<Food> foods = new ArrayList<>();
 
     private Meal meal = new Meal();
     private MealDTO mealDTO = new MealDTO();
     private MealFoodDTO mealFoodDTO = new MealFoodDTO();
 
-    private WeeklyPlan weeklyPlan = new WeeklyPlan();
-    private WeeklyPlanDTO weeklyPlanDTO = new WeeklyPlanDTO();
-    private MealFoodWeeklyPlanDTO mealFoodWeeklyPlanDTO = new MealFoodWeeklyPlanDTO();
-    private WeeklyPlanMealCustomerDTO weeklyPlanMealCustomerDTO = new WeeklyPlanMealCustomerDTO();
+    private Plan plan = new Plan();
+    private PlanDTO PlanDTO = new PlanDTO();
+    private MealFoodPlanDTO mealFoodPlanDTO = new MealFoodPlanDTO();
+    private PlanMealCustomerDTO PlanMealCustomerDTO = new PlanMealCustomerDTO();
 
-    public WeeklyPlanMealCustomerDTO mapWeeklyPlanToMealDTO(WeeklyPlan weeklyPlan) {
-        weeklyPlanMealCustomerDTO.setId(weeklyPlan.getId());
-        weeklyPlanMealCustomerDTO.setName(weeklyPlan.getName());
-        weeklyPlanMealCustomerDTO.setStartDate(weeklyPlan.getStartDate());
-        weeklyPlanMealCustomerDTO.setEndDate(weeklyPlan.getEndDate());
+    public PlanMealCustomerDTO mapPlanToMealDTO(Plan plan) {
+        PlanMealCustomerDTO.setId(plan.getId());
+        PlanMealCustomerDTO.setName(plan.getName());
+        PlanMealCustomerDTO.setStartDate(plan.getStartDate());
+        PlanMealCustomerDTO.setEndDate(plan.getEndDate());
 
-        if (!Objects.isNull(weeklyPlan.getMeals())) {
-            List<MealDTO> mealDTOs = weeklyPlan.getMeals().stream()
+        if (!Objects.isNull(plan.getMeals())) {
+            List<MealDTO> mealDTOs = plan.getMeals().stream()
                     .map(this::mapMealToMealDTO)
                     .collect(Collectors.toList());
-            weeklyPlanMealCustomerDTO.setMeals(mealDTOs);
+            PlanMealCustomerDTO.setMeals(mealDTOs);
         }
-        List<CustomerDTO> customerDTOs = weeklyPlan.getCustomers().stream()
+        List<CustomerDTO> customerDTOs = plan.getCustomers().stream()
                 .map(this::mapCustomerToCustomerDTO)
                 .collect(Collectors.toList());
-        weeklyPlanMealCustomerDTO.setCustomers(customerDTOs);
-        return weeklyPlanMealCustomerDTO;
+        PlanMealCustomerDTO.setCustomers(customerDTOs);
+        return PlanMealCustomerDTO;
 
     }
 
@@ -61,7 +63,6 @@ public class Mapper {
         mealFoodDTO.setName(meal.getName());
         mealFoodDTO.setDescription(meal.getDescription());
         mealFoodDTO.setType(meal.getType());
-        mealFoodDTO.setDay(meal.getDay());
         if(!Objects.isNull(meal.getFoods())) {
             List<FoodDTO> foodDTOS = meal.getFoods().stream()
                     .map(this::mapFoodToFoodDTO)
@@ -71,26 +72,26 @@ public class Mapper {
         return mealFoodDTO;
     }
 
-    public MealFoodWeeklyPlanDTO mapMealToMealFoodWeeklyPlanDTO(Meal meal) {
-        mealFoodWeeklyPlanDTO.setName(meal.getName());
-        mealFoodWeeklyPlanDTO.setDescription(meal.getDescription());
-        mealFoodWeeklyPlanDTO.setType(meal.getType());
-        mealFoodWeeklyPlanDTO.setDay(meal.getDay());
-        return mealFoodWeeklyPlanDTO;
+    public MealFoodPlanDTO mapMealToMealFoodPlanDTO(Meal meal) {
+        mealFoodPlanDTO.setName(meal.getName());
+        mealFoodPlanDTO.setDescription(meal.getDescription());
+        mealFoodPlanDTO.setType(meal.getType());
+        mealFoodPlanDTO.setDay(meal.getDay());
+        return mealFoodPlanDTO;
     }
 
-    public CustomerWeeklyPlanDTO customerWeeklyPlanDTO(Customer customer) {
-        customerWeeklyPlanDTO.setId(customer.getId());
-        customerWeeklyPlanDTO.setFirstName(customer.getFirstName());
-        customerWeeklyPlanDTO.setLastName(customer.getLastName());
-        customerWeeklyPlanDTO.setEmail(customer.getEmail());
-        customerWeeklyPlanDTO.setPhone(customer.getPhone());
+    public CustomerPlanDTO customerPlanDTO(Customer customer) {
+        customerPlanDTO.setId(customer.getId());
+        customerPlanDTO.setFirstName(customer.getFirstName());
+        customerPlanDTO.setLastName(customer.getLastName());
+        customerPlanDTO.setEmail(customer.getEmail());
+        customerPlanDTO.setPhone(customer.getPhone());
 
-        List<WeeklyPlanDTO> weeklyPlanDTOS = customer.getPlans().stream()
-                .map(this::weeklyPlanToWeeklyPlanDTO)
+        List<PlanDTO> PlanDTOS = customer.getPlans().stream()
+                .map(this::PlanToPlanDTO)
                 .collect(Collectors.toList());
-        customerWeeklyPlanDTO.setPlans(weeklyPlanDTOS);
-        return customerWeeklyPlanDTO;
+        customerPlanDTO.setPlans(PlanDTOS);
+        return customerPlanDTO;
     }
 
     public MealDTO mapMealToMealDTO(Meal meal) {
@@ -108,13 +109,27 @@ public class Mapper {
     }
 
     public Meal mapMealFoodDTOToMeal(MealFoodDTO mealFoodDTO) {
-        mapMealCommonProperties(meal, mealFoodDTO);
+        meal.setId(mealDTO.getId());
+        meal.setName(mealDTO.getName());
+        meal.setQuantity(mealDTO.getQuantity());
+        meal.setDescription(mealDTO.getDescription());
+        meal.setDay(mealDTO.getDay());
+        meal.setType(mealDTO.getType());
+        if(mealFoodDTO.getFoodDTOS() != null) {
+            List<Food> foods = mealFoodDTO.getFoodDTOS().stream()
+                    .map(this::mapFoodDTOToFood)
+                    .collect(Collectors.toList());
+            meal.setFoods(foods);
+        }
         return meal;
     }
+
 
     public Food mapMealFoodDTOToFood(MealFoodDTO mealFoodDTO){
         food.setName(mealFoodDTO.getName());
         food.setDescription(mealFoodDTO.getDescription());
+        food.setGram(mealFoodDTO.getGram());
+        food.setCalories(mealFoodDTO.getCalories());
         food.setType(mealFoodDTO.getType());
         return food;
     }
@@ -137,28 +152,28 @@ public class Mapper {
         return customer;
     }
 
-    public Customer mapCustomerWeeklyPlanDTOToCustomer(CustomerWeeklyPlanDTO customerWeeklyPlanDTO) {
+    public Customer mapCustomerPlanDTOToCustomer(CustomerPlanDTO customerPlanDTO) {
         Customer customer = new Customer();
-        mapCustomerCommonProperties(customer, customerWeeklyPlanDTO);
+        mapCustomerCommonProperties(customer, customerPlanDTO);
         return customer;
     }
 
 
-    public WeeklyPlanDTO weeklyPlanToWeeklyPlanDTO(WeeklyPlan weeklyPlan) {
-        weeklyPlanDTO.setId(weeklyPlan.getId());
-        weeklyPlanDTO.setName(weeklyPlan.getName());
-        weeklyPlanDTO.setStartDate(weeklyPlan.getStartDate());
-        weeklyPlanDTO.setEndDate(weeklyPlan.getEndDate());
-        return weeklyPlanDTO;
+    public PlanDTO PlanToPlanDTO(Plan plan) {
+        PlanDTO.setId(plan.getId());
+        PlanDTO.setName(plan.getName());
+        PlanDTO.setStartDate(plan.getStartDate());
+        PlanDTO.setEndDate(plan.getEndDate());
+        return PlanDTO;
     }
 
-    public WeeklyPlan mapWeeklyPlanDTOToWeeklyPlan(WeeklyPlanDTO weeklyPlanDTO) {
-        weeklyPlan.setId(weeklyPlanDTO.getId());
-        weeklyPlan.setName(weeklyPlanDTO.getName());
-        weeklyPlan.setDuration(weeklyPlanDTO.getDuration());
-        weeklyPlan.setStartDate(weeklyPlanDTO.getStartDate());
-        weeklyPlan.setEndDate(weeklyPlanDTO.getEndDate());
-        return weeklyPlan;
+    public Plan mapPlanDTOToPlan(PlanDTO PlanDTO) {
+        plan.setId(PlanDTO.getId());
+        plan.setName(PlanDTO.getName());
+        plan.setDuration(PlanDTO.getDuration());
+        plan.setStartDate(PlanDTO.getStartDate());
+        plan.setEndDate(PlanDTO.getEndDate());
+        return plan;
     }
 
     public FoodDTO mapFoodToFoodDTO(Food food) {
@@ -198,6 +213,7 @@ public class Mapper {
     public void mapMealCommonProperties(Meal meal, MealDTO mealDTO) {
         meal.setId(mealDTO.getId());
         meal.setName(mealDTO.getName());
+        meal.setQuantity(mealDTO.getQuantity());
         meal.setDescription(mealDTO.getDescription());
         meal.setDay(mealDTO.getDay());
         meal.setType(mealDTO.getType());

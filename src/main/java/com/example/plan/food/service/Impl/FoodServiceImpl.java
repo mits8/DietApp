@@ -52,10 +52,10 @@ public class FoodServiceImpl implements FoodService {
 
     @Override
     public FoodDTO findById(int id) {
-        Optional<Food> optional = foodRepository.findById(id);
+        Optional<Food> existingFood = foodRepository.findById(id);
         Food food = null;
-        if (optional.isPresent()){
-           food = optional.get();
+        if (existingFood.isPresent()){
+           food = existingFood.get();
            FoodDTO foodDTO = mapper.mapFoodToFoodDTO(food);
         return foodDTO;
         } else {
@@ -74,16 +74,16 @@ public class FoodServiceImpl implements FoodService {
 
     @Override
     public FoodDTO findByName(String name) {
-        Optional<Food> food = foodRepository.findByName(name);
-        FoodDTO foodDTO = mapper.mapFoodToFoodDTO(food.get());
+        Food food = foodRepository.findByName(name);
+        FoodDTO foodDTO = mapper.mapFoodToFoodDTO(food);
         return foodDTO;
     }
 
     @Transactional
     @Override
-    public ResponseEntity<FoodResponseMessage> saveFood(FoodDTO foodDTO) {
+    public ResponseEntity<FoodResponseMessage> addFood(FoodDTO foodDTO) {
         try {
-            Optional<Food> name = foodRepository.findByName(foodDTO.getName());
+            Food name = foodRepository.findByName(foodDTO.getName());
             if (Objects.isNull(name)) {
                 if (validation.isValidFieldLetters(foodDTO) && validation.isValidFieldNumbers(foodDTO)) {
                     Food food = mapper.mapFoodDTOToFood(foodDTO);
@@ -115,9 +115,14 @@ public class FoodServiceImpl implements FoodService {
         try {
             Optional<Food> existingFood = foodRepository.findById(id);
             if (existingFood.isPresent()){
-                Food food = existingFood.get();
+                Food updateFood = existingFood.get();
                 if (validation.isValidFieldLetters(foodDTO) && validation.isValidFieldNumbers(foodDTO)) {
-                        foodRepository.save(food);
+                        updateFood.setName(foodDTO.getName());
+                        updateFood.setDescription(foodDTO.getDescription());
+                        updateFood.setGram(foodDTO.getGram());
+                        updateFood.setCalories(foodDTO.getCalories());
+                        updateFood.setType(foodDTO.getType());
+                        foodRepository.save(updateFood);
                         String message = "Το φαγητό " + "'" + foodDTO.getName() + "'" + " ενημερώθηκε επιτυχώς!";
                         FoodResponseMessage response = new FoodResponseMessage(message, foodDTO);
                         return new ResponseEntity<>(response, HttpStatus.OK);

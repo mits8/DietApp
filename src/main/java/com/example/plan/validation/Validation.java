@@ -1,7 +1,7 @@
 package com.example.plan.validation;
 
 import com.example.plan.dto.customer.CustomerDTO;
-import com.example.plan.dto.customer.CustomerWeeklyPlanDTO;
+import com.example.plan.dto.customer.CustomerPlanDTO;
 import com.example.plan.dto.food.FoodDTO;
 import org.springframework.stereotype.Component;
 
@@ -22,8 +22,8 @@ public class Validation {
         return isValidNameLengthAndLetters(customerDTO.getFirstName(), customerDTO.getLastName());
     }
 
-    public boolean isValidNameLengthCustomerWeeklyPlanDTO(CustomerWeeklyPlanDTO customerWeeklyPlanDTO) {
-        return isValidNameLengthAndLetters(customerWeeklyPlanDTO.getFirstName(), customerWeeklyPlanDTO.getLastName());
+    public boolean isValidNameLengthCustomerPlanDTO(CustomerPlanDTO customerPlanDTO) {
+        return isValidNameLengthAndLetters(customerPlanDTO.getFirstName(), customerPlanDTO.getLastName());
     }
 
     public boolean isValidPhone(String phone) {
@@ -37,8 +37,8 @@ public class Validation {
         return isValidPhone(customerDTO.getPhone());
     }
 
-    public boolean isValidNumbersAndLengthCustomerWeeklyPlanDTO(CustomerWeeklyPlanDTO customerWeeklyPlanDTO){
-        return isValidPhone(customerWeeklyPlanDTO.getPhone());
+    public boolean isValidNumbersAndLengthCustomerPlanDTO(CustomerPlanDTO customerPlanDTO){
+        return isValidPhone(customerPlanDTO.getPhone());
     }
 
     public boolean isValidFoodLetters(String lettersField){
@@ -60,7 +60,7 @@ public class Validation {
     }
 
     public boolean isValidFieldNumbers(FoodDTO foodDTO) {
-        return (isValidFoodNumbers(foodDTO.getQuantity())) && isValidFoodNumbers(foodDTO.getGram()) && isValidFoodNumbers(foodDTO.getCalories());
+        return isValidFoodNumbers(foodDTO.getGram()) && isValidFoodNumbers(foodDTO.getCalories());
     }
 
 

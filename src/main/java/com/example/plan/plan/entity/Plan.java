@@ -1,4 +1,4 @@
-package com.example.plan.weeklyPlan.entity;
+package com.example.plan.plan.entity;
 
 import com.example.plan.customer.entity.Customer;
 import com.example.plan.enums.Duration;
@@ -17,9 +17,9 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "weekly_plan")
+@Table(name = "plan")
 @ToString(exclude = "meals")
-public class WeeklyPlan {
+public class Plan {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,16 +37,16 @@ public class WeeklyPlan {
 
     @ManyToMany
     @JoinTable(
-            name = "weekly_plan_meal",
-            joinColumns = @JoinColumn(name = "weekly_plan_id"),
+            name = "plan_meal",
+            joinColumns = @JoinColumn(name = "plan_id"),
             inverseJoinColumns = @JoinColumn(name = "meal_id")
     )
     private List<Meal> meals = new ArrayList<>();
 
     @ManyToMany(cascade = CascadeType.PERSIST)
     @JoinTable(
-            name = "customer_weekly_plan",
-            joinColumns = @JoinColumn(name = "weekly_plan_id"),
+            name = "customer_plan",
+            joinColumns = @JoinColumn(name = "plan_id"),
             inverseJoinColumns = @JoinColumn(name = "customer_id")
     )
 

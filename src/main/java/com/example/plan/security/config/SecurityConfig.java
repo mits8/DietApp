@@ -40,7 +40,7 @@ public class SecurityConfig {
                 .requestMatchers("/auth/login","/auth/authenticate", "/auth/logout", "/auth/generateToken").permitAll()
                 .and()
                 .authorizeHttpRequests()
-                .requestMatchers("/user/**", "/products/**", "/auth/**", "/email/**", "customer/**", "/food/**", "/meal/**", "/weeklyPlan/**")
+                .requestMatchers("/user/**", "/products/**", "/auth/**", "/email/**", "customer/**", "/food/**", "/meal/**", "/plan/**")
                 .authenticated().and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

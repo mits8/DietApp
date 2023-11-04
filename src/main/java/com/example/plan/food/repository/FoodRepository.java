@@ -12,7 +12,7 @@ import java.util.Optional;
 @Repository
 public interface FoodRepository extends JpaRepository<Food, Integer> {
 
-    Optional<Food> findByName(String name);
+    Food findByName(String name);
 
     @Query("SELECT f FROM Food f WHERE f.type=:type")
     List<Food> findByType(Type type);

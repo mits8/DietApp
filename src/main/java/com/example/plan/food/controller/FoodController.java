@@ -43,8 +43,10 @@ public class FoodController {
     }
 
     @PostMapping("/addFood")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+
     public ResponseEntity<FoodResponseMessage> saveFood(@RequestBody FoodDTO foodDTO) {
-        return foodService.saveFood(foodDTO);
+        return foodService.addFood(foodDTO);
     }
 
     @PutMapping("/update/{id}")

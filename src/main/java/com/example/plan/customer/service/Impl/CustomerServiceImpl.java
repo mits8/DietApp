@@ -5,11 +5,11 @@ import com.example.plan.customer.entity.Customer;
 import com.example.plan.customer.repository.CustomerRepository;
 import com.example.plan.customer.service.CustomerService;
 import com.example.plan.dto.customer.CustomerDTO;
-import com.example.plan.dto.customer.CustomerWeeklyPlanDTO;
+import com.example.plan.dto.customer.CustomerPlanDTO;
 import com.example.plan.map.Mapper;
 import com.example.plan.utils.customer.CustomerResponseMessage;
-import com.example.plan.weeklyPlan.entity.WeeklyPlan;
-import com.example.plan.weeklyPlan.repository.WeeklyPlanRepository;
+import com.example.plan.plan.entity.Plan;
+import com.example.plan.plan.repository.PlanRepository;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,7 @@ public class CustomerServiceImpl implements CustomerService {
     private CustomerRepository customerRepository;
 
     @Autowired
-    private WeeklyPlanRepository weeklyPlanRepository;
+    private PlanRepository PlanRepository;
 
 
     @Autowired
@@ -50,20 +50,20 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public List<CustomerWeeklyPlanDTO> findCustomerWithWeeklyPlan() {
+    public List<CustomerPlanDTO> findCustomerWithPlan() {
         List<Customer> customers = customerRepository.findAll();
-        List<CustomerWeeklyPlanDTO> customerWeeklyPlanDTOS= customers.stream()
-                .map(mapper::customerWeeklyPlanDTO)
+        List<CustomerPlanDTO> customerPlanDTOS= customers.stream()
+                .map(mapper::customerPlanDTO)
                 .collect(Collectors.toList());
-        return customerWeeklyPlanDTOS;
+        return customerPlanDTOS;
     }
 
 
     @Override
     public CustomerDTO findById(int id) {
-        Optional<Customer> optional = customerRepository.findById(id);
-        if (optional.isPresent()) {
-        Customer customer = optional.get();
+        Optional<Customer> existingCustomer = customerRepository.findById(id);
+        if (existingCustomer.isPresent()) {
+        Customer customer = existingCustomer.get();
         CustomerDTO customerDTO = mapper.mapCustomerToCustomerDTO(customer);
         return  customerDTO;
         } else {
@@ -89,7 +89,7 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public ResponseEntity<CustomerResponseMessage> addCustomer(CustomerDTO customerDTO) {
         try {
-            Optional<Customer> email = customerRepository.findByEmail(customerDTO.getEmail());
+            Customer email = customerRepository.findByEmail(customerDTO.getEmail());
             if (Objects.isNull(email)) {
                 if (validation.isValidNameLengthCustomerDTO(customerDTO)) {
                     if (validation.isValidNumbersAndLengthCustomerDTO(customerDTO)) {
@@ -125,31 +125,31 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Transactional
     @Override
-    public ResponseEntity<CustomerResponseMessage> addCustomerWithWeeklyPlan(CustomerWeeklyPlanDTO customerWeeklyPlanDTO) {
+    public ResponseEntity<CustomerResponseMessage> addCustomerWithPlan(CustomerPlanDTO customerPlanDTO) {
         try {
 
-            Optional<Customer> email = customerRepository.findByEmail(customerWeeklyPlanDTO.getEmail());
+            Customer email = customerRepository.findByEmail(customerPlanDTO.getEmail());
             if (Objects.isNull(email)) {
-                if (validation.isValidNameLengthCustomerWeeklyPlanDTO(customerWeeklyPlanDTO)) {
-                    if (validation.isValidNumbersAndLengthCustomerWeeklyPlanDTO(customerWeeklyPlanDTO)) {
-                        Customer customer = mapper.mapCustomerWeeklyPlanDTOToCustomer(customerWeeklyPlanDTO);
-                        List<WeeklyPlan> weeklyPlanEntities = customerWeeklyPlanDTO.getPlans().stream()
-                                .filter(weeklyPlanDTO -> weeklyPlanDTO.getId() == 0)
-                                .map(weeklyPlanDTO -> {
-                                    WeeklyPlan weeklyPlan = mapper.mapWeeklyPlanDTOToWeeklyPlan(weeklyPlanDTO);
-                                    return weeklyPlanRepository.save(weeklyPlan);
+                if (validation.isValidNameLengthCustomerPlanDTO(customerPlanDTO)) {
+                    if (validation.isValidNumbersAndLengthCustomerPlanDTO(customerPlanDTO)) {
+                        Customer customer = mapper.mapCustomerPlanDTOToCustomer(customerPlanDTO);
+                        List<Plan> PlanEntities = customerPlanDTO.getPlans().stream()
+                                .filter(PlanDTO -> PlanDTO.getId() == 0)
+                                .map(PlanDTO -> {
+                                    Plan plan = mapper.mapPlanDTOToPlan(PlanDTO);
+                                    return PlanRepository.save(plan);
                                 })
                                 .collect(Collectors.toList());
 
-                        customer.setPlans(weeklyPlanEntities);
+                        customer.setPlans(PlanEntities);
                         customerRepository.save(customer);
 
                         String message = "Ο πελάτης " + "'" + customer.getFirstName() + " " + customer.getLastName() + "'" + " με τα πλάνα γράφτηκαν επιτυχώς!";
-                        CustomerResponseMessage response = new CustomerResponseMessage(message, customerWeeklyPlanDTO);
+                        CustomerResponseMessage response = new CustomerResponseMessage(message, customerPlanDTO);
                         return new ResponseEntity<>(response, HttpStatus.OK);
                     } else {
                         String message = "Το τηλέφωνο πρέπει να περιέχει 10 αριθμούς ..";
-                        CustomerResponseMessage response = new CustomerResponseMessage(message, customerWeeklyPlanDTO);
+                        CustomerResponseMessage response = new CustomerResponseMessage(message, customerPlanDTO);
                         return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
                     }
                 }else {
@@ -158,7 +158,7 @@ public class CustomerServiceImpl implements CustomerService {
                     return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
                 }
             } else {
-                String message = "Ο πελάτης με email" + "'" + customerWeeklyPlanDTO.getEmail() + "'" + " υπάρχει ήδη..";
+                String message = "Ο πελάτης με email" + "'" + customerPlanDTO.getEmail() + "'" + " υπάρχει ήδη..";
                 CustomerResponseMessage response = new CustomerResponseMessage(message, null);
                 return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
             }
@@ -180,7 +180,7 @@ public class CustomerServiceImpl implements CustomerService {
                Customer updateCustomer = existingCustomer.get();
                if (validation.isValidNameLengthCustomerDTO(customerDTO)) {
                    updateCustomer.setFirstName(customerDTO.getFirstName());
-                   updateCustomer.setLastName(customerDTO.getLastName());
+                       updateCustomer.setLastName(customerDTO.getLastName());
                }else {
                    String message = "Οι χαρακτήρες πρέπει να είναι γράμματα  '5-30'..";
                    CustomerResponseMessage response = new CustomerResponseMessage(message, (CustomerDTO) null);
@@ -241,22 +241,22 @@ public class CustomerServiceImpl implements CustomerService {
     }
     @Transactional
     @Override
-    public ResponseEntity<CustomerResponseMessage> deleteCustomerAndWeeklyPlanById(int customerId, int weeklyPlanId) {
+    public ResponseEntity<CustomerResponseMessage> deleteCustomerAndPlanById(int customerId, int PlanId) {
         try {
             Optional<Customer> optionalCustomer = customerRepository.findById(customerId);
-            Optional<WeeklyPlan> optionalWeeklyPlan = weeklyPlanRepository.findById(weeklyPlanId);
+            Optional<Plan> optionalPlan = PlanRepository.findById(PlanId);
             if (optionalCustomer.isPresent()) {
-                if (optionalWeeklyPlan.isPresent()) {
-                    weeklyPlanRepository.deleteById(weeklyPlanId);
+                if (optionalPlan.isPresent()) {
+                    PlanRepository.deleteById(PlanId);
                     customerRepository.deleteById(customerId);
                 }
-                String message = "Ο πελάτης " + "'" + optionalCustomer.get().getFirstName() + " " + optionalCustomer.get().getLastName() + "'" + "και το πλάνο " + "'" + optionalWeeklyPlan.get().getName() + "'" + " διαγράφτηκε επιτυχώς!";
-                CustomerResponseMessage response = new CustomerResponseMessage(message, (CustomerWeeklyPlanDTO) null);
+                String message = "Ο πελάτης " + "'" + optionalCustomer.get().getFirstName() + " " + optionalCustomer.get().getLastName() + "'" + "και το πλάνο " + "'" + optionalPlan.get().getName() + "'" + " διαγράφτηκε επιτυχώς!";
+                CustomerResponseMessage response = new CustomerResponseMessage(message, (CustomerPlanDTO) null);
                 return new ResponseEntity<> (response, HttpStatus.OK);
 
             } else {
                 String message = "Ο πελάτης ή το πλάνο ΔΕΝ βρέθηκαν..";
-                CustomerResponseMessage response = new CustomerResponseMessage(message, (CustomerWeeklyPlanDTO) null);
+                CustomerResponseMessage response = new CustomerResponseMessage(message, (CustomerPlanDTO) null);
                 return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 
             }
@@ -264,7 +264,7 @@ public class CustomerServiceImpl implements CustomerService {
             log.info("{}", ex);
         }
         String message = "Κάτι πήγε λάθος..";
-        CustomerResponseMessage response = new CustomerResponseMessage(message, (CustomerWeeklyPlanDTO) null);
+        CustomerResponseMessage response = new CustomerResponseMessage(message, (CustomerPlanDTO) null);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 }

@@ -1,7 +1,7 @@
 package com.example.plan.customer.service;
 
 import com.example.plan.dto.customer.CustomerDTO;
-import com.example.plan.dto.customer.CustomerWeeklyPlanDTO;
+import com.example.plan.dto.customer.CustomerPlanDTO;
 import com.example.plan.utils.customer.CustomerResponseMessage;
 import jakarta.transaction.Transactional;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +11,7 @@ import java.util.List;
 public interface CustomerService {
     List<CustomerDTO> findAll();
 
-    List<CustomerWeeklyPlanDTO> findCustomerWithWeeklyPlan();
+    List<CustomerPlanDTO> findCustomerWithPlan();
 
     CustomerDTO findById(int id);
 
@@ -23,11 +23,11 @@ public interface CustomerService {
     ResponseEntity<CustomerResponseMessage> addCustomer(CustomerDTO customerDTO);
 
     @Transactional
-    ResponseEntity<CustomerResponseMessage> addCustomerWithWeeklyPlan(CustomerWeeklyPlanDTO customerWeeklyPlanDTO);
+    ResponseEntity<CustomerResponseMessage> addCustomerWithPlan(CustomerPlanDTO customerPlanDTO);
 
     ResponseEntity<CustomerResponseMessage> updateCustomer(CustomerDTO customerDTO, int id);
 
-    ResponseEntity<CustomerResponseMessage> deleteCustomerAndWeeklyPlanById(int  customerId, int weeklyPlanId);
+    ResponseEntity<CustomerResponseMessage> deleteCustomerAndPlanById(int  customerId, int PlanId);
 
     ResponseEntity<CustomerResponseMessage> deleteCustomer(int id);
 

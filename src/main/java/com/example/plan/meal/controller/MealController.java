@@ -39,7 +39,7 @@ public class MealController {
 
     @PostMapping("/save")
     public ResponseEntity<MealResponseMessage> saveMeal(@RequestBody MealDTO mealDTO) {
-        return mealService.saveMeal(mealDTO);
+        return mealService.addMeal(mealDTO);
     }
 
     @PostMapping("/save/meal-foods")
@@ -55,13 +55,25 @@ public class MealController {
 
     @PostMapping("/{id}/save/foods")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<MealResponseMessage> addFoodToMeal(@RequestBody MealFoodDTO mealFoodDTO,@PathVariable int id) {
+    public ResponseEntity<MealResponseMessage> addFoodToMeal(@RequestBody MealFoodDTO mealFoodDTO, @PathVariable int id) {
         return mealService.addFoodToMeal(mealFoodDTO, id);
     }
 
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<MealResponseMessage> deleteCustomer(@PathVariable int  id) {
+    public ResponseEntity<MealResponseMessage> deleteMeal(@PathVariable int  id) {
         return mealService.deleteMeal(id);
+    }
+
+    @DeleteMapping("/delete/both/meal/{mealId}/food/{foodId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<MealResponseMessage> deleteMealAndFood(@PathVariable int  mealId, @PathVariable int foodId) {
+        return mealService.deleteMealAndFood(mealId, foodId);
+    }
+
+    @DeleteMapping("delete/{mealId}/food/{foodId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<MealResponseMessage> removeFoodFromMeal(@PathVariable int  mealId, @PathVariable int foodId) {
+        return mealService.removeFoodFromMeal(mealId, foodId);
     }
 }

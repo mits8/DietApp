@@ -16,7 +16,7 @@ public interface MealService {
 
     List<MealDTO> findByTypeBreakfast(Type type);
 
-    ResponseEntity<MealResponseMessage> saveMeal(MealDTO mealDTO);
+    ResponseEntity<MealResponseMessage> addMeal(MealDTO mealDTO);
 
     @Transactional
     ResponseEntity<MealResponseMessage> addMealWithFoods(MealFoodDTO mealFoodDTO);
@@ -27,4 +27,10 @@ public interface MealService {
     ResponseEntity<MealResponseMessage> updateMeal(MealDTO mealDTO, int id);
 
     ResponseEntity<MealResponseMessage> deleteMeal(int id);
+
+    @Transactional
+    ResponseEntity<MealResponseMessage> deleteMealAndFood(int mealId, int foodId);
+
+    @Transactional
+    ResponseEntity<MealResponseMessage> removeFoodFromMeal(int mealId, int foodId);
 }

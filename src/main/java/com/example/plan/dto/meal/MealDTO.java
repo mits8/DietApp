@@ -16,6 +16,7 @@ public class MealDTO {
     private int id;
     private String name;
     private String description;
+    private String quantity;
 
     @Enumerated(EnumType.STRING)
     private Day day;

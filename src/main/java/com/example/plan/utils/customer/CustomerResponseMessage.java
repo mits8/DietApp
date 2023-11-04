@@ -1,7 +1,7 @@
 package com.example.plan.utils.customer;
 
 import com.example.plan.dto.customer.CustomerDTO;
-import com.example.plan.dto.customer.CustomerWeeklyPlanDTO;
+import com.example.plan.dto.customer.CustomerPlanDTO;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,7 +12,7 @@ public class CustomerResponseMessage {
     private String message;
     private CustomerDTO customerDTO;
 
-    private CustomerWeeklyPlanDTO customerWeeklyPlanDTO;
+    private CustomerPlanDTO customerPlanDTO;
 
 
     public CustomerResponseMessage(String message, CustomerDTO customerDTO) {
@@ -20,8 +20,8 @@ public class CustomerResponseMessage {
         this.customerDTO = customerDTO;
     }
 
-    public CustomerResponseMessage(String message, CustomerWeeklyPlanDTO customerWeeklyPlanDTO) {
+    public CustomerResponseMessage(String message, CustomerPlanDTO customerPlanDTO) {
         this.message = message;
-        this.customerWeeklyPlanDTO = customerWeeklyPlanDTO;
+        this.customerPlanDTO = customerPlanDTO;
     }
 }

@@ -1,8 +1,8 @@
 package com.example.plan.utils;
 
 import com.example.plan.dto.customer.CustomerDTO;
-import com.example.plan.dto.weeklyPlan.WeeklyPlanDTO;
-import com.example.plan.weeklyPlan.entity.WeeklyPlan;
+import com.example.plan.dto.plan.PlanDTO;
+import com.example.plan.plan.entity.Plan;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,19 +12,19 @@ public class ResponseMessage {
 
     private String message;
 
-    private WeeklyPlan weeklyPlan;
-    private WeeklyPlanDTO weeklyPlanDTO;
+    private Plan plan;
+    private PlanDTO PlanDTO;
     private CustomerDTO customerDTO;
 
-    public ResponseMessage(String message, WeeklyPlan weeklyPlan) {
+    public ResponseMessage(String message, Plan plan) {
         this.message = message;
-        this.weeklyPlan = weeklyPlan;
+        this.plan = plan;
     }
 
 
-    public ResponseMessage(String message, WeeklyPlanDTO weeklyPlanDTO) {
+    public ResponseMessage(String message, PlanDTO PlanDTO) {
         this.message = message;
-        this.weeklyPlanDTO = weeklyPlanDTO;
+        this.PlanDTO = PlanDTO;
     }
 
     public ResponseMessage(String message, CustomerDTO customerDTO) {

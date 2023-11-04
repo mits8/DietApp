@@ -1,6 +1,6 @@
 package com.example.plan.utils;
 
-import com.example.plan.weeklyPlan.entity.WeeklyPlan;
+import com.example.plan.plan.entity.Plan;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,7 +1,7 @@
 package com.example.plan.dto.meal;
 
 import com.example.plan.dto.food.FoodDTO;
-import com.example.plan.dto.weeklyPlan.WeeklyPlanDTO;
+import com.example.plan.dto.plan.PlanDTO;
 import com.example.plan.enums.Day;
 import com.example.plan.enums.Type;
 import jakarta.persistence.EnumType;
@@ -16,12 +16,12 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class MealFoodWeeklyPlanDTO {
+public class MealFoodPlanDTO extends MealFoodDTO{
 
         private int id;
         private String name;
         private String description;
-
+        private String quantity;
         @Enumerated(EnumType.STRING)
         private Day day;
         @Enumerated(EnumType.STRING)
@@ -29,6 +29,6 @@ public class MealFoodWeeklyPlanDTO {
 
         List<FoodDTO> foodDTOS = new ArrayList<>();
 
-        List<WeeklyPlanDTO> weeklyPlanDTOS = new ArrayList<>();
+        List<PlanDTO> PlanDTOS = new ArrayList<>();
 
 }
