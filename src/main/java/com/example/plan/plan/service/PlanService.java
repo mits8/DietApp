@@ -1,6 +1,7 @@
 package com.example.plan.plan.service;
 
 import com.example.plan.dto.Plan.PlanDTO;
+import com.example.plan.dto.customer.CustomerDTO;
 import com.example.plan.dto.meal.MealDTO;
 import com.example.plan.dto.plan.PlanMealCustomerDTO;
 import com.example.plan.meal.entity.Meal;
@@ -20,6 +21,9 @@ public interface PlanService {
 
     @Transactional
     ResponseEntity<ResponseMessage> addMealToPlan(Map<String, List<MealDTO>> mealData, int id);
+
+    @Transactional
+    ResponseEntity<ResponseMessage> addCustomerToPlan(Map<String, List<CustomerDTO>> mealData, int id);
 
     @Transactional
     ResponseEntity<ResponseMessage> updatePlan(PlanDTO planDTO, int id);

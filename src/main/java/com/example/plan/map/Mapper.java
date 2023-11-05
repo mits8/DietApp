@@ -171,12 +171,19 @@ public class Mapper {
         planDTO.setName(plan.getName());
         planDTO.setStartDate(plan.getStartDate());
         planDTO.setEndDate(plan.getEndDate());
-        if (!Objects.isNull(plan.getMeals())) {
+        if (!Objects.isNull(plan.getMeals()) && (!Objects.isNull(plan.getCustomers()))) {
             List<MealDTO> mealDTOs = plan.getMeals().stream()
                     .map(this::mapMealToMealDTO)
                     .collect(Collectors.toList());
             planDTO.setMealDTOS(mealDTOs);
+
+            List<CustomerDTO> customerDTOS = plan.getCustomers().stream()
+                    .map(this::mapCustomerToCustomerDTO)
+                    .collect(Collectors.toList());
+            planDTO.setCustomerDTOS(customerDTOS);
+
         }
+
 
         return planDTO;
     }

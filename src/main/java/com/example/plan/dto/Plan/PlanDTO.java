@@ -1,5 +1,6 @@
 package com.example.plan.dto.Plan;
 
+import com.example.plan.dto.customer.CustomerDTO;
 import com.example.plan.dto.food.FoodDTO;
 import com.example.plan.dto.meal.MealDTO;
 import com.example.plan.enums.Duration;
@@ -24,4 +25,6 @@ public class PlanDTO {
 
     List<MealDTO> mealDTOS = new ArrayList<>();
     List<FoodDTO> foodDTOS = new ArrayList<>();
+
+    List<CustomerDTO> customerDTOS = new ArrayList<>();
 }

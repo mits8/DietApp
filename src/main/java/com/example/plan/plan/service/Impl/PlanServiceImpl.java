@@ -4,6 +4,7 @@ import com.example.plan.constants.PlanConstants;
 import com.example.plan.customer.entity.Customer;
 import com.example.plan.customer.repository.CustomerRepository;
 import com.example.plan.dto.Plan.PlanDTO;
+import com.example.plan.dto.customer.CustomerDTO;
 import com.example.plan.dto.meal.MealDTO;
 import com.example.plan.dto.plan.PlanMealCustomerDTO;
 import com.example.plan.food.entity.Food;
@@ -171,6 +172,34 @@ public class PlanServiceImpl implements PlanService {
                 for (MealDTO mealDTO : meals) {
                     Meal meal = mapper.mapMealDTOToMeal(mealDTO);
                     plan.getMeals().add(meal);
+                }
+                planRepository.save(plan);
+
+                PlanDTO planDTO = mapper.PlanToPlanDTO(plan);
+                String message = "Το πλάνο γράφτηκε επιτυχώς!";
+                ResponseMessage response = new ResponseMessage(message, planDTO);
+                return new ResponseEntity<>(response, HttpStatus.CREATED);
+            }
+        } catch (Exception ex) {
+            log.info("{}", ex);
+        }
+        String message = PlanConstants.SOMETHING_WENT_WRONG;
+        ResponseMessage response = new ResponseMessage(message, (PlanDTO) null);
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Transactional
+    @Override
+    public ResponseEntity<ResponseMessage> addCustomerToPlan(Map<String, List<CustomerDTO>> mealData, int id) {
+        try {
+            Optional<Plan> existingPlan = planRepository.findById(id);
+            Plan plan;
+            if (existingPlan.isPresent()) {
+                plan = existingPlan.get();
+                List<CustomerDTO> customerDTOS = mealData.get("customerDTOS");
+                for (CustomerDTO customerDTO : customerDTOS) {
+                    Customer customer = mapper.mapCustomerDTOToCustomer(customerDTO);
+                    plan.getCustomers().add(customer);
                 }
                 planRepository.save(plan);
 

@@ -1,6 +1,7 @@
 package com.example.plan.plan.controller;
 
 import com.example.plan.dto.Plan.PlanDTO;
+import com.example.plan.dto.customer.CustomerDTO;
 import com.example.plan.dto.meal.MealDTO;
 import com.example.plan.dto.plan.PlanMealCustomerDTO;
 import com.example.plan.meal.entity.Meal;
@@ -38,6 +39,11 @@ public class PlanController {
     public ResponseEntity<ResponseMessage> addMealToPlan(@RequestBody Map<String, List<MealDTO>> mealData, @PathVariable int id){
         List<MealDTO> meals = mealData.get("meals");
         return planService.addMealToPlan(mealData, id);
+    }
+
+    @PostMapping("/saveCustomer/{id}")
+    public ResponseEntity<ResponseMessage> addCustomerToPlan(@RequestBody Map<String, List<CustomerDTO>> mealData, @PathVariable int id){
+        return planService.addCustomerToPlan(mealData, id);
     }
 
     @PutMapping("/update/{id}")

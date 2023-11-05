@@ -43,7 +43,7 @@ public class Plan {
     )
     private List<Meal> meals = new ArrayList<>();
 
-    @ManyToMany(cascade = CascadeType.PERSIST)
+    @ManyToMany(cascade = CascadeType.MERGE)
     @JoinTable(
             name = "customer_plan",
             joinColumns = @JoinColumn(name = "plan_id"),
