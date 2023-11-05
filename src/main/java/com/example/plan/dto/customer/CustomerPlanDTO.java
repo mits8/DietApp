@@ -1,6 +1,6 @@
 package com.example.plan.dto.customer;
 
-import com.example.plan.dto.plan.PlanDTO;
+import com.example.plan.dto.Plan.PlanDTO;
 import com.example.plan.enums.Gender;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -39,5 +39,5 @@ public class CustomerPlanDTO extends CustomerDTO {
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
-    private List<PlanDTO> plans = new ArrayList<>();
+    private List<PlanDTO> planDTOS = new ArrayList<>();
 }

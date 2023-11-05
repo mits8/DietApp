@@ -1,11 +1,13 @@
 package com.example.plan.plan.controller;
 
-import com.example.plan.dto.plan.PlanDTO;
-import com.example.plan.utils.ResponseMessage;
+import com.example.plan.dto.Plan.PlanDTO;
+import com.example.plan.dto.meal.MealDTO;
 import com.example.plan.dto.plan.PlanMealCustomerDTO;
-import com.example.plan.utils.customer.CustomerResponseMessage;
+import com.example.plan.meal.entity.Meal;
 import com.example.plan.plan.entity.Plan;
 import com.example.plan.plan.service.PlanService;
+import com.example.plan.utils.ResponseMessage;
+import com.example.plan.utils.customer.CustomerResponseMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +15,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/plan")
@@ -29,6 +32,12 @@ public class PlanController {
     @PostMapping("/save")
     public ResponseEntity<ResponseMessage> addPlan(@RequestBody Plan plan){
         return planService.addPlan(plan);
+    }
+
+    @PostMapping("/saveMeal/{id}")
+    public ResponseEntity<ResponseMessage> addMealToPlan(@RequestBody Map<String, List<MealDTO>> mealData, @PathVariable int id){
+        List<MealDTO> meals = mealData.get("meals");
+        return planService.addMealToPlan(mealData, id);
     }
 
     @PutMapping("/update/{id}")

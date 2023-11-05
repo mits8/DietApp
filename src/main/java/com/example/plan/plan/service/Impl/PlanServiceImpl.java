@@ -3,7 +3,8 @@ package com.example.plan.plan.service.Impl;
 import com.example.plan.constants.PlanConstants;
 import com.example.plan.customer.entity.Customer;
 import com.example.plan.customer.repository.CustomerRepository;
-import com.example.plan.dto.plan.PlanDTO;
+import com.example.plan.dto.Plan.PlanDTO;
+import com.example.plan.dto.meal.MealDTO;
 import com.example.plan.dto.plan.PlanMealCustomerDTO;
 import com.example.plan.food.entity.Food;
 import com.example.plan.food.repository.FoodRepository;
@@ -22,10 +23,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -133,25 +131,81 @@ public class PlanServiceImpl implements PlanService {
         }
     }
 
+   /* @Transactional
+    @Override
+    public ResponseEntity<ResponseMessage> addMealToPlan(Map<String, List<Meal>> mealData, int id) {
+        try {
+            Optional<Plan> existingPlan = planRepository.findById(id);
+            Plan plan;
+            if (existingPlan.isPresent()) {
+                plan = existingPlan.get();
+
+                List<Meal> meals = mealData.get("meals");
+                for (Meal meal : meals) {
+                    plan.getMeals().add(meal);
+                }
+
+                planRepository.save(plan);
+            }
+            String message = "Το πλάνο γράφτηκε επιτυχώς!";
+                ResponseMessage response = new ResponseMessage(message, (PlanDTO) null);
+                return new ResponseEntity<>(response, HttpStatus.CREATED);
+
+        } catch (Exception ex) {
+            log.info("{}", ex);
+        }
+        String message = PlanConstants.SOMETHING_WENT_WRONG;
+        ResponseMessage response = new ResponseMessage(message, (PlanDTO) null);
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }*/
+
     @Transactional
     @Override
-    public ResponseEntity<ResponseMessage> updatePlan(PlanDTO PlanDTO, int id) {
+    public ResponseEntity<ResponseMessage> addMealToPlan(Map<String, List<MealDTO>> mealData, int id) {
+        try {
+            Optional<Plan> existingPlan = planRepository.findById(id);
+            Plan plan;
+            if (existingPlan.isPresent()) {
+                plan = existingPlan.get();
+                List<MealDTO> meals = mealData.get("mealDTOS");
+                for (MealDTO mealDTO : meals) {
+                    Meal meal = mapper.mapMealDTOToMeal(mealDTO);
+                    plan.getMeals().add(meal);
+                }
+                planRepository.save(plan);
+
+                PlanDTO planDTO = mapper.PlanToPlanDTO(plan);
+                String message = "Το πλάνο γράφτηκε επιτυχώς!";
+                ResponseMessage response = new ResponseMessage(message, planDTO);
+                return new ResponseEntity<>(response, HttpStatus.CREATED);
+            }
+        } catch (Exception ex) {
+            log.info("{}", ex);
+        }
+        String message = PlanConstants.SOMETHING_WENT_WRONG;
+        ResponseMessage response = new ResponseMessage(message, (PlanDTO) null);
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Transactional
+    @Override
+    public ResponseEntity<ResponseMessage> updatePlan(PlanDTO planDTO, int id) {
         try {
             Optional<Plan> optionalPlan = planRepository.findById(id);
             if (optionalPlan.isPresent()) {
                 Plan updatePlan = optionalPlan.get();
-                updatePlan.setId(PlanDTO.getId());
-                updatePlan.setName(PlanDTO.getName());
-                updatePlan.setDuration(PlanDTO.getDuration());
-                updatePlan.setStartDate(PlanDTO.getStartDate());
-                updatePlan.setEndDate(PlanDTO.getEndDate());
+                updatePlan.setId(planDTO.getId());
+                updatePlan.setName(planDTO.getName());
+                updatePlan.setDuration(planDTO.getDuration());
+                updatePlan.setStartDate(planDTO.getStartDate());
+                updatePlan.setEndDate(planDTO.getEndDate());
                 planRepository.save(updatePlan);
-                String message = "Το πλάνο " + "'" + PlanDTO.getName() + " ενημερώθηκε επιτυχώς!";
-                ResponseMessage response = new ResponseMessage(message,  PlanDTO);
+                String message = "Το πλάνο " + "'" + planDTO.getName() + " ενημερώθηκε επιτυχώς!";
+                ResponseMessage response = new ResponseMessage(message,  planDTO);
                 return new ResponseEntity<>(response , HttpStatus.OK);
             } else {
                 String message = "Το πλάνο ΔΕΝ βρέθηκε..";
-                ResponseMessage response = new ResponseMessage(message, PlanDTO);
+                ResponseMessage response = new ResponseMessage(message, (PlanDTO) null);
                 return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
         } catch (Exception ex) {

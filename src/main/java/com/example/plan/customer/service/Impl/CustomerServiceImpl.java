@@ -1,15 +1,15 @@
 package com.example.plan.customer.service.Impl;
 
-import com.example.plan.validation.Validation;
 import com.example.plan.customer.entity.Customer;
 import com.example.plan.customer.repository.CustomerRepository;
 import com.example.plan.customer.service.CustomerService;
 import com.example.plan.dto.customer.CustomerDTO;
 import com.example.plan.dto.customer.CustomerPlanDTO;
 import com.example.plan.map.Mapper;
-import com.example.plan.utils.customer.CustomerResponseMessage;
 import com.example.plan.plan.entity.Plan;
 import com.example.plan.plan.repository.PlanRepository;
+import com.example.plan.utils.customer.CustomerResponseMessage;
+import com.example.plan.validation.Validation;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -133,15 +133,14 @@ public class CustomerServiceImpl implements CustomerService {
                 if (validation.isValidNameLengthCustomerPlanDTO(customerPlanDTO)) {
                     if (validation.isValidNumbersAndLengthCustomerPlanDTO(customerPlanDTO)) {
                         Customer customer = mapper.mapCustomerPlanDTOToCustomer(customerPlanDTO);
-                        List<Plan> PlanEntities = customerPlanDTO.getPlans().stream()
-                                .filter(PlanDTO -> PlanDTO.getId() == 0)
-                                .map(PlanDTO -> {
-                                    Plan plan = mapper.mapPlanDTOToPlan(PlanDTO);
+                        List<Plan> plans = customerPlanDTO.getPlanDTOS().stream()
+                                .map(planDTO -> {
+                                    Plan plan = mapper.mapPlanDTOToPlan(planDTO);
                                     return PlanRepository.save(plan);
                                 })
                                 .collect(Collectors.toList());
 
-                        customer.setPlans(PlanEntities);
+                        customer.setPlans(plans);
                         customerRepository.save(customer);
 
                         String message = "Ο πελάτης " + "'" + customer.getFirstName() + " " + customer.getLastName() + "'" + " με τα πλάνα γράφτηκαν επιτυχώς!";

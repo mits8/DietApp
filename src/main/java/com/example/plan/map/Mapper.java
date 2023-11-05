@@ -1,26 +1,33 @@
 package com.example.plan.map;
 
 import com.example.plan.customer.entity.Customer;
+import com.example.plan.dto.Plan.PlanDTO;
 import com.example.plan.dto.customer.CustomerDTO;
 import com.example.plan.dto.customer.CustomerPlanDTO;
 import com.example.plan.dto.food.FoodDTO;
 import com.example.plan.dto.meal.MealDTO;
 import com.example.plan.dto.meal.MealFoodDTO;
 import com.example.plan.dto.meal.MealFoodPlanDTO;
-import com.example.plan.dto.plan.PlanDTO;
 import com.example.plan.dto.plan.PlanMealCustomerDTO;
 import com.example.plan.food.entity.Food;
 import com.example.plan.meal.entity.Meal;
 import com.example.plan.plan.entity.Plan;
+import com.example.plan.plan.repository.PlanRepository;
+import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
 public class Mapper {
+
+    @Autowired
+    private PlanRepository planRepository;
 
     private Customer customer = new Customer();
     private CustomerDTO customerDTO = new CustomerDTO();
@@ -35,7 +42,7 @@ public class Mapper {
     private MealFoodDTO mealFoodDTO = new MealFoodDTO();
 
     private Plan plan = new Plan();
-    private PlanDTO PlanDTO = new PlanDTO();
+    private PlanDTO planDTO = new PlanDTO();
     private MealFoodPlanDTO mealFoodPlanDTO = new MealFoodPlanDTO();
     private PlanMealCustomerDTO PlanMealCustomerDTO = new PlanMealCustomerDTO();
 
@@ -90,7 +97,7 @@ public class Mapper {
         List<PlanDTO> PlanDTOS = customer.getPlans().stream()
                 .map(this::PlanToPlanDTO)
                 .collect(Collectors.toList());
-        customerPlanDTO.setPlans(PlanDTOS);
+        customerPlanDTO.setPlanDTOS(PlanDTOS);
         return customerPlanDTO;
     }
 
@@ -160,19 +167,48 @@ public class Mapper {
 
 
     public PlanDTO PlanToPlanDTO(Plan plan) {
-        PlanDTO.setId(plan.getId());
-        PlanDTO.setName(plan.getName());
-        PlanDTO.setStartDate(plan.getStartDate());
-        PlanDTO.setEndDate(plan.getEndDate());
-        return PlanDTO;
+        planDTO.setId(plan.getId());
+        planDTO.setName(plan.getName());
+        planDTO.setStartDate(plan.getStartDate());
+        planDTO.setEndDate(plan.getEndDate());
+        if (!Objects.isNull(plan.getMeals())) {
+            List<MealDTO> mealDTOs = plan.getMeals().stream()
+                    .map(this::mapMealToMealDTO)
+                    .collect(Collectors.toList());
+            planDTO.setMealDTOS(mealDTOs);
+        }
+
+        return planDTO;
     }
 
-    public Plan mapPlanDTOToPlan(PlanDTO PlanDTO) {
-        plan.setId(PlanDTO.getId());
-        plan.setName(PlanDTO.getName());
-        plan.setDuration(PlanDTO.getDuration());
-        plan.setStartDate(PlanDTO.getStartDate());
-        plan.setEndDate(PlanDTO.getEndDate());
+    public Plan mapPlanDTOToPlan(PlanDTO planDTO, int id) {
+        Optional<Plan> existingPlan = planRepository.findById(id);
+        Plan plan = existingPlan.get();
+        plan.setId(existingPlan.get().getId());
+        plan.setName(existingPlan.get().getName());
+        plan.setDuration(existingPlan.get().getDuration());
+        plan.setStartDate(existingPlan.get().getStartDate());
+        plan.setEndDate(planDTO.getEndDate());
+        if (planDTO.getMealDTOS() != null) {
+            List<Meal> meals= planDTO.getMealDTOS().stream()
+                    .map(this::mapMealDTOToMeal)
+                    .collect(Collectors.toList());
+            plan.setMeals(meals);
+        }
+        return plan;
+    }
+    public Plan mapPlanDTOToPlan(PlanDTO planDTO) {
+        plan.setId(planDTO.getId());
+        plan.setName(planDTO.getName());
+        plan.setDuration(planDTO.getDuration());
+        plan.setStartDate(planDTO.getStartDate());
+        plan.setEndDate(planDTO.getEndDate());
+        if (planDTO.getMealDTOS() != null) {
+            List<Meal> meals= planDTO.getMealDTOS().stream()
+                    .map(this::mapMealDTOToMeal)
+                    .collect(Collectors.toList());
+            plan.setMeals(meals);
+        }
         return plan;
     }
 

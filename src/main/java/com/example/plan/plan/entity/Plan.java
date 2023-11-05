@@ -35,7 +35,7 @@ public class Plan {
     @Enumerated(EnumType.STRING)
     private Duration duration;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.MERGE)
     @JoinTable(
             name = "plan_meal",
             joinColumns = @JoinColumn(name = "plan_id"),
