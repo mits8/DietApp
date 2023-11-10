@@ -18,6 +18,6 @@ public interface MealRepository extends JpaRepository<Meal, Integer> {
 
     @Query("SELECT m FROM Meal m WHERE m.type=:type")
     List<Meal> findByType(@Param("type") Type type);
-
-    Meal findMealById(int id);
+    @Query("SELECT m FROM Meal m WHERE m.id=:id")
+    Meal findMealById(@Param("id") int id);
 }

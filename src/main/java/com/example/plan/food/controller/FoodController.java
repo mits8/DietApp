@@ -4,6 +4,7 @@ import com.example.plan.dto.food.FoodDTO;
 import com.example.plan.enums.Type;
 import com.example.plan.food.entity.Food;
 import com.example.plan.food.service.FoodService;
+import com.example.plan.utils.ResponseMessage;
 import com.example.plan.utils.food.FoodResponseMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -45,14 +46,14 @@ public class FoodController {
     @PostMapping("/addFood")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
 
-    public ResponseEntity<FoodResponseMessage> saveFood(@RequestBody FoodDTO foodDTO) {
-        return foodService.addFood(foodDTO);
+    public ResponseEntity<ResponseMessage> saveFood(@RequestBody Map<String, String> requestMap) {
+        return foodService.addFood(requestMap);
     }
 
     @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<FoodResponseMessage> updateCustomer(@RequestBody FoodDTO foodDTO, @PathVariable int id) {
-        return foodService.updateFood(foodDTO, id);
+    public ResponseEntity<ResponseMessage> updateCustomer(@RequestBody Map<String, String> requestMap, @PathVariable int id) {
+        return foodService.updateFood(requestMap, id);
     }
 
     @DeleteMapping("/delete/{id}")

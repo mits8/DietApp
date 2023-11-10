@@ -1,7 +1,11 @@
 package com.example.plan.meal.service.Impl;
 
+import com.example.plan.customer.entity.Customer;
+import com.example.plan.dto.customer.CustomerDTO;
+import com.example.plan.dto.food.FoodDTO;
 import com.example.plan.dto.meal.MealDTO;
 import com.example.plan.dto.meal.MealFoodDTO;
+import com.example.plan.enums.Day;
 import com.example.plan.enums.Type;
 import com.example.plan.food.entity.Food;
 import com.example.plan.food.repository.FoodRepository;
@@ -9,6 +13,7 @@ import com.example.plan.map.Mapper;
 import com.example.plan.meal.entity.Meal;
 import com.example.plan.meal.repository.MealRepository;
 import com.example.plan.meal.service.MealService;
+import com.example.plan.utils.ResponseMessage;
 import com.example.plan.utils.meal.MealResponseMessage;
 import com.example.plan.plan.repository.PlanRepository;
 import jakarta.transaction.Transactional;
@@ -18,9 +23,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -73,25 +76,30 @@ public class MealServiceImpl implements MealService {
     }
     @Transactional
     @Override
-    public ResponseEntity<MealResponseMessage> addMeal(MealDTO mealDTO) {
+    public ResponseEntity<ResponseMessage> addMeal(Map<String, String> requestMap) {
         try {
-            Meal name = mealRepository.findByName(mealDTO.getName());
+            Meal name = mealRepository.findByName(requestMap.get("name"));
             if (Objects.isNull(name)) {
-                Meal meal = mapper.mapMealDTOToMeal(mealDTO);
+                Meal meal = new Meal();
+                meal.setName(requestMap.get("name"));
+                meal.setDescription(requestMap.get("description"));
+                meal.setQuantity(requestMap.get("quantity"));
+                meal.setDay(Day.valueOf(requestMap.get("day")));
+                meal.setType(Type.valueOf(requestMap.get("type")));
                 mealRepository.save(meal);
-                String message = "Το γεύμα " + "'" + mealDTO.getName() + "'" + " γράφτηκαν επιτυχώς!";
-                MealResponseMessage response = new MealResponseMessage(message, mealDTO);
+                String message = "Το γεύμα " + "'" + requestMap.get("name") + "'" + " γράφτηκαν επιτυχώς!";
+                ResponseMessage response = new ResponseMessage(message, requestMap);
                 return new ResponseEntity<>(response, HttpStatus.CREATED);
             }else {
-                String message = "Το γεύμα " + "'" + mealDTO.getName() + "'" + " υπάρχει ήδη..";
-                MealResponseMessage response = new MealResponseMessage(message, mealDTO);
+                String message = "Το γεύμα " + "'" + requestMap.get("name") + "'" + " υπάρχει ήδη..";
+                ResponseMessage response = new ResponseMessage(message, requestMap);
                 return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
         } catch (Exception ex) {
             log.info("{}", ex);
         }
         String message = "Κάτι πήγε λάθος..";
-        MealResponseMessage response = new MealResponseMessage(message, (MealDTO) null);
+        ResponseMessage response = new ResponseMessage(message, requestMap);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
@@ -120,61 +128,63 @@ public class MealServiceImpl implements MealService {
 
     @Transactional
     @Override
-    public ResponseEntity<MealResponseMessage> addFoodToMeal(MealFoodDTO mealFoodDTO, int id) {
+    public ResponseEntity<ResponseMessage> addFoodToMeal(Map<String, List<FoodDTO>> requestMap, int id) {
         try {
-            Optional<Meal> existingMeal =  mealRepository.findById(id);
-            if (existingMeal.isPresent()){
-                Meal updateMeal = existingMeal.get();
-                List<Food> foods = mealFoodDTO.getFoodDTOS().stream()
-                        .map(foodDTO -> {
-                            Food food = mapper.mapFoodDTOToFood(foodDTO);
-                            return foodRepository.save(food);
-                        }).toList();
-                updateMeal.getFoods().addAll(foods);
-                mealRepository.save(updateMeal);
-                mealFoodDTO = mapper.mapMealToMealFoodDTO(updateMeal);
-                String message = "Το γεύμα " + "'" + existingMeal.get().getName() + " ενημερώθηκε επιτυχώς!";
-                MealResponseMessage response = new MealResponseMessage(message, mealFoodDTO);
-                return new ResponseEntity<>(response , HttpStatus.OK);
+            Optional<Meal> existingMeal = mealRepository.findById(id);
+            Meal meal;
+            if (existingMeal.isPresent()) {
+                meal = existingMeal.get();
+                List<FoodDTO> foodDTOS = requestMap.get("foodDTOS");
+                for (FoodDTO foodDTO : foodDTOS) {
+                    Food food = mapper.mapFoodDTOToFood(foodDTO);
+                    meal.getFoods().add(food);
+                }
+
+                mealRepository.save(meal);
+                MealFoodDTO mealDTO = mapper.mapMealToMealFoodDTO(meal);
+                String message = "Το γεύμα '" + existingMeal.get().getName() + "' ενημερώθηκε επιτυχώς!";
+                ResponseMessage response = new ResponseMessage(message, (Map<String, String>) null);
+                return new ResponseEntity<>(response, HttpStatus.CREATED);
             } else {
                 String message = "Το γεύμα ΔΕΝ βρέθηκε..";
-                MealResponseMessage response = new MealResponseMessage(message, mealFoodDTO);
-                return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
+                ResponseMessage response = new ResponseMessage(message, (Map<String, String>) null);
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
         } catch (Exception ex) {
             log.info("{}", ex);
         }
+
         String message = "Κάτι πήγε λάθος..";
-        MealResponseMessage response = new MealResponseMessage(message, (MealFoodDTO) null);
+        ResponseMessage response = new ResponseMessage(message, (Map<String, String>) null);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     @Transactional
     @Override
-    public ResponseEntity<MealResponseMessage> updateMeal(MealDTO mealDTO, int id) {
+    public ResponseEntity<ResponseMessage> updateMeal(Map<String, String> requestMap, int id) {
         try {
             Optional<Meal> existingMeal =  mealRepository.findById(id);
             if (existingMeal.isPresent()){
                 Meal updateMeal = existingMeal.get();
-                updateMeal.setName(mealDTO.getName());
-                updateMeal.setDescription(mealDTO.getDescription());
-                updateMeal.setQuantity(mealDTO.getQuantity());
-                updateMeal.setDay(mealDTO.getDay());
-                updateMeal.setType(mealDTO.getType());
+                updateMeal.setName(requestMap.get("name"));
+                updateMeal.setDescription(requestMap.get("description"));
+                updateMeal.setQuantity(requestMap.get("quantity"));
+                updateMeal.setDay(Day.valueOf(requestMap.get("day")));
+                updateMeal.setType(Type.valueOf(requestMap.get("type")));
                 mealRepository.save(updateMeal);
-                String message = "Το γεύμα " + "'" + mealDTO.getName() + " ενημερώθηκε επιτυχώς!";
-                MealResponseMessage response = new MealResponseMessage(message, mealDTO);
+                String message = "Το γεύμα " + "'" + requestMap.get("name") + " ενημερώθηκε επιτυχώς!";
+                ResponseMessage response = new ResponseMessage(message, requestMap);
                 return new ResponseEntity<>(response , HttpStatus.OK);
             } else {
                 String message = "Το γεύμα ΔΕΝ βρέθηκε..";
-                MealResponseMessage response = new MealResponseMessage(message, mealDTO);
+                ResponseMessage response = new ResponseMessage(message, requestMap);
                 return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
             }
         } catch (Exception ex) {
             log.info("{}", ex);
         }
         String message = "Κάτι πήγε λάθος..";
-        MealResponseMessage response = new MealResponseMessage(message, (MealDTO) null);
+        ResponseMessage response = new ResponseMessage(message, requestMap);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
     @Transactional

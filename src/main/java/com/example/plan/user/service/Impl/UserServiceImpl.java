@@ -57,7 +57,7 @@ public class UserServiceImpl implements UserService {
                 }
                 return new ResponseEntity<>("Ο χρήστης " + userInfo.getEmail() + " γράφτηκε επιτυχώς!", HttpStatus.OK);
             }
-            return new ResponseEntity<>("Το email " + userInfo.getEmail() + " υπάρχει ήδη..", HttpStatus.OK);
+            return new ResponseEntity<>("Το email " + userInfo.getEmail() + " υπάρχει ήδη..", HttpStatus.BAD_REQUEST);
 
         }catch (Exception ex) {
             log.info("{}", ex);

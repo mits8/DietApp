@@ -3,6 +3,7 @@ package com.example.plan.food.service;
 import com.example.plan.dto.food.FoodDTO;
 import com.example.plan.enums.Type;
 import com.example.plan.food.entity.Food;
+import com.example.plan.utils.ResponseMessage;
 import com.example.plan.utils.food.FoodResponseMessage;
 import org.springframework.http.ResponseEntity;
 
@@ -18,10 +19,10 @@ public interface FoodService {
 
     FoodDTO findByName(String name);
 
-    ResponseEntity<FoodResponseMessage> addFood(FoodDTO foodDTO);
+    ResponseEntity<ResponseMessage> addFood(Map<String, String> requestMap);
 
 
-    ResponseEntity<FoodResponseMessage> updateFood(FoodDTO foodDTO, int id);
+    ResponseEntity<ResponseMessage> updateFood(Map<String, String> requestMap, int id);
 
     ResponseEntity<FoodResponseMessage> deleteFood(int id);
 }

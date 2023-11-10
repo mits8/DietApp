@@ -1,9 +1,11 @@
 package com.example.plan.meal.controller;
 
+import com.example.plan.dto.food.FoodDTO;
 import com.example.plan.dto.meal.MealDTO;
 import com.example.plan.dto.meal.MealFoodDTO;
 import com.example.plan.enums.Type;
 import com.example.plan.meal.service.MealService;
+import com.example.plan.utils.ResponseMessage;
 import com.example.plan.utils.meal.MealResponseMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,6 +14,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/meal")
@@ -38,8 +41,8 @@ public class MealController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<MealResponseMessage> saveMeal(@RequestBody MealDTO mealDTO) {
-        return mealService.addMeal(mealDTO);
+    public ResponseEntity<ResponseMessage> saveMeal(@RequestBody Map<String, String> requestMap) {
+        return mealService.addMeal(requestMap);
     }
 
     @PostMapping("/save/meal-foods")
@@ -49,14 +52,14 @@ public class MealController {
 
     @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<MealResponseMessage> updateMeal(@RequestBody MealDTO mealDTO, @PathVariable int id) {
-        return mealService.updateMeal(mealDTO, id);
+    public ResponseEntity<ResponseMessage> updateMeal(@RequestBody Map<String, String> requestMap, @PathVariable int id) {
+        return mealService.updateMeal(requestMap, id);
     }
 
     @PostMapping("/{id}/save/foods")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<MealResponseMessage> addFoodToMeal(@RequestBody MealFoodDTO mealFoodDTO, @PathVariable int id) {
-        return mealService.addFoodToMeal(mealFoodDTO, id);
+    public ResponseEntity<ResponseMessage> addFoodToMeal(@RequestBody Map<String, List<FoodDTO>> requestMap, @PathVariable int id) {
+        return mealService.addFoodToMeal(requestMap, id);
     }
 
     @DeleteMapping("/delete/{id}")

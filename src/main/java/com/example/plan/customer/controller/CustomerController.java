@@ -3,6 +3,7 @@ package com.example.plan.customer.controller;
 import com.example.plan.customer.service.CustomerService;
 import com.example.plan.dto.customer.CustomerDTO;
 import com.example.plan.dto.customer.CustomerPlanDTO;
+import com.example.plan.utils.ResponseMessage;
 import com.example.plan.utils.customer.CustomerResponseMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/customer")
@@ -51,8 +53,8 @@ public class CustomerController {
 
     @PostMapping("/addCustomer")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<CustomerResponseMessage> addCustomer(@RequestBody CustomerDTO customerDTO) {
-        return customerService.addCustomer(customerDTO);
+    public ResponseEntity<ResponseMessage> addCustomer(@RequestBody Map<String, String> requestMap) {
+        return customerService.addCustomer(requestMap);
     }
 
     @PostMapping("/save/customer-plan")
@@ -60,10 +62,16 @@ public class CustomerController {
     public ResponseEntity<CustomerResponseMessage> addCustomerWithPlan(@RequestBody CustomerPlanDTO customerPlanDTO) {
         return customerService.addCustomerWithPlan(customerPlanDTO);
     }
-    @PutMapping("/update/{id}")
+    /*@PutMapping("/update/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<CustomerResponseMessage> updateCustomer(@RequestBody CustomerDTO customerDTO, @PathVariable int id) {
         return customerService.updateCustomer(customerDTO, id);
+    }*/
+
+    @PutMapping("/update/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<ResponseMessage> updateCustomer(@RequestBody Map<String, String> requestMap, @PathVariable int id) {
+        return customerService.updateCustomer(requestMap, id);
     }
 
     @DeleteMapping("/delete/customer/{customerId}/plan/{planId}")

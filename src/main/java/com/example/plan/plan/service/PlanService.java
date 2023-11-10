@@ -23,7 +23,7 @@ public interface PlanService {
     ResponseEntity<ResponseMessage> addMealToPlan(Map<String, List<MealDTO>> mealData, int id);
 
     @Transactional
-    ResponseEntity<ResponseMessage> addCustomerToPlan(Map<String, List<CustomerDTO>> mealData, int id);
+    ResponseEntity<ResponseMessage> addCustomerToPlan(Map<String, List<CustomerDTO>> requestMap, int id);
 
     @Transactional
     ResponseEntity<ResponseMessage> updatePlan(PlanDTO planDTO, int id);

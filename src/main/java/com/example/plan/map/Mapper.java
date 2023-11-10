@@ -13,7 +13,6 @@ import com.example.plan.food.entity.Food;
 import com.example.plan.meal.entity.Meal;
 import com.example.plan.plan.entity.Plan;
 import com.example.plan.plan.repository.PlanRepository;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

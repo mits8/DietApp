@@ -1,9 +1,9 @@
 package com.example.plan.validation;
 
-import com.example.plan.dto.customer.CustomerDTO;
 import com.example.plan.dto.customer.CustomerPlanDTO;
-import com.example.plan.dto.food.FoodDTO;
 import org.springframework.stereotype.Component;
+
+import java.util.Map;
 
 @Component
 public class Validation {
@@ -18,8 +18,8 @@ public class Validation {
         return isLengthValid && isLettersValid;
     }
 
-    public boolean isValidNameLengthCustomerDTO(CustomerDTO customerDTO) {
-        return isValidNameLengthAndLetters(customerDTO.getFirstName(), customerDTO.getLastName());
+    public boolean isValidNameLengthCustomerDTO(Map<String, String> requestMap) {
+        return isValidNameLengthAndLetters(requestMap.get("firstName"), requestMap.get("lastName"));
     }
 
     public boolean isValidNameLengthCustomerPlanDTO(CustomerPlanDTO customerPlanDTO) {
@@ -33,8 +33,8 @@ public class Validation {
         return isValidNumbers && isValidLength;
     }
 
-    public boolean isValidNumbersAndLengthCustomerDTO(CustomerDTO customerDTO){
-        return isValidPhone(customerDTO.getPhone());
+    public boolean isValidNumbersAndLengthCustomerDTO(Map<String, String> requestMap){
+        return isValidPhone(requestMap.get("phone"));
     }
 
     public boolean isValidNumbersAndLengthCustomerPlanDTO(CustomerPlanDTO customerPlanDTO){
@@ -55,12 +55,12 @@ public class Validation {
     }
 
 
-    public boolean isValidFieldLetters(FoodDTO foodDTO){
-        return isValidFoodLetters(foodDTO.getName());
+    public boolean isValidFieldLetters(Map<String, String> requestMap){
+        return isValidFoodLetters(requestMap.get("name"));
     }
 
-    public boolean isValidFieldNumbers(FoodDTO foodDTO) {
-        return isValidFoodNumbers(foodDTO.getGram()) && isValidFoodNumbers(foodDTO.getCalories());
+    public boolean isValidFieldNumbers(Map<String, String> requestMap) {
+        return isValidFoodNumbers(Double.valueOf(requestMap.get("gram"))) && isValidFoodNumbers(Double.valueOf(requestMap.get("calories")));
     }
 
 

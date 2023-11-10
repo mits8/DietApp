@@ -117,7 +117,7 @@ public class PlanServiceImpl implements PlanService {
                 planRepository.save(inputPlan);
 
                 String message = "Το πλάνο " +  inputPlan.getName() +  " γράφτηκε επιτυχώς!";
-                ResponseMessage response = new ResponseMessage(message,  inputPlan);
+                ResponseMessage response = new ResponseMessage(message, (Map<String, String>) null);
                 return new ResponseEntity<>(response, HttpStatus.CREATED);
             } else {
                 String message = "Το πλάνο " + "'" + existingPlan.getName() + "'" + " υπάρχει ήδη..";
@@ -131,34 +131,6 @@ public class PlanServiceImpl implements PlanService {
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-   /* @Transactional
-    @Override
-    public ResponseEntity<ResponseMessage> addMealToPlan(Map<String, List<Meal>> mealData, int id) {
-        try {
-            Optional<Plan> existingPlan = planRepository.findById(id);
-            Plan plan;
-            if (existingPlan.isPresent()) {
-                plan = existingPlan.get();
-
-                List<Meal> meals = mealData.get("meals");
-                for (Meal meal : meals) {
-                    plan.getMeals().add(meal);
-                }
-
-                planRepository.save(plan);
-            }
-            String message = "Το πλάνο γράφτηκε επιτυχώς!";
-                ResponseMessage response = new ResponseMessage(message, (PlanDTO) null);
-                return new ResponseEntity<>(response, HttpStatus.CREATED);
-
-        } catch (Exception ex) {
-            log.info("{}", ex);
-        }
-        String message = PlanConstants.SOMETHING_WENT_WRONG;
-        ResponseMessage response = new ResponseMessage(message, (PlanDTO) null);
-        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-    }*/
 
     @Transactional
     @Override
@@ -190,13 +162,13 @@ public class PlanServiceImpl implements PlanService {
 
     @Transactional
     @Override
-    public ResponseEntity<ResponseMessage> addCustomerToPlan(Map<String, List<CustomerDTO>> mealData, int id) {
+    public ResponseEntity<ResponseMessage> addCustomerToPlan(Map<String, List<CustomerDTO>> requestMap, int id) {
         try {
             Optional<Plan> existingPlan = planRepository.findById(id);
             Plan plan;
             if (existingPlan.isPresent()) {
                 plan = existingPlan.get();
-                List<CustomerDTO> customerDTOS = mealData.get("customerDTOS");
+                List<CustomerDTO> customerDTOS = requestMap.get("customerDTOS");
                 for (CustomerDTO customerDTO : customerDTOS) {
                     Customer customer = mapper.mapCustomerDTOToCustomer(customerDTO);
                     plan.getCustomers().add(customer);

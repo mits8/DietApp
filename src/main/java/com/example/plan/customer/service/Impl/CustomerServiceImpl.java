@@ -5,9 +5,12 @@ import com.example.plan.customer.repository.CustomerRepository;
 import com.example.plan.customer.service.CustomerService;
 import com.example.plan.dto.customer.CustomerDTO;
 import com.example.plan.dto.customer.CustomerPlanDTO;
+import com.example.plan.enums.Gender;
 import com.example.plan.map.Mapper;
 import com.example.plan.plan.entity.Plan;
 import com.example.plan.plan.repository.PlanRepository;
+import com.example.plan.utils.PlanUtils;
+import com.example.plan.utils.ResponseMessage;
 import com.example.plan.utils.customer.CustomerResponseMessage;
 import com.example.plan.validation.Validation;
 import jakarta.transaction.Transactional;
@@ -17,7 +20,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -87,31 +94,39 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Transactional
     @Override
-    public ResponseEntity<CustomerResponseMessage> addCustomer(CustomerDTO customerDTO) {
+    public ResponseEntity<ResponseMessage> addCustomer(Map<String, String> requestMap) {
         try {
-            Customer email = customerRepository.findByEmail(customerDTO.getEmail());
+            Customer email = customerRepository.findByEmailMap(requestMap.get("email"));
             if (Objects.isNull(email)) {
-                if (validation.isValidNameLengthCustomerDTO(customerDTO)) {
-                    if (validation.isValidNumbersAndLengthCustomerDTO(customerDTO)) {
-                        Customer customer = mapper.mapCustomerDTOToCustomer(customerDTO);
+                if (validation.isValidNameLengthCustomerDTO(requestMap)) {
+                    if (validation.isValidNumbersAndLengthCustomerDTO(requestMap)) {
+                        Customer customer = new Customer();
+                        customer.setFirstName(requestMap.get("firstName"));
+                        customer.setLastName(requestMap.get("lastName"));
+                        customer.setEmail(requestMap.get("email"));
+                        customer.setPhone(requestMap.get("phone"));
+                        customer.setCity(requestMap.get("city"));
+                        customer.setAddress(requestMap.get("address"));
+                        customer.setBirthday(PlanUtils.formatter(requestMap));
+                        customer.setGender(Gender.valueOf(requestMap.get("gender")));
                         customerRepository.save(customer);
 
                         String message = "Ο πελάτης " + "'" + customer.getFirstName() + " " + customer.getLastName() + "'" + " γράφτηκε επιτυχώς!";
-                        CustomerResponseMessage response = new CustomerResponseMessage(message, customerDTO);
+                        ResponseMessage response = new ResponseMessage(message, requestMap);
                         return new ResponseEntity<>(response, HttpStatus.CREATED);
                     } else {
                         String message = "Το τηλέφωνο πρέπει να περιέχει 10 αριθμούς ..";
-                        CustomerResponseMessage response = new CustomerResponseMessage(message, (CustomerDTO) null);
+                        ResponseMessage response = new ResponseMessage(message, (CustomerDTO) null);
                         return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
                     }
                 }else {
                     String message = "Οι χαρακτήρες πρέπει να είναι γράμματα '5-30'..";
-                    CustomerResponseMessage response = new CustomerResponseMessage(message, (CustomerDTO) null);
+                    ResponseMessage response = new ResponseMessage(message, (CustomerDTO) null);
                     return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
                 }
             } else {
-                String message = "Ο πελάτης με email" + "'" + customerDTO.getEmail() + "'" + " υπάρχει ήδη..";
-                CustomerResponseMessage response = new CustomerResponseMessage(message, (CustomerDTO) null);
+                String message = "Ο πελάτης με email" + "'" + requestMap.get("email") + "'" + " υπάρχει ήδη..";
+                ResponseMessage response = new ResponseMessage(message, (CustomerDTO) null);
                 return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
             }
 
@@ -119,7 +134,7 @@ public class CustomerServiceImpl implements CustomerService {
             log.info("{}", ex);
         }
         String message = "Τα βασικά στοιχεία είναι υποχρεωτκά..";
-        CustomerResponseMessage response = new CustomerResponseMessage(message, (CustomerDTO) null);
+        ResponseMessage response = new ResponseMessage(message, (CustomerDTO) null);
         return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
     }
 
@@ -127,7 +142,6 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public ResponseEntity<CustomerResponseMessage> addCustomerWithPlan(CustomerPlanDTO customerPlanDTO) {
         try {
-
             Customer email = customerRepository.findByEmail(customerPlanDTO.getEmail());
             if (Objects.isNull(email)) {
                 if (validation.isValidNameLengthCustomerPlanDTO(customerPlanDTO)) {
@@ -172,55 +186,54 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Transactional
     @Override
-    public ResponseEntity<CustomerResponseMessage> updateCustomer(CustomerDTO customerDTO, int id) {
+    public ResponseEntity<ResponseMessage> updateCustomer(Map<String, String> requestMap, int id) {
         try {
-           Optional<Customer> existingCustomer = customerRepository.findById(id);
-           if (existingCustomer.isPresent()) {
-               Customer updateCustomer = existingCustomer.get();
-               if (validation.isValidNameLengthCustomerDTO(customerDTO)) {
-                   updateCustomer.setFirstName(customerDTO.getFirstName());
-                       updateCustomer.setLastName(customerDTO.getLastName());
-               }else {
-                   String message = "Οι χαρακτήρες πρέπει να είναι γράμματα  '5-30'..";
-                   CustomerResponseMessage response = new CustomerResponseMessage(message, (CustomerDTO) null);
-                   return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
-               }
-               if (!Objects.equals(updateCustomer.getEmail(), customerDTO.getEmail())) {
-                   updateCustomer.setEmail(customerDTO.getEmail());
-               }
-               if (validation.isValidNumbersAndLengthCustomerDTO(customerDTO)) {
-               updateCustomer.setPhone(customerDTO.getPhone());
-               } else {
-                   String message = "Το τηλέφωνο πρέπει να περιέχει 10 αριθμούς ..";
-                   CustomerResponseMessage response = new CustomerResponseMessage(message, (CustomerDTO) null);
-                   return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
-               }
-               updateCustomer.setAddress(customerDTO.getAddress());
-               updateCustomer.setBirthday(customerDTO.getBirthday());
-               updateCustomer.setGender(customerDTO.getGender());
-               customerRepository.save(updateCustomer);
-           } else {
-               String message = "Ο πελάτης ΔΕΝ βρέθηκε..";
-               CustomerResponseMessage response = new CustomerResponseMessage(message, (CustomerDTO) null);
-               return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
-           }
-            String message = "Ο πελάτης " + "'" + customerDTO.getFirstName() + " " + customerDTO.getLastName() + "'" + " ενημερώθηκε επιτυχώς!";
-            CustomerResponseMessage response = new CustomerResponseMessage(message, customerDTO);
+            Optional<Customer> existingCustomer = customerRepository.findById(id);
+            if (existingCustomer.isPresent()) {
+                Customer updateCustomer = existingCustomer.get();
+                if (validation.isValidNameLengthCustomerDTO(requestMap)) {
+                updateCustomer.setFirstName(requestMap.get("firstName"));
+                updateCustomer.setLastName(requestMap.get("lastName"));
+                }else {
+                    String message = "Οι χαρακτήρες πρέπει να είναι γράμματα  '5-30'..";
+                    ResponseMessage response = new ResponseMessage(message, (CustomerDTO) null);
+                    return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+                }
+                if (!Objects.equals(updateCustomer.getEmail(), requestMap.get("email"))) {
+                    updateCustomer.setEmail(requestMap.get("email"));
+                }
+                if (validation.isValidNumbersAndLengthCustomerDTO(requestMap)) {
+                updateCustomer.setPhone(requestMap.get("phone"));
+                } else {
+                    String message = "Το τηλέφωνο πρέπει να περιέχει 10 αριθμούς ..";
+                    ResponseMessage response = new ResponseMessage(message, (CustomerDTO) null);
+                    return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
+                }
+                updateCustomer.setAddress(requestMap.get("address"));
+                updateCustomer.setBirthday(PlanUtils.formatter(requestMap));
+                updateCustomer.setGender(Gender.valueOf(requestMap.get("gender")));
+                customerRepository.save(updateCustomer);
+            } else {
+                String message = "Ο πελάτης ΔΕΝ βρέθηκε..";
+                ResponseMessage response = new ResponseMessage(message, (CustomerDTO) null);
+                return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
+            }
+            String message = "Ο πελάτης " + "'" + requestMap.get("firstName") + " " + requestMap.get("lastName") + "'" + " ενημερώθηκε επιτυχώς!";
+            ResponseMessage response = new ResponseMessage(message, requestMap);
             return new ResponseEntity<>(response , HttpStatus.OK);
         } catch (Exception ex) {
             log.info("{}", ex);
         }
         String message = "Κάτι πήγε λάθος..";
-        CustomerResponseMessage response = new CustomerResponseMessage(message, (CustomerDTO) null);
+        ResponseMessage response = new ResponseMessage(message, (CustomerDTO) null);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-    }
+        }
 
     @Transactional
     @Override
     public ResponseEntity<CustomerResponseMessage> deleteCustomer(int id) {
         try {
             Optional<Customer> optionalCustomer = customerRepository.findById(id);
-
             if (optionalCustomer.isPresent()) {
                 customerRepository.delete(optionalCustomer.get());
                 String message = "Ο πελάτης " + "'" + optionalCustomer.get().getFirstName() + " " + optionalCustomer.get().getLastName() + "'" + " διαγράφτηκε επιτυχώς!";
@@ -242,14 +255,14 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public ResponseEntity<CustomerResponseMessage> deleteCustomerAndPlanById(int customerId, int PlanId) {
         try {
-            Optional<Customer> optionalCustomer = customerRepository.findById(customerId);
-            Optional<Plan> optionalPlan = PlanRepository.findById(PlanId);
-            if (optionalCustomer.isPresent()) {
-                if (optionalPlan.isPresent()) {
+            Optional<Customer> existingCustomer = customerRepository.findById(customerId);
+            Optional<Plan> existingPlan = PlanRepository.findById(PlanId);
+            if (existingCustomer.isPresent()) {
+                if (existingPlan.isPresent()) {
                     PlanRepository.deleteById(PlanId);
                     customerRepository.deleteById(customerId);
                 }
-                String message = "Ο πελάτης " + "'" + optionalCustomer.get().getFirstName() + " " + optionalCustomer.get().getLastName() + "'" + "και το πλάνο " + "'" + optionalPlan.get().getName() + "'" + " διαγράφτηκε επιτυχώς!";
+                String message = "Ο πελάτης " + "'" + existingCustomer.get().getFirstName() + " " + existingCustomer.get().getLastName() + "'" + "και το πλάνο " + "'" + existingPlan.get().getName() + "'" + " διαγράφτηκε επιτυχώς!";
                 CustomerResponseMessage response = new CustomerResponseMessage(message, (CustomerPlanDTO) null);
                 return new ResponseEntity<> (response, HttpStatus.OK);
 

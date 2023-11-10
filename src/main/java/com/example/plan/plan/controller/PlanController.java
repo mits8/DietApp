@@ -42,8 +42,8 @@ public class PlanController {
     }
 
     @PostMapping("/saveCustomer/{id}")
-    public ResponseEntity<ResponseMessage> addCustomerToPlan(@RequestBody Map<String, List<CustomerDTO>> mealData, @PathVariable int id){
-        return planService.addCustomerToPlan(mealData, id);
+    public ResponseEntity<ResponseMessage> addCustomerToPlan(@RequestBody Map<String, List<CustomerDTO>> requestMap, @PathVariable int id){
+        return planService.addCustomerToPlan(requestMap, id);
     }
 
     @PutMapping("/update/{id}")
