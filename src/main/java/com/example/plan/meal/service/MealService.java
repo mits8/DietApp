@@ -5,7 +5,6 @@ import com.example.plan.dto.meal.MealDTO;
 import com.example.plan.dto.meal.MealFoodDTO;
 import com.example.plan.enums.Type;
 import com.example.plan.utils.ResponseMessage;
-import com.example.plan.utils.meal.MealResponseMessage;
 import jakarta.transaction.Transactional;
 import org.springframework.http.ResponseEntity;
 
@@ -22,18 +21,18 @@ public interface MealService {
     ResponseEntity<ResponseMessage> addMeal(Map<String, String> requestMap);
 
     @Transactional
-    ResponseEntity<MealResponseMessage> addMealWithFoods(MealFoodDTO mealFoodDTO);
+    ResponseEntity<ResponseMessage> addMealWithFoods(MealFoodDTO mealFoodDTO);
 
     @Transactional
     ResponseEntity<ResponseMessage> addFoodToMeal(Map<String, List<FoodDTO>> requestMap, int id);
 
     ResponseEntity<ResponseMessage> updateMeal(Map<String, String> requestMap, int id);
 
-    ResponseEntity<MealResponseMessage> deleteMeal(int id);
+    ResponseEntity<ResponseMessage> deleteMeal(int id);
 
     @Transactional
-    ResponseEntity<MealResponseMessage> deleteMealAndFood(int mealId, int foodId);
+    ResponseEntity<ResponseMessage> deleteMealAndFood(int mealId, int foodId);
 
     @Transactional
-    ResponseEntity<MealResponseMessage> removeFoodFromMeal(int mealId, int foodId);
+    ResponseEntity<ResponseMessage> removeFoodFromMeal(int mealId, int foodId);
 }

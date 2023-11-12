@@ -6,7 +6,6 @@ import com.example.plan.dto.meal.MealFoodDTO;
 import com.example.plan.enums.Type;
 import com.example.plan.meal.service.MealService;
 import com.example.plan.utils.ResponseMessage;
-import com.example.plan.utils.meal.MealResponseMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,7 +45,7 @@ public class MealController {
     }
 
     @PostMapping("/save/meal-foods")
-    public ResponseEntity<MealResponseMessage> addMealWithFoods(@RequestBody MealFoodDTO mealFoodDTO) {
+    public ResponseEntity<ResponseMessage> addMealWithFoods(@RequestBody MealFoodDTO mealFoodDTO) {
         return mealService.addMealWithFoods(mealFoodDTO);
     }
 
@@ -64,19 +63,19 @@ public class MealController {
 
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<MealResponseMessage> deleteMeal(@PathVariable int  id) {
+    public ResponseEntity<ResponseMessage> deleteMeal(@PathVariable int  id) {
         return mealService.deleteMeal(id);
     }
 
     @DeleteMapping("/delete/both/meal/{mealId}/food/{foodId}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<MealResponseMessage> deleteMealAndFood(@PathVariable int  mealId, @PathVariable int foodId) {
+    public ResponseEntity<ResponseMessage> deleteMealAndFood(@PathVariable int  mealId, @PathVariable int foodId) {
         return mealService.deleteMealAndFood(mealId, foodId);
     }
 
     @DeleteMapping("delete/{mealId}/food/{foodId}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<MealResponseMessage> removeFoodFromMeal(@PathVariable int  mealId, @PathVariable int foodId) {
+    public ResponseEntity<ResponseMessage> removeFoodFromMeal(@PathVariable int  mealId, @PathVariable int foodId) {
         return mealService.removeFoodFromMeal(mealId, foodId);
     }
 }

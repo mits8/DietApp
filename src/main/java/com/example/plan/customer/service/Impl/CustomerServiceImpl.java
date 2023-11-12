@@ -11,7 +11,6 @@ import com.example.plan.plan.entity.Plan;
 import com.example.plan.plan.repository.PlanRepository;
 import com.example.plan.utils.PlanUtils;
 import com.example.plan.utils.ResponseMessage;
-import com.example.plan.utils.customer.CustomerResponseMessage;
 import com.example.plan.validation.Validation;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -23,10 +22,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -48,12 +44,25 @@ public class CustomerServiceImpl implements CustomerService {
 
 
     @Override
-    public List<CustomerDTO> findAll() {
+    public  List<Object> findAllCustomers() {
         List<Customer> customers = customerRepository.findAll();
-        List<CustomerDTO> customerDTOS= customers.stream()
-                .map(mapper::mapCustomerToCustomerDTO)
-                .collect(Collectors.toList());
-        return customerDTOS;
+
+        List<Object> customerObjectsList = new ArrayList<>();
+        for (Customer customer : customers) {
+            Map<String, Object> customerObjectMap = new HashMap<>();
+            customerObjectMap.put("id", customer.getId());
+            customerObjectMap.put("firstName", customer.getFirstName());
+            customerObjectMap.put("lastName", customer.getLastName());
+            customerObjectMap.put("email", customer.getEmail());
+            customerObjectMap.put("phone", customer.getPhone());
+            customerObjectMap.put("city", customer.getCity());
+            customerObjectMap.put("address", customer.getAddress());
+            customerObjectMap.put("birthday", customer.getBirthday());
+            customerObjectMap.put("gender", customer.getGender());
+            customerObjectsList.add(customerObjectMap);
+        }
+
+        return customerObjectsList;
     }
 
     @Override
@@ -116,17 +125,17 @@ public class CustomerServiceImpl implements CustomerService {
                         return new ResponseEntity<>(response, HttpStatus.CREATED);
                     } else {
                         String message = "Το τηλέφωνο πρέπει να περιέχει 10 αριθμούς ..";
-                        ResponseMessage response = new ResponseMessage(message, (CustomerDTO) null);
+                        ResponseMessage response = new ResponseMessage(message, null);
                         return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
                     }
                 }else {
                     String message = "Οι χαρακτήρες πρέπει να είναι γράμματα '5-30'..";
-                    ResponseMessage response = new ResponseMessage(message, (CustomerDTO) null);
+                    ResponseMessage response = new ResponseMessage(message, null);
                     return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
                 }
             } else {
                 String message = "Ο πελάτης με email" + "'" + requestMap.get("email") + "'" + " υπάρχει ήδη..";
-                ResponseMessage response = new ResponseMessage(message, (CustomerDTO) null);
+                ResponseMessage response = new ResponseMessage(message, null);
                 return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
             }
 
@@ -134,13 +143,13 @@ public class CustomerServiceImpl implements CustomerService {
             log.info("{}", ex);
         }
         String message = "Τα βασικά στοιχεία είναι υποχρεωτκά..";
-        ResponseMessage response = new ResponseMessage(message, (CustomerDTO) null);
+        ResponseMessage response = new ResponseMessage(message, null);
         return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
     }
 
     @Transactional
     @Override
-    public ResponseEntity<CustomerResponseMessage> addCustomerWithPlan(CustomerPlanDTO customerPlanDTO) {
+    public ResponseEntity<ResponseMessage> addCustomerWithPlan(CustomerPlanDTO customerPlanDTO) {
         try {
             Customer email = customerRepository.findByEmail(customerPlanDTO.getEmail());
             if (Objects.isNull(email)) {
@@ -158,21 +167,21 @@ public class CustomerServiceImpl implements CustomerService {
                         customerRepository.save(customer);
 
                         String message = "Ο πελάτης " + "'" + customer.getFirstName() + " " + customer.getLastName() + "'" + " με τα πλάνα γράφτηκαν επιτυχώς!";
-                        CustomerResponseMessage response = new CustomerResponseMessage(message, customerPlanDTO);
+                        ResponseMessage response = new ResponseMessage(message, customerPlanDTO);
                         return new ResponseEntity<>(response, HttpStatus.OK);
                     } else {
                         String message = "Το τηλέφωνο πρέπει να περιέχει 10 αριθμούς ..";
-                        CustomerResponseMessage response = new CustomerResponseMessage(message, customerPlanDTO);
+                        ResponseMessage response = new ResponseMessage(message, customerPlanDTO);
                         return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
                     }
                 }else {
                     String message = "Οι χαρακτήρες πρέπει να είναι γράμματα  '5-30'..";
-                    CustomerResponseMessage response = new CustomerResponseMessage(message, null);
+                    ResponseMessage response = new ResponseMessage(message, null);
                     return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
                 }
             } else {
                 String message = "Ο πελάτης με email" + "'" + customerPlanDTO.getEmail() + "'" + " υπάρχει ήδη..";
-                CustomerResponseMessage response = new CustomerResponseMessage(message, null);
+                ResponseMessage response = new ResponseMessage(message, null);
                 return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
             }
 
@@ -180,7 +189,7 @@ public class CustomerServiceImpl implements CustomerService {
             log.info("{}", ex);
         }
         String message = "Το email είναι υποχρεωτκό..";
-        CustomerResponseMessage response = new CustomerResponseMessage(message, null);
+        ResponseMessage response = new ResponseMessage(message, null);
         return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
     }
 
@@ -196,7 +205,7 @@ public class CustomerServiceImpl implements CustomerService {
                 updateCustomer.setLastName(requestMap.get("lastName"));
                 }else {
                     String message = "Οι χαρακτήρες πρέπει να είναι γράμματα  '5-30'..";
-                    ResponseMessage response = new ResponseMessage(message, (CustomerDTO) null);
+                    ResponseMessage response = new ResponseMessage(message, null);
                     return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
                 }
                 if (!Objects.equals(updateCustomer.getEmail(), requestMap.get("email"))) {
@@ -206,7 +215,7 @@ public class CustomerServiceImpl implements CustomerService {
                 updateCustomer.setPhone(requestMap.get("phone"));
                 } else {
                     String message = "Το τηλέφωνο πρέπει να περιέχει 10 αριθμούς ..";
-                    ResponseMessage response = new ResponseMessage(message, (CustomerDTO) null);
+                    ResponseMessage response = new ResponseMessage(message, null);
                     return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
                 }
                 updateCustomer.setAddress(requestMap.get("address"));
@@ -215,7 +224,7 @@ public class CustomerServiceImpl implements CustomerService {
                 customerRepository.save(updateCustomer);
             } else {
                 String message = "Ο πελάτης ΔΕΝ βρέθηκε..";
-                ResponseMessage response = new ResponseMessage(message, (CustomerDTO) null);
+                ResponseMessage response = new ResponseMessage(message, null);
                 return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
             }
             String message = "Ο πελάτης " + "'" + requestMap.get("firstName") + " " + requestMap.get("lastName") + "'" + " ενημερώθηκε επιτυχώς!";
@@ -225,35 +234,35 @@ public class CustomerServiceImpl implements CustomerService {
             log.info("{}", ex);
         }
         String message = "Κάτι πήγε λάθος..";
-        ResponseMessage response = new ResponseMessage(message, (CustomerDTO) null);
+        ResponseMessage response = new ResponseMessage(message, null);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
 
     @Transactional
     @Override
-    public ResponseEntity<CustomerResponseMessage> deleteCustomer(int id) {
+    public ResponseEntity<ResponseMessage> deleteCustomer(int id) {
         try {
             Optional<Customer> optionalCustomer = customerRepository.findById(id);
             if (optionalCustomer.isPresent()) {
                 customerRepository.delete(optionalCustomer.get());
                 String message = "Ο πελάτης " + "'" + optionalCustomer.get().getFirstName() + " " + optionalCustomer.get().getLastName() + "'" + " διαγράφτηκε επιτυχώς!";
-                CustomerResponseMessage response = new CustomerResponseMessage(message, (CustomerDTO) null);
+                ResponseMessage response = new ResponseMessage(message, null);
                 return new ResponseEntity<>(response, HttpStatus.OK);
             } else {
                 String message = "Ο πελάτης ΔΕΝ βρέθηκε..";
-                CustomerResponseMessage response = new CustomerResponseMessage(message, (CustomerDTO) null);
+                ResponseMessage response = new ResponseMessage(message, null);
                 return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
         } catch (Exception ex) {
             log.error("Error deleting customer", ex);
         }
         String message = "Κάτι πήγε λάθος..";
-        CustomerResponseMessage response = new CustomerResponseMessage(message, (CustomerDTO) null);
+        ResponseMessage response = new ResponseMessage(message, null);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
     @Transactional
     @Override
-    public ResponseEntity<CustomerResponseMessage> deleteCustomerAndPlanById(int customerId, int PlanId) {
+    public ResponseEntity<ResponseMessage> deleteCustomerAndPlanById(int customerId, int PlanId) {
         try {
             Optional<Customer> existingCustomer = customerRepository.findById(customerId);
             Optional<Plan> existingPlan = PlanRepository.findById(PlanId);
@@ -263,12 +272,12 @@ public class CustomerServiceImpl implements CustomerService {
                     customerRepository.deleteById(customerId);
                 }
                 String message = "Ο πελάτης " + "'" + existingCustomer.get().getFirstName() + " " + existingCustomer.get().getLastName() + "'" + "και το πλάνο " + "'" + existingPlan.get().getName() + "'" + " διαγράφτηκε επιτυχώς!";
-                CustomerResponseMessage response = new CustomerResponseMessage(message, (CustomerPlanDTO) null);
+                ResponseMessage response = new ResponseMessage(message, null);
                 return new ResponseEntity<> (response, HttpStatus.OK);
 
             } else {
                 String message = "Ο πελάτης ή το πλάνο ΔΕΝ βρέθηκαν..";
-                CustomerResponseMessage response = new CustomerResponseMessage(message, (CustomerPlanDTO) null);
+                ResponseMessage response = new ResponseMessage(message, null);
                 return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 
             }
@@ -276,7 +285,7 @@ public class CustomerServiceImpl implements CustomerService {
             log.info("{}", ex);
         }
         String message = "Κάτι πήγε λάθος..";
-        CustomerResponseMessage response = new CustomerResponseMessage(message, (CustomerPlanDTO) null);
+        ResponseMessage response = new ResponseMessage(message, null);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 }

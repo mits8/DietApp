@@ -4,7 +4,6 @@ import com.example.plan.customer.service.CustomerService;
 import com.example.plan.dto.customer.CustomerDTO;
 import com.example.plan.dto.customer.CustomerPlanDTO;
 import com.example.plan.utils.ResponseMessage;
-import com.example.plan.utils.customer.CustomerResponseMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,8 +22,8 @@ public class CustomerController {
 
     @GetMapping("/findAll")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<List<CustomerDTO>> findAll() {
-        return new ResponseEntity<>(customerService.findAll(), HttpStatus.OK);
+    public ResponseEntity<List<Object>> findAllCustomers() {
+        return new ResponseEntity<>(customerService.findAllCustomers(), HttpStatus.OK);
     }
 
     @GetMapping("/find/customer-plan")
@@ -59,14 +58,9 @@ public class CustomerController {
 
     @PostMapping("/save/customer-plan")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<CustomerResponseMessage> addCustomerWithPlan(@RequestBody CustomerPlanDTO customerPlanDTO) {
+    public ResponseEntity<ResponseMessage> addCustomerWithPlan(@RequestBody CustomerPlanDTO customerPlanDTO) {
         return customerService.addCustomerWithPlan(customerPlanDTO);
     }
-    /*@PutMapping("/update/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<CustomerResponseMessage> updateCustomer(@RequestBody CustomerDTO customerDTO, @PathVariable int id) {
-        return customerService.updateCustomer(customerDTO, id);
-    }*/
 
     @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -76,13 +70,13 @@ public class CustomerController {
 
     @DeleteMapping("/delete/customer/{customerId}/plan/{planId}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<CustomerResponseMessage> deleteCustomerAndPlanById(@PathVariable int  customerId, @PathVariable int planId) {
+    public ResponseEntity<ResponseMessage> deleteCustomerAndPlanById(@PathVariable int  customerId, @PathVariable int planId) {
         return customerService.deleteCustomerAndPlanById(customerId, planId);
     }
 
     @DeleteMapping("/deleteCustomer/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<CustomerResponseMessage> deleteCustomer(@PathVariable int  id) {
+    public ResponseEntity<ResponseMessage> deleteCustomer(@PathVariable int  id) {
         return customerService.deleteCustomer(id);
     }
 

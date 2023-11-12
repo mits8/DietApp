@@ -2,10 +2,8 @@ package com.example.plan.food.controller;
 
 import com.example.plan.dto.food.FoodDTO;
 import com.example.plan.enums.Type;
-import com.example.plan.food.entity.Food;
 import com.example.plan.food.service.FoodService;
 import com.example.plan.utils.ResponseMessage;
-import com.example.plan.utils.food.FoodResponseMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -58,7 +56,7 @@ public class FoodController {
 
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<FoodResponseMessage> deleteCustomer(@PathVariable int  id) {
+    public ResponseEntity<ResponseMessage> deleteCustomer(@PathVariable int  id) {
         return foodService.deleteFood(id);
     }
 }

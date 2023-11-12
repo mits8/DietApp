@@ -9,7 +9,6 @@ import com.example.plan.food.service.FoodService;
 import com.example.plan.map.Mapper;
 import com.example.plan.meal.repository.MealRepository;
 import com.example.plan.utils.ResponseMessage;
-import com.example.plan.utils.food.FoodResponseMessage;
 import com.example.plan.validation.Validation;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -152,24 +151,24 @@ public class FoodServiceImpl implements FoodService {
     }
 
     @Override
-    public ResponseEntity<FoodResponseMessage> deleteFood(int id) {
+    public ResponseEntity<ResponseMessage> deleteFood(int id) {
         try {
             Optional<Food> food = foodRepository.findById(id);
             if (food.isPresent()) {
                 foodRepository.deleteById(id);
                 String message = "Το φαγητό "+ food.get().getName() + " διαγράφτηκε επιτυχώς!";
-                FoodResponseMessage response = new FoodResponseMessage(message, null);
+                ResponseMessage response = new ResponseMessage(message, null);
                 return new ResponseEntity<>(response, HttpStatus.OK);
             } else {
                 String message = "Το φαγητό ΔΕΝ βρέθηκε..";
-                FoodResponseMessage response = new FoodResponseMessage(message, null);
+                ResponseMessage response = new ResponseMessage(message, null);
                 return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
         } catch (Exception ex) {
             log.info("{}", ex);
         }
         String message = "Κάτι πήγε λάθος..";
-        FoodResponseMessage response = new FoodResponseMessage(message, null);
+        ResponseMessage response = new ResponseMessage(message, null);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 }

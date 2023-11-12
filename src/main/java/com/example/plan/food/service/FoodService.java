@@ -2,9 +2,7 @@ package com.example.plan.food.service;
 
 import com.example.plan.dto.food.FoodDTO;
 import com.example.plan.enums.Type;
-import com.example.plan.food.entity.Food;
 import com.example.plan.utils.ResponseMessage;
-import com.example.plan.utils.food.FoodResponseMessage;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -24,5 +22,5 @@ public interface FoodService {
 
     ResponseEntity<ResponseMessage> updateFood(Map<String, String> requestMap, int id);
 
-    ResponseEntity<FoodResponseMessage> deleteFood(int id);
+    ResponseEntity<ResponseMessage> deleteFood(int id);
 }

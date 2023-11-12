@@ -1,7 +1,5 @@
 package com.example.plan.meal.service.Impl;
 
-import com.example.plan.customer.entity.Customer;
-import com.example.plan.dto.customer.CustomerDTO;
 import com.example.plan.dto.food.FoodDTO;
 import com.example.plan.dto.meal.MealDTO;
 import com.example.plan.dto.meal.MealFoodDTO;
@@ -13,9 +11,8 @@ import com.example.plan.map.Mapper;
 import com.example.plan.meal.entity.Meal;
 import com.example.plan.meal.repository.MealRepository;
 import com.example.plan.meal.service.MealService;
-import com.example.plan.utils.ResponseMessage;
-import com.example.plan.utils.meal.MealResponseMessage;
 import com.example.plan.plan.repository.PlanRepository;
+import com.example.plan.utils.ResponseMessage;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +20,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -105,7 +105,7 @@ public class MealServiceImpl implements MealService {
 
     @Transactional
     @Override
-    public ResponseEntity<MealResponseMessage> addMealWithFoods(MealFoodDTO mealFoodDTO) {
+    public ResponseEntity<ResponseMessage> addMealWithFoods(MealFoodDTO mealFoodDTO) {
         Meal name = mealRepository.findByName(mealFoodDTO.getName());
         if (Objects.isNull(name)) {
             Meal meal = mapper.mapMealFoodDTOToMeal(mealFoodDTO);
@@ -118,11 +118,11 @@ public class MealServiceImpl implements MealService {
             meal.setFoods(foods);
             mealRepository.save(meal);
             String message = "Το γεύμα " + "'" + mealFoodDTO.getName() + " και τα φαγητά γράφτηκαν επιτυχώς!";
-            MealResponseMessage response = new MealResponseMessage(message, mealFoodDTO);
+            ResponseMessage response = new ResponseMessage(message, mealFoodDTO);
             return new ResponseEntity<>(response , HttpStatus.OK);
         }
         String message = "Κάτι πήγε λάθος..";
-        MealResponseMessage response = new MealResponseMessage(message, (MealFoodDTO) null);
+        ResponseMessage response = new ResponseMessage(message, (MealFoodDTO) null);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
@@ -189,30 +189,30 @@ public class MealServiceImpl implements MealService {
     }
     @Transactional
     @Override
-    public ResponseEntity<MealResponseMessage> deleteMeal(int id) {
+    public ResponseEntity<ResponseMessage> deleteMeal(int id) {
         try {
             Optional<Meal> optionalMeal =  mealRepository.findById(id);
             if (optionalMeal.isPresent()){
                 mealRepository.delete(optionalMeal.get());
                 String message = "Το γεύμα " + "'" + optionalMeal.get().getName() + " διαγράφηκε επιτυχώς!";
-                MealResponseMessage response = new MealResponseMessage(message, (MealDTO) null);
+                ResponseMessage response = new ResponseMessage(message, (MealDTO) null);
                 return new ResponseEntity<>(response , HttpStatus.OK);
             } else {
                 String message = "Το γεύμα ΔΕΝ βρέθηκε..";
-                MealResponseMessage response = new MealResponseMessage(message, (MealDTO) null);
+                ResponseMessage response = new ResponseMessage(message, (MealDTO) null);
                 return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
             }
         } catch (Exception ex) {
             log.info("{}", ex);
         }
         String message = "Κάτι πήγε λάθος..";
-        MealResponseMessage response = new MealResponseMessage(message, (MealDTO) null);
+        ResponseMessage response = new ResponseMessage(message, (MealDTO) null);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     @Transactional
     @Override
-    public ResponseEntity<MealResponseMessage> deleteMealAndFood(int mealId, int foodId) {
+    public ResponseEntity<ResponseMessage> deleteMealAndFood(int mealId, int foodId) {
         try {
             Optional<Meal> existingMeal =  mealRepository.findById(mealId);
             Optional<Food> existingFood =  foodRepository.findById(foodId);
@@ -222,24 +222,24 @@ public class MealServiceImpl implements MealService {
                 foodRepository.deleteById(foodId);
 
                 String message = "Το γεύμα " + "'" + existingMeal.get().getName() + "'" + " και το φαγητό " + "'" + existingFood.get().getName()+ "'" + " διαγράφηκαν επιτυχώς!";
-                MealResponseMessage response = new MealResponseMessage(message, (MealDTO) null);
+                ResponseMessage response = new ResponseMessage(message, (MealDTO) null);
                 return new ResponseEntity<>(response , HttpStatus.OK);
             } else {
                 String message = "Το γεύμα ΔΕΝ βρέθηκε..";
-                MealResponseMessage response = new MealResponseMessage(message, (MealDTO) null);
+                ResponseMessage response = new ResponseMessage(message, (MealDTO) null);
                 return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
             }
         } catch (Exception ex) {
             log.info("{}", ex);
         }
         String message = "Κάτι πήγε λάθος..";
-        MealResponseMessage response = new MealResponseMessage(message, (MealDTO) null);
+        ResponseMessage response = new ResponseMessage(message, (MealDTO) null);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     @Transactional
     @Override
-    public ResponseEntity<MealResponseMessage> removeFoodFromMeal(int mealId, int foodId) {
+    public ResponseEntity<ResponseMessage> removeFoodFromMeal(int mealId, int foodId) {
         try {
             Optional<Meal> existingMeal = mealRepository.findById(mealId);
             Optional<Food> existingFood = foodRepository.findById(foodId);
@@ -250,18 +250,18 @@ public class MealServiceImpl implements MealService {
                 foodRepository.deleteById(foodId);
 
                 String message = "Το φαγητό " + "'" + existingFood.get().getName() + "'" + " αφαιρέθηκε επιτυχώς από το γεύμα" + "'" + existingMeal.get().getName() + "'";
-                MealResponseMessage response = new MealResponseMessage(message, (MealDTO) null);
+                ResponseMessage response = new ResponseMessage(message, (MealDTO) null);
                 return new ResponseEntity<>(response , HttpStatus.OK);
             } else {
                 String message = "Το γεύμα ή το φαγητό ΔΕΝ βρέθηκαν..";
-                MealResponseMessage response = new MealResponseMessage(message, (MealDTO) null);
+                ResponseMessage response = new ResponseMessage(message, (MealDTO) null);
                 return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
         } catch (Exception ex) {
             log.info("{}", ex);
         }
         String message = "Κάτι πήγε λάθος..";
-        MealResponseMessage response = new MealResponseMessage(message, (MealDTO) null);
+        ResponseMessage response = new ResponseMessage(message, (MealDTO) null);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 }
