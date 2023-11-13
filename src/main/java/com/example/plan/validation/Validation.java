@@ -2,7 +2,6 @@ package com.example.plan.validation;
 
 import com.example.plan.dto.customer.CustomerPlanDTO;
 import org.springframework.stereotype.Component;
-
 import java.util.Map;
 
 @Component
@@ -18,12 +17,8 @@ public class Validation {
         return isLengthValid && isLettersValid;
     }
 
-    public boolean isValidNameLengthCustomerDTO(Map<String, String> requestMap) {
-        return isValidNameLengthAndLetters(requestMap.get("firstName"), requestMap.get("lastName"));
-    }
-
-    public boolean isValidNameLengthCustomerPlanDTO(CustomerPlanDTO customerPlanDTO) {
-        return isValidNameLengthAndLetters(customerPlanDTO.getFirstName(), customerPlanDTO.getLastName());
+    public boolean isValidNameLengthCustomer(Map<String, Object> requestMap) {
+        return isValidNameLengthAndLetters((String) requestMap.get("firstName"), (String) requestMap.get("lastName"));
     }
 
     public boolean isValidPhone(String phone) {
@@ -33,12 +28,8 @@ public class Validation {
         return isValidNumbers && isValidLength;
     }
 
-    public boolean isValidNumbersAndLengthCustomerDTO(Map<String, String> requestMap){
-        return isValidPhone(requestMap.get("phone"));
-    }
-
-    public boolean isValidNumbersAndLengthCustomerPlanDTO(CustomerPlanDTO customerPlanDTO){
-        return isValidPhone(customerPlanDTO.getPhone());
+    public boolean isValidNumbersAndLengthCustomer(Map<String, Object> requestMap){
+        return isValidPhone((String) requestMap.get("phone"));
     }
 
     public boolean isValidFoodLetters(String lettersField){

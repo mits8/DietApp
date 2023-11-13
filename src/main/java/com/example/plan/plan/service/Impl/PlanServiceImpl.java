@@ -63,10 +63,21 @@ public class PlanServiceImpl implements PlanService {
 
         return PlanMealDTOs;
     }
+    /*@Override
+    public List<Map<String, String>> getPlanDetailsByCustomerFirstName(String firstName, String lastName) {
+
+        List<Map<String, String>> plans =  planRepository.findPlanDetailsByCustomerFirstName(firstName, lastName);
+        for (Map<String, String> plan : plans) {
+            String existingValue = plan.get("plans");
+            plan.put("name", existingValue);
+            plans.add(plan);
+        }
+        return plans;
+    }*/
 
     @Override
-    public List<Object> getPlanDetailsByCustomerFirstName(String customerFirstName) {
-        return planRepository.findPlanDetailsByCustomerFirstName(customerFirstName);
+    public List<Object> getPlanDetailsByCustomerFirstName(String firstName, String lastName) {
+        return planRepository.findPlanDetailsByCustomerFirstName(firstName, lastName);
     }
 
     @Transactional
@@ -304,7 +315,7 @@ public class PlanServiceImpl implements PlanService {
                 Map<String, Object> customerData = objectMapper.convertValue(customerObject, Map.class);
 
                 String customerFirstname = String.valueOf(customerData.get("firstName"));
-                String customerLastname = String.valueOf(customerData.get("lastName"));
+                String lastName = String.valueOf(customerData.get("lastName"));
                 String email = String.valueOf(customerData.get("email"));
                 String phone = String.valueOf(customerData.get("phone"));
                 String city = String.valueOf(customerData.get("city"));
@@ -314,7 +325,7 @@ public class PlanServiceImpl implements PlanService {
 
                 Customer customer = new Customer();
                 customer.setFirstName(customerFirstname);
-                customer.setLastName(customerLastname);
+                customer.setLastName(lastName);
                 customer.setEmail(email);
                 customer.setPhone(phone);
                 customer.setCity(city);

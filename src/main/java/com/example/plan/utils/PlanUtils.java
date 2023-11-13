@@ -17,20 +17,20 @@ public class PlanUtils {
     }
 
 
-    public static LocalDate formatter(Map<String, String> requestMap) {
+    public static LocalDate formatter(Map<String, Object> requestMap) {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
         if (requestMap.containsKey("birthday")) {
-            String date = requestMap.get("birthday");
+            String date = (String) requestMap.get("birthday");
             return LocalDate.parse(date, formatter);
         }
         if (requestMap.containsKey("startDate")) {
-            String startDate = requestMap.get("startDate");
+            String startDate = (String) requestMap.get("startDate");
             return LocalDate.parse(startDate, formatter);
         }
         if (requestMap.containsKey("endDate")) {
-            String endDate = requestMap.get("endDate");
+            String endDate = (String) requestMap.get("endDate");
             return LocalDate.parse(endDate, formatter);
         }
         throw new IllegalArgumentException("No valid date field found in the requestMap");

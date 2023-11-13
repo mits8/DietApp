@@ -11,7 +11,7 @@ import java.util.Map;
 public interface PlanService {
     List<PlanMealCustomerDTO> findAll();
 
-    List<Object> getPlanDetailsByCustomerFirstName(String customerFirstName);
+    List<Object> getPlanDetailsByCustomerFirstName(String firstName, String lastName);
 
     @Transactional
     ResponseEntity<ResponseMessage> addToPlan(Map<String, List<Object>> requestMap, int id);

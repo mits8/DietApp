@@ -20,7 +20,7 @@ public interface PlanRepository extends JpaRepository<Plan, Integer> {
             "JOIN p.customers c " +
             "JOIN p.meals m " +
             "JOIN m.foods f " +
-            "WHERE LOWER(c.firstName) = LOWER(:customerFirstName)")
-    List<Object> findPlanDetailsByCustomerFirstName(@Param("customerFirstName") String customerFirstName);
+            "WHERE c.firstName =:firstName and c.lastName=:lastName")
+    List<Object> findPlanDetailsByCustomerFirstName(@Param("firstName") String firstName, @Param("lastName") String lastName);
 
 }

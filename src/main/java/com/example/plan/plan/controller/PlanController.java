@@ -25,8 +25,8 @@ public class PlanController {
     }
 
     @GetMapping("/findByCustomerName")
-    public List<Object> getPlanDetailsByCustomerFirstName (@RequestParam String customerFirstname) {
-        return planService.getPlanDetailsByCustomerFirstName(customerFirstname);
+    public List<Object> getPlanDetailsByCustomerFirstName (@RequestParam String customerFirstname, @RequestParam String lastName) {
+        return planService.getPlanDetailsByCustomerFirstName(customerFirstname, lastName);
     }
 
     @PostMapping("/savePlan/{id}")
