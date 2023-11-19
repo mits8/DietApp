@@ -5,10 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, Integer> {
@@ -16,9 +13,6 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
 
     @Query("SELECT c FROM Customer c  WHERE c.firstName=:firstName and c.lastName=:lastName")
     List<Customer> findCustomerByName(String firstName, String lastName);
-
-    @Query("SELECT c FROM Customer c WHERE c.lastName=:lastName")
-    Customer findByName (String lastName);
 
     @Query("SELECT c FROM Customer c WHERE c.email=:email")
     Customer findByEmailMap(@Param("email") String email);

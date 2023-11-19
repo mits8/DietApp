@@ -1,7 +1,7 @@
 package com.example.plan.validation;
 
-import com.example.plan.dto.customer.CustomerPlanDTO;
 import org.springframework.stereotype.Component;
+
 import java.util.Map;
 
 @Component
@@ -28,31 +28,41 @@ public class Validation {
         return isValidNumbers && isValidLength;
     }
 
-    public boolean isValidNumbersAndLengthCustomer(Map<String, Object> requestMap){
+    public boolean isValidNumbersAndLengthCustomer(Map<String, Object> requestMap) {
         return isValidPhone((String) requestMap.get("phone"));
     }
 
-    public boolean isValidFoodLetters(String lettersField){
-        if ( !lettersField.equals(null) || !lettersField.isEmpty()) {
+    public boolean isValidFoodLetters(String lettersField) {
+        if (!lettersField.equals(null) || !lettersField.isEmpty()) {
             boolean isValidFieldLetters = lettersField.matches("^[\\p{L}\\p{M}]+$");
             return isValidFieldLetters;
         }
         return false;
     }
+
     public boolean isValidFoodNumbers(Double numbersField) {
-        String numbersFieldAsString = String.valueOf(numbersField);
+        if (numbersField == null) {
+            return false;
+        }
+            String numbersFieldAsString = String.valueOf(numbersField);
         boolean isValidFieldNumbers = numbersFieldAsString.matches("^[0-9,\\.]+$");
         return isValidFieldNumbers;
     }
 
 
-    public boolean isValidFieldLetters(Map<String, String> requestMap){
-        return isValidFoodLetters(requestMap.get("name"));
+    public boolean isValidFieldLetters(Map<String, Object> requestMap) {
+        return isValidFoodLetters((String) requestMap.get("name"));
     }
 
-    public boolean isValidFieldNumbers(Map<String, String> requestMap) {
-        return isValidFoodNumbers(Double.valueOf(requestMap.get("gram"))) && isValidFoodNumbers(Double.valueOf(requestMap.get("calories")));
+    public boolean isValidFieldNumbers(Map<String, Object> requestMap) {
+        return isValidFoodNumbers((Double) getDoubleValue(requestMap.get("gram"))) && isValidFoodNumbers((Double) getDoubleValue(requestMap.get("calories")));
     }
 
+    private Object getDoubleValue(Object value) {
+        if (value instanceof Double) {
+            return  value;
 
+        }
+        return null;
+    }
 }

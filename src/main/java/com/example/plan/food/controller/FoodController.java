@@ -21,42 +21,42 @@ public class FoodController {
     private FoodService foodService;
 
     @GetMapping("/findAll")
-    public ResponseEntity<List<FoodDTO>> findAll(){
+    public ResponseEntity<List<Map<String, Object>>> findAllFoods(){
         return new ResponseEntity<>(foodService.findAll(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<FoodDTO> findById(@PathVariable int id) {
+    public ResponseEntity<Map<String, Object>> findById(@PathVariable int id) {
         return new ResponseEntity<>(foodService.findById(id), HttpStatus.OK);
     }
 
+    /*------------------REVIEW----------------*/
     @GetMapping("/type")
-    public ResponseEntity<List<FoodDTO>> findByType(@RequestParam("type") Type type) {
+    public ResponseEntity<List<Map<String, Object>>> findByType(@RequestParam("type") Type type) {
         return new ResponseEntity<>(foodService.findByType(type), HttpStatus.OK);
     }
 
     @GetMapping("/name")
-    public ResponseEntity<FoodDTO> findByName(@RequestParam("name") String name) {
+    public ResponseEntity<Map<String, Object>> findByName(@RequestParam("name") String name) {
         return new ResponseEntity<>(foodService.findByName(name), HttpStatus.OK);
     }
 
-    @PostMapping("/addFood")
+    @PostMapping("/add")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-
-    public ResponseEntity<ResponseMessage> saveFood(@RequestBody Map<String, String> requestMap) {
+    public ResponseEntity<ResponseMessage> addFood(@RequestBody Map<String, Object> requestMap) {
         return foodService.addFood(requestMap);
     }
 
     @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<ResponseMessage> updateCustomer(@RequestBody Map<String, String> requestMap, @PathVariable int id) {
+    public ResponseEntity<ResponseMessage> updateFood(@RequestBody Map<String, Object> requestMap, @PathVariable int id) {
         return foodService.updateFood(requestMap, id);
     }
 
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<ResponseMessage> deleteCustomer(@PathVariable int  id) {
+    public ResponseEntity<ResponseMessage> deleteFood(@PathVariable int  id) {
         return foodService.deleteFood(id);
     }
 }

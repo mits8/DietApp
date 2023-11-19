@@ -1,13 +1,9 @@
 package com.example.plan.food.service.Impl;
 
-import com.example.plan.customer.repository.CustomerRepository;
-import com.example.plan.dto.food.FoodDTO;
 import com.example.plan.enums.Type;
 import com.example.plan.food.entity.Food;
 import com.example.plan.food.repository.FoodRepository;
 import com.example.plan.food.service.FoodService;
-import com.example.plan.map.Mapper;
-import com.example.plan.meal.repository.MealRepository;
 import com.example.plan.utils.ResponseMessage;
 import com.example.plan.validation.Validation;
 import jakarta.transaction.Transactional;
@@ -17,11 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -29,70 +21,91 @@ public class FoodServiceImpl implements FoodService {
 
     @Autowired
     private FoodRepository foodRepository;
-
-    @Autowired
-    private CustomerRepository customerRepository;
-
-    @Autowired
-    private MealRepository mealRepository;
-
-    @Autowired
-    private Mapper mapper;
-
     @Autowired
     private Validation validation;
 
+    List<Map<String, Object>> foodObjectList = new ArrayList<>();
+    Map<String, Object> foodObjectMap = new HashMap<>();
+
     @Override
-    public List<FoodDTO> findAll() {
+    public List<Map<String, Object>> findAll() {
         List<Food> foods = foodRepository.findAll();
-        List<FoodDTO> foodDTOS = foods.stream()
-                .map(mapper::mapFoodToFoodDTO)
-                .collect(Collectors.toList());
-        return foodDTOS;
+        for(Food food : foods) {
+            foodObjectMap.put("id", food.getId());
+            foodObjectMap.put("name", food.getName());
+            foodObjectMap.put("description", food.getDescription());
+            foodObjectMap.put("gram", food.getGram());
+            foodObjectMap.put("calories", food.getCalories());
+            foodObjectMap.put("type", food.getType());
+            foodObjectList.add(foodObjectMap);
+        }
+        return foodObjectList;
     }
 
     @Override
-    public FoodDTO findById(int id) {
+    public Map<String, Object> findById(int id) {
         Optional<Food> existingFood = foodRepository.findById(id);
-        Food food = null;
         if (existingFood.isPresent()){
-           food = existingFood.get();
-           FoodDTO foodDTO = mapper.mapFoodToFoodDTO(food);
-        return foodDTO;
+          Food food = existingFood.get();
+            foodObjectMap.put("id", food.getId());
+            foodObjectMap.put("name", food.getName());
+            foodObjectMap.put("description", food.getDescription());
+            foodObjectMap.put("gram", food.getGram());
+            foodObjectMap.put("calories", food.getCalories());
+            foodObjectMap.put("type", food.getType());
+
+        return foodObjectMap;
         } else {
             throw new RuntimeException("Το φαγητό δεν βρέθηκε..");
         }
     }
 
+    /*------------------REVIEW----------------*/
     @Override
-    public List<FoodDTO> findByType(Type type) {
-            List<Food> foods = foodRepository.findByType(type);
-            List<FoodDTO> foodDTOS = foods.stream()
-                    .map(food -> mapper.mapFoodToFoodDTO(food))
-                    .collect(Collectors.toList());
-            return foodDTOS;
+    public List<Map<String, Object>> findByType(Type type) {
+        List<Food> foods = foodRepository.findByType(type);
+        for (Food food : foods) {
+            foodObjectMap.put("id", food.getId());
+            foodObjectMap.put("name", food.getName());
+            foodObjectMap.put("description", food.getDescription());
+            foodObjectMap.put("gram", food.getGram());
+            foodObjectMap.put("calories", food.getCalories());
+            foodObjectMap.put("type", food.getType());
+            foodObjectList.add(foodObjectMap);
+        }
+        return foodObjectList;
     }
 
+    /*------------------REVIEW----------------*/
     @Override
-    public FoodDTO findByName(String name) {
+    public Map<String, Object> findByName(String name) {
         Food food = foodRepository.findByName(name);
-        FoodDTO foodDTO = mapper.mapFoodToFoodDTO(food);
-        return foodDTO;
+            foodObjectMap.put("id", food.getId());
+            foodObjectMap.put("name", food.getName());
+            foodObjectMap.put("description", food.getDescription());
+            foodObjectMap.put("gram", food.getGram());
+            foodObjectMap.put("calories", food.getCalories());
+            foodObjectMap.put("type", food.getType());
+
+            return foodObjectMap;
     }
 
     @Transactional
     @Override
-    public ResponseEntity<ResponseMessage> addFood(Map<String, String> requestMap) {
+    public ResponseEntity<ResponseMessage> addFood(Map<String, Object> requestMap) {
         try {
-            Food name = foodRepository.findByName(requestMap.get("name"));
-            if (Objects.isNull(name)) {
+            Food foodName = foodRepository.findFoodName((String) requestMap.get("name"));
+            if (foodName == null) {
                 if (validation.isValidFieldLetters(requestMap) && validation.isValidFieldNumbers(requestMap)) {
                     Food food = new Food();
-                    food.setName(requestMap.get("name"));
-                    food.setDescription(requestMap.get("description"));
-                    food.setGram(Double.parseDouble(requestMap.get("gram")));
-                    food.setCalories(Double.parseDouble(requestMap.get("calories")));
-                    food.setType(Type.valueOf(requestMap.get("type")));
+                    food.setName((String) requestMap.get("name"));
+                    food.setDescription((String) requestMap.get("description"));
+
+                    Object gramObject = requestMap.get("gram");
+                    food.setGram(gramObject != null ? Double.valueOf(String.valueOf(gramObject)) : 0.0);
+
+                    food.setCalories(Double.parseDouble((String.valueOf(requestMap.get("calories")))));
+                    food.setType(Type.valueOf((String.valueOf(requestMap.get("type")))));
                     foodRepository.save(food);
                     String message = "Το φαγητό " + "'" + requestMap.get("name") + "'" + " γράφτηκε επιτυχώς!";
                     ResponseMessage response = new ResponseMessage(message, requestMap);
@@ -117,17 +130,17 @@ public class FoodServiceImpl implements FoodService {
 
     @Transactional
     @Override
-    public ResponseEntity<ResponseMessage> updateFood(Map<String, String> requestMap, int id) {
+    public ResponseEntity<ResponseMessage> updateFood(Map<String, Object> requestMap, int id) {
         try {
             Optional<Food> existingFood = foodRepository.findById(id);
             if (existingFood.isPresent()){
                 Food updateFood = existingFood.get();
                 if (validation.isValidFieldLetters(requestMap) && validation.isValidFieldNumbers(requestMap)) {
-                        updateFood.setName(requestMap.get("name"));
-                        updateFood.setDescription(requestMap.get("description"));
-                        updateFood.setGram(Double.parseDouble(requestMap.get("gram")));
-                        updateFood.setCalories(Double.parseDouble(requestMap.get("calories")));
-                        updateFood.setType(Type.valueOf(requestMap.get("type")));
+                        updateFood.setName((String) (requestMap.get("name")));
+                        updateFood.setDescription((String) requestMap.get("description"));
+                        updateFood.setGram(Double.parseDouble(String.valueOf( requestMap.get("gram"))));
+                        updateFood.setCalories(Double.parseDouble((String.valueOf(requestMap.get("calories")))));
+                        updateFood.setType(Type.valueOf((String.valueOf(requestMap.get("type")))));
                         foodRepository.save(updateFood);
                         String message = "Το φαγητό " + "'" + requestMap.get("name") + "'" + " ενημερώθηκε επιτυχώς!";
                         ResponseMessage response = new ResponseMessage(message, requestMap);

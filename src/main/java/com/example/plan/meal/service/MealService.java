@@ -12,27 +12,24 @@ import java.util.List;
 import java.util.Map;
 
 public interface MealService {
-    List<MealDTO> findAll();
+    List<Map<String, Object>> findAll();
 
-    MealDTO findById(int id);
+    Map<String, Object> findById(int id);
 
-    List<MealDTO> findByTypeBreakfast(Type type);
+    List<Map<String, Object>> findByType(Type type);
 
-    ResponseEntity<ResponseMessage> addMeal(Map<String, String> requestMap);
-
-    @Transactional
-    ResponseEntity<ResponseMessage> addMealWithFoods(MealFoodDTO mealFoodDTO);
+    ResponseEntity<ResponseMessage> addMeal(Map<String, Object> requestMap);
 
     @Transactional
-    ResponseEntity<ResponseMessage> addFoodToMeal(Map<String, List<FoodDTO>> requestMap, int id);
+    ResponseEntity<ResponseMessage> addFoodToMeal(Map<String, List<Object>> requestMap, String name);
 
-    ResponseEntity<ResponseMessage> updateMeal(Map<String, String> requestMap, int id);
+    ResponseEntity<ResponseMessage> updateMeal(Map<String, Object> requestMap, int id);
 
     ResponseEntity<ResponseMessage> deleteMeal(int id);
 
     @Transactional
-    ResponseEntity<ResponseMessage> deleteMealAndFood(int mealId, int foodId);
+    ResponseEntity<ResponseMessage> deleteMealAndFood(int planId, int mealId, int foodId);
 
     @Transactional
-    ResponseEntity<ResponseMessage> removeFoodFromMeal(int mealId, int foodId);
+    ResponseEntity<ResponseMessage> removeFoodFromMeal(int planId, int mealId, int foodId);
 }

@@ -1,23 +1,26 @@
 package com.example.plan.plan.service;
 
-import com.example.plan.dto.plan.PlanMealCustomerDTO;
 import com.example.plan.utils.ResponseMessage;
 import jakarta.transaction.Transactional;
 import org.springframework.http.ResponseEntity;
-
 import java.util.List;
 import java.util.Map;
 
 public interface PlanService {
-    List<PlanMealCustomerDTO> findAll();
+    List<Map<String, Object>> findAll();
 
-    List<Object> getPlanDetailsByCustomerFirstName(String firstName, String lastName);
+    List<Map<String, Object>> findPlanMealFood();
+
+    List<Map<String, Object>> getPlanDetailsByCustomerFullName(String firstName, String lastName);
+
+    @Transactional
+    ResponseEntity<ResponseMessage> addPlan(Map<String, Object> requestMap);
 
     @Transactional
     ResponseEntity<ResponseMessage> addToPlan(Map<String, List<Object>> requestMap, int id);
 
     @Transactional
-    ResponseEntity<ResponseMessage> addMealToPlan(Map<String, List<Object>> mealData, int id);
+    ResponseEntity<ResponseMessage> addMealToPlan(Map<String, List<Object>> mealData, String name);
 
     @Transactional
     ResponseEntity<ResponseMessage> addCustomerToPlan(Map<String, List<Object>> requestMap, int id);

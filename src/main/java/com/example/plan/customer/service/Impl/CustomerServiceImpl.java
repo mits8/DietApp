@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
 import java.util.*;
 
 @Slf4j
@@ -27,8 +26,6 @@ public class CustomerServiceImpl implements CustomerService {
     private CustomerRepository customerRepository;
     @Autowired
     private PlanRepository PlanRepository;
-    @Autowired
-    private Mapper mapper;
     @Autowired
     private Validation validation;
 
@@ -51,7 +48,6 @@ public class CustomerServiceImpl implements CustomerService {
             customerObjectMap.put("gender", customer.getGender());
             customerObjectsList.add(customerObjectMap);
         }
-
         return customerObjectsList;
     }
 
@@ -94,7 +90,6 @@ public class CustomerServiceImpl implements CustomerService {
             customerObjectMap.put("gender", customer.getGender());
             customerObjectsList.add(customerObjectMap);
         }
-
         return customerObjectsList;
     }
 

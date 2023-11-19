@@ -17,11 +17,10 @@ public interface CustomerService {
     @Transactional
     ResponseEntity<ResponseMessage> addCustomer(Map<String, Object> requestMap);
 
-
-    ResponseEntity<ResponseMessage> deleteCustomerAndPlanById(int  customerId, int PlanId);
-
     @Transactional
     ResponseEntity<ResponseMessage> updateCustomer(Map<String, Object> requestMap, int id);
+
+    ResponseEntity<ResponseMessage> deleteCustomerAndPlanById(int  customerId, int PlanId);
 
     ResponseEntity<ResponseMessage> deleteCustomer(int id);
 

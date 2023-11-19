@@ -1,6 +1,5 @@
 package com.example.plan.plan.controller;
 
-import com.example.plan.dto.plan.PlanMealCustomerDTO;
 import com.example.plan.plan.service.PlanService;
 import com.example.plan.utils.ResponseMessage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,27 +19,37 @@ public class PlanController {
     private PlanService planService;
 
     @GetMapping("/findAll")
-    public ResponseEntity<List<PlanMealCustomerDTO>> findAll(){
+    public ResponseEntity<List<Map<String, Object>>> findAll(){
         return new ResponseEntity<>(planService.findAll(), HttpStatus.OK);
     }
 
-    @GetMapping("/findByCustomerName")
-    public List<Object> getPlanDetailsByCustomerFirstName (@RequestParam String customerFirstname, @RequestParam String lastName) {
-        return planService.getPlanDetailsByCustomerFirstName(customerFirstname, lastName);
+    @GetMapping("/find/plan/meal/food")
+    public ResponseEntity<List<Map<String, Object>>> findPlanMealFood(){
+        return new ResponseEntity<>(planService.findPlanMealFood(), HttpStatus.OK);
     }
 
-    @PostMapping("/savePlan/{id}")
-    public ResponseEntity<ResponseMessage> addToPlan(@RequestBody Map<String, List<Object>> requestMap,@PathVariable int id){
+    @GetMapping("/find/Customer/byName")
+    public List<Map<String, Object>> getPlanDetailsByCustomerFirstName (@RequestParam String firstname, @RequestParam String lastname) {
+       return  planService.getPlanDetailsByCustomerFullName(firstname, lastname);
+    }
+
+    @PostMapping("/add")
+    public ResponseEntity<ResponseMessage> addPlan(@RequestBody Map<String, Object> requestMap){
+        return planService.addPlan(requestMap);
+    }
+
+    @PostMapping("/addPlan/{id}")
+    public ResponseEntity<ResponseMessage> addToPlan(@RequestBody Map<String, List<Object>> requestMap, @PathVariable int id){
         return planService.addToPlan(requestMap,id);
     }
 
 
-    @PostMapping("/saveMeal/{id}")
-    public ResponseEntity<ResponseMessage> addMealToPlan(@RequestBody Map<String, List<Object>> requestMap, @PathVariable int id){
-        return planService.addMealToPlan(requestMap, id);
+    @PostMapping("/addMeal/{name}")
+    public ResponseEntity<ResponseMessage> addMealToPlan(@RequestBody Map<String, List<Object>> requestMap, @PathVariable String name){
+        return planService.addMealToPlan(requestMap, name);
     }
 
-    @PostMapping("/saveCustomer/{id}")
+    @PostMapping("/addCustomer/{id}")
     public ResponseEntity<ResponseMessage> addCustomerToPlan(@RequestBody Map<String, List<Object>> requestMap, @PathVariable int id){
         return planService.addCustomerToPlan(requestMap, id);
     }

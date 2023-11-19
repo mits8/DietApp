@@ -36,7 +36,7 @@ public class CustomerController {
         return new ResponseEntity<>(customerService.findCustomerByName(firstName, lastName), HttpStatus.OK);
     }
 
-    @PostMapping("/addCustomer")
+    @PostMapping("/add")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ResponseMessage> addCustomer(@RequestBody Map<String, Object> requestMap) {
         return customerService.addCustomer(requestMap);
@@ -54,7 +54,7 @@ public class CustomerController {
         return customerService.deleteCustomerAndPlanById(customerId, planId);
     }
 
-    @DeleteMapping("/deleteCustomer/{id}")
+    @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ResponseMessage> deleteCustomer(@PathVariable int  id) {
         return customerService.deleteCustomer(id);
