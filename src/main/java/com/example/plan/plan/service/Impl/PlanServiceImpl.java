@@ -17,14 +17,22 @@ import com.example.plan.plan.repository.PlanRepository;
 import com.example.plan.plan.service.PlanService;
 import com.example.plan.utils.ResponseMessage;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.BaseFont;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.FileOutputStream;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.*;
 
 @Slf4j
@@ -56,6 +64,7 @@ public class PlanServiceImpl implements PlanService {
         for (Plan plan : plans) {
             Map<String, Object> map = new HashMap<>();
             map.put("id", plan.getId());
+            map.put("name", plan.getName());
             map.put("startDate", plan.getStartDate());
             map.put("endDate", plan.getEndDate());
             map.put("duration", plan.getDuration());
@@ -77,7 +86,6 @@ public class PlanServiceImpl implements PlanService {
             planMap.put("endDate", plan.getEndDate());
             planMap.put("duration", plan.getDuration());
 
-            // Include information about meals in planMap
             List<Map<String, Object>> mealList = new ArrayList<>();
             for (Meal meal : plan.getMeals()) {
                 Map<String, Object> mealMap = new HashMap<>();
@@ -115,7 +123,145 @@ public class PlanServiceImpl implements PlanService {
 
     @Override
     public List<Map<String, Object>> getPlanDetailsByCustomerFullName(String firstName, String lastName) {
-        return planRepository.findPlanDetailsByCustomerFullName(firstName, lastName);
+        List<Plan> plans = planRepository.findAll();
+        List<Map<String, Object>> mapList = new ArrayList<>();
+
+        for (Plan plan : plans) {
+            Map<String, Object> planMap = new HashMap<>();
+            planMap.put("id", plan.getId());
+            planMap.put("name", plan.getName());
+            planMap.put("startDate", plan.getStartDate());
+            planMap.put("endDate", plan.getEndDate());
+            planMap.put("duration", plan.getDuration());
+
+            List<Map<String, Object>> mealList = new ArrayList<>();
+            for (Meal meal : plan.getMeals()) {
+                Map<String, Object> mealMap = new HashMap<>();
+                mealMap.put("mealId", meal.getId());
+                mealMap.put("mealName", meal.getName());
+                mealMap.put("foods", getFoodsForMeal(meal));
+                mealList.add(mealMap);
+            }
+            planMap.put("meals", mealList);
+            mapList.add(planMap);
+        }
+        return mapList;
+    }
+
+    @Override
+    public ResponseEntity<ResponseMessage> generateReport(Map<String, Object> requestMap, String firstName, String lastName, LocalDate startDate, LocalDate endDate) {
+        try {
+            List<Plan> plans = planRepository.findByCustomerName(firstName, lastName, startDate, endDate);
+            if (plans == null || !plans.isEmpty()) {
+                for (Plan plan : plans) {
+                    Map<String, Object> planMap = new HashMap<>();
+                    planMap.put("id", plan.getId());
+                    planMap.put("name", plan.getName());
+                    planMap.put("startDate", plan.getStartDate());
+                    planMap.put("endDate", plan.getEndDate());
+                    planMap.put("duration", plan.getDuration());
+                }
+
+                String filePath = "C:\\Users\\dchatzop\\Downloads\\" + firstName + "_" + lastName + "'" + startDate + "-" + endDate + "'" + "_Report.pdf";
+
+                Document document = new Document(PageSize.A4);
+                FileOutputStream fos = new FileOutputStream(filePath);
+                PdfWriter.getInstance(document, fos);
+
+                document.open();
+                setRectangleInPdf(document);
+
+                String fontPath = "src/main/java/com/example/plan/utils/fonts/Font.ttf";
+                String greekText = "Πρόγραμμα Διατροφής";
+                BaseFont bf = BaseFont.createFont(fontPath, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+                Font headerFont = new Font(bf, 12);
+                Font dataFont = new Font(bf,8);
+                Font boldFont = new Font(bf,10, Font.BOLD);
+
+                Paragraph title = new Paragraph(greekText, headerFont);
+                title.setAlignment(Element.ALIGN_CENTER);
+                document.add(title);
+
+                for (Plan plan : plans) {
+                    String info = "Όνομα:" + firstName + "\n" +
+                                    "Επίθετο: " + lastName + "\n" +
+                                    "Πλάνο: " + plan.getName() + "\n" +
+                                    "Διάρκεια: " + plan.getDuration() + "\n" +
+                                    "Ημερομηνίες: " + plan.getStartDate() + " - " + plan.getEndDate() + "\n";
+                    Paragraph paragraph = new Paragraph(info, headerFont);
+                    document.add(paragraph);
+                    document.add(new Paragraph("\n"));
+                }
+                PdfPTable table = new PdfPTable(5);
+                table.setWidthPercentage(100);
+                String[] columnTitles = {"ΔΕΥΤΕΡΑ", "ΤΡΙΤΗ", "ΤΕΤΑΡΤΗ", "ΠΕΜΠΤΗ", "ΠΑΡΑΣΚΕΥΗ"};
+
+                for (String columnTitle : columnTitles) {
+                    PdfPCell header = new PdfPCell();
+                    header.setBackgroundColor(BaseColor.LIGHT_GRAY);
+                    header.setBorderWidth(1);
+                    header.setPhrase(new Phrase(columnTitle, headerFont));
+                    header.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+                    table.addCell(header);
+                }
+
+                Map<String, List<Meal>> mealsByDay = new HashMap<>();
+
+                for (Meal meal : plans.get(0).getMeals()) {
+                    String day = meal.getDay().toString();
+                    mealsByDay.computeIfAbsent(day, k -> new ArrayList<>()).add(meal);
+                }
+
+                for (String day : columnTitles) {
+                    List<Meal> mealsForDay = mealsByDay.getOrDefault(day, Collections.emptyList());
+
+                    PdfPCell mealCell = new PdfPCell();
+                    mealCell.setBorderWidth(1);
+
+                    for (Meal meal : mealsForDay) {
+                        String boldText = String.valueOf(meal.getType());
+                        String text = "~Όνομα: " + meal.getName() + "\n" +
+                                      "~Ποσότητα: " + meal.getQuantity() + "\n" +
+                                      "~Γραμμάρια: " + meal.getGram();
+                        mealCell.addElement(new Phrase(boldText, boldFont));
+                        mealCell.addElement(new Phrase(text, dataFont));
+                        mealCell.addElement(new Phrase("\n"));
+                    }
+                    mealCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    mealCell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+                    table.addCell(mealCell);
+                }
+                document.add(table);
+                document.close();
+
+                String successMessage = "PDF generated successfully";
+                ResponseMessage successResponse = new ResponseMessage(successMessage, requestMap);
+                return new ResponseEntity<>(successResponse, HttpStatus.CREATED);
+            } else {
+                String message = "Τα στοιχεία δεν είναι σωστά..";
+                ResponseMessage successResponse = new ResponseMessage(message, null);
+                return new ResponseEntity<>(successResponse, HttpStatus.BAD_REQUEST);
+            }
+
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                String message = "Failed to generate PDF";
+                ResponseMessage response = new ResponseMessage(message, null);
+                return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
+
+    private void setRectangleInPdf(Document document) throws DocumentException {
+        Rectangle rectangle = new Rectangle(577, 825, 18, 15);
+        rectangle.enableBorderSide(1);
+        rectangle.enableBorderSide(2);
+        rectangle.enableBorderSide(4);
+        rectangle.enableBorderSide(8);
+        rectangle.setBorderColor(BaseColor.BLACK);
+        rectangle.setBorderWidth(1);
+        document.add(rectangle);
     }
 
     @Transactional
@@ -401,35 +547,42 @@ public class PlanServiceImpl implements PlanService {
     }
 
     private void addCustomer(Plan plan, Map<String, List<Object>> requestMap) {
-        List<Object> customers = requestMap.get("customers");
-        if (customers != null) {
-            for (Object customerObject : customers) {
+        try {
+            List<Object> customers = requestMap.get("customers");
+            if (customers != null) {
+                for (Object customerObject : customers) {
 
-                Map<String, Object> customerData = objectMapper.convertValue(customerObject, Map.class);
+                    Map<String, Object> customerData = objectMapper.convertValue(customerObject, Map.class);
 
-                String customerFirstname = String.valueOf(customerData.get("firstName"));
-                String lastName = String.valueOf(customerData.get("lastName"));
-                String email = String.valueOf(customerData.get("email"));
-                String phone = String.valueOf(customerData.get("phone"));
-                String city = String.valueOf(customerData.get("city"));
-                String address = String.valueOf(customerData.get("address"));
-                LocalDate birthday = LocalDate.parse(String.valueOf(customerData.get("birthday")));
-                Gender gender = Gender.valueOf((String) customerData.get("gender"));
+                    String customerFirstname = String.valueOf(customerData.get("firstName"));
+                    String lastName = String.valueOf(customerData.get("lastName"));
+                    String email = String.valueOf(customerData.get("email"));
+                    String phone = String.valueOf(customerData.get("phone"));
+                    String city = String.valueOf(customerData.get("city"));
+                    String address = String.valueOf(customerData.get("address"));
+                    LocalDate birthday = LocalDate.parse(String.valueOf(customerData.get("birthday")));
+                    Gender gender = Gender.valueOf((String) customerData.get("gender"));
+                    List<Customer> existingCustomer = customerRepository.findCustomerByName(customerFirstname, lastName);
 
-                Customer customer = new Customer();
-                customer.setFirstName(customerFirstname);
-                customer.setLastName(lastName);
-                customer.setEmail(email);
-                customer.setPhone(phone);
-                customer.setCity(city);
-                customer.setAddress(address);
-                customer.setBirthday(birthday);
-                customer.setGender(gender);
-                customerRepository.save(customer);
-                plan.getCustomers().add(customer);
+                    if (existingCustomer != null) {
+                        Customer customer = new Customer();
+                        customer.setFirstName(customerFirstname);
+                        customer.setLastName(lastName);
+                        customer.setEmail(email);
+                        customer.setPhone(phone);
+                        customer.setCity(city);
+                        customer.setAddress(address);
+                        customer.setBirthday(birthday);
+                        customer.setGender(gender);
+                        customerRepository.save(customer);
+                        plan.getCustomers().add(customer);
+                    }
+                }
             }
+            planRepository.save(plan);
+        } catch (DataIntegrityViolationException ex) {
+            log.error("Could not add Customer. Unique constraint violation..{}", ex);
         }
-        planRepository.save(plan);
     }
 
     @Transactional

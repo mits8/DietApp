@@ -3,6 +3,8 @@ package com.example.plan.plan.service;
 import com.example.plan.utils.ResponseMessage;
 import jakarta.transaction.Transactional;
 import org.springframework.http.ResponseEntity;
+
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +14,8 @@ public interface PlanService {
     List<Map<String, Object>> findPlanMealFood();
 
     List<Map<String, Object>> getPlanDetailsByCustomerFullName(String firstName, String lastName);
+
+    ResponseEntity<ResponseMessage> generateReport(Map<String, Object> requestMap, String firstName, String lastName, LocalDate startDate, LocalDate endDate);
 
     @Transactional
     ResponseEntity<ResponseMessage> addPlan(Map<String, Object> requestMap);
@@ -33,4 +37,5 @@ public interface PlanService {
 
     @Transactional
     ResponseEntity<ResponseMessage> removeCustomerFromPlan(int customerId, int PlanId);
+
 }

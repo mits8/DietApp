@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +32,10 @@ public class PlanController {
     @GetMapping("/find/Customer/byName")
     public List<Map<String, Object>> getPlanDetailsByCustomerFirstName (@RequestParam String firstname, @RequestParam String lastname) {
        return  planService.getPlanDetailsByCustomerFullName(firstname, lastname);
+    }
+    @GetMapping("/generateReport")
+    public ResponseEntity<ResponseMessage> generateReport(Map<String, Object> requestMap, @RequestParam String firstName, @RequestParam String lastName, @RequestParam LocalDate startDate,  @RequestParam LocalDate endDate) {
+        return planService.generateReport(requestMap, firstName, lastName, startDate, endDate);
     }
 
     @PostMapping("/add")
