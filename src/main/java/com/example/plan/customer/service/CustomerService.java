@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 import java.util.Map;
-
+@Transactional
 public interface CustomerService {
     List<Map<String, Object>> findAllCustomers();
 
@@ -14,10 +14,8 @@ public interface CustomerService {
 
     List<Map<String, Object> > findCustomerByName(String firstName, String lastName);
 
-    @Transactional
     ResponseEntity<ResponseMessage> addCustomer(Map<String, Object> requestMap);
 
-    @Transactional
     ResponseEntity<ResponseMessage> updateCustomer(Map<String, Object> requestMap, int id);
 
     ResponseEntity<ResponseMessage> deleteCustomerAndPlanById(int  customerId, int PlanId);

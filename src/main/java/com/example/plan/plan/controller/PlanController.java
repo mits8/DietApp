@@ -33,6 +33,12 @@ public class PlanController {
     public List<Map<String, Object>> getPlanDetailsByCustomerFirstName (@RequestParam String firstname, @RequestParam String lastname) {
        return  planService.getPlanDetailsByCustomerFullName(firstname, lastname);
     }
+
+    @GetMapping("/count")
+    public ResponseEntity<ResponseMessage> count() {
+        return planService.count();
+    }
+
     @GetMapping("/generateReport")
     public ResponseEntity<ResponseMessage> generateReport(Map<String, Object> requestMap, @RequestParam String firstName, @RequestParam String lastName, @RequestParam LocalDate startDate,  @RequestParam LocalDate endDate) {
         return planService.generateReport(requestMap, firstName, lastName, startDate, endDate);
@@ -54,9 +60,9 @@ public class PlanController {
         return planService.addMealToPlan(requestMap, name);
     }
 
-    @PostMapping("/addCustomer/{id}")
-    public ResponseEntity<ResponseMessage> addCustomerToPlan(@RequestBody Map<String, List<Object>> requestMap, @PathVariable int id){
-        return planService.addCustomerToPlan(requestMap, id);
+    @PostMapping("/addCustomer")
+    public ResponseEntity<ResponseMessage> addCustomerToPlan(@RequestBody Map<String, List<Object>> requestMap, @RequestParam String name){
+        return planService.addCustomerToPlan(requestMap, name);
     }
 
     @PutMapping("/update/{id}")
@@ -73,5 +79,17 @@ public class PlanController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ResponseMessage> deleteCustomerFromPlan(@PathVariable int planId, @PathVariable int customerId) {
         return planService.removeCustomerFromPlan(planId, customerId);
+    }
+
+    @DeleteMapping("delete-from-plan/{planId}/meal/{mealId}/food/{foodId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<ResponseMessage> removeFoodFromMeal(@PathVariable int planId, @PathVariable int  mealId, @PathVariable int foodId) {
+        return planService.removeFoodFromMeal(planId, mealId, foodId);
+    }
+
+    @DeleteMapping("/delete-from-plan/{planId}/both/meal/{mealId}/food/{foodId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<ResponseMessage> deleteMealAndFood(@PathVariable int planId, @PathVariable int  mealId, @PathVariable int foodId) {
+        return planService.deleteMealAndFood(planId, mealId, foodId);
     }
 }

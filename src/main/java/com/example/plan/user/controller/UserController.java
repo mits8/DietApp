@@ -1,8 +1,8 @@
 package com.example.plan.user.controller;
 
-import com.example.plan.dto.ChangePasswordDTO;
 import com.example.plan.user.entity.UserInfo;
 import com.example.plan.user.service.UserService;
+import com.example.plan.utils.ResponseMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,6 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -21,40 +22,39 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("/singUp")
-    public ResponseEntity<String> singUp (@RequestBody UserInfo userInfo){
-        return (userService.singUp(userInfo));
-    }
 
     @GetMapping("/findAll")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<UserInfo>> findAll() {
-        return new ResponseEntity<>(userService.findAll(), HttpStatus.OK);
+    public ResponseEntity<ResponseMessage> findAll() {
+        return userService.findAll();
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Optional<UserInfo>> findById(@PathVariable int id) {
-        return new ResponseEntity<>(userService.findById(id), HttpStatus.OK);
+    public ResponseEntity<ResponseMessage> findById(@PathVariable int id) {
+        return userService.findById(id);
     }
 
-   // @GetMapping("/checkToken")
+    @PostMapping("/singUp")
+    public ResponseEntity<ResponseMessage> singUp (@RequestBody Map<String, Object> requestMap){
+        return userService.singUp(requestMap);
+    }
 
     @PostMapping("/changePassword")
     @PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_USER')")
-    public ResponseEntity<String> changePassword(@RequestBody ChangePasswordDTO changePasswordDTO) {
-        return userService.changePassword(changePasswordDTO);
+    public ResponseEntity<ResponseMessage> changePassword(@RequestBody Map<String, Object> requestMap) {
+        return userService.changePassword(requestMap);
     }
 
     @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<String> updateUser(@RequestBody UserInfo userInfo, @PathVariable int id) {
-        return userService.updateUser(userInfo, id);
+    public ResponseEntity<ResponseMessage> updateUser(@RequestBody Map<String, Object> requestMap, @PathVariable int id) {
+        return userService.updateUser(requestMap, id);
     }
 
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<String> deleteUser(@PathVariable int id) {
+    public ResponseEntity<ResponseMessage> deleteUser(@PathVariable int id) {
         return userService.deleteUser(id);
     }
 }

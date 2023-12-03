@@ -1,6 +1,5 @@
 package com.example.plan.meal.service.Impl;
 
-import com.example.plan.dto.meal.MealDTO;
 import com.example.plan.enums.Day;
 import com.example.plan.enums.Type;
 import com.example.plan.food.entity.Food;
@@ -8,8 +7,6 @@ import com.example.plan.food.repository.FoodRepository;
 import com.example.plan.meal.entity.Meal;
 import com.example.plan.meal.repository.MealRepository;
 import com.example.plan.meal.service.MealService;
-import com.example.plan.plan.entity.Plan;
-import com.example.plan.plan.repository.PlanRepository;
 import com.example.plan.utils.ResponseMessage;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
@@ -23,27 +20,25 @@ import java.util.*;
 
 @Slf4j
 @Service
+@Transactional
 public class MealServiceImpl implements MealService {
     @Autowired
     private MealRepository mealRepository;
     @Autowired
     private FoodRepository foodRepository;
-    @Autowired
-    private PlanRepository planRepository;
 
+    List<Map<String, Object>> mapList = new ArrayList<>();
     ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public List<Map<String, Object>> findAll() {
         List<Meal> meals = mealRepository.findAll();
-        List<Map<String, Object>> mapList = new ArrayList<>();
+
         for (Meal meal : meals) {
             Map<String, Object> map = new HashMap<>();
             map.put("id", meal.getId());
             map.put("name", meal.getName());
             map.put("description", meal.getDescription());
-            map.put("gram", meal.getGram());
-            map.put("quantity", meal.getQuantity());
             map.put("type", meal.getType());
             map.put("day", meal.getDay());
             mapList.add(map);
@@ -60,8 +55,6 @@ public class MealServiceImpl implements MealService {
             map.put("id", meal.getId());
             map.put("name", meal.getName());
             map.put("description", meal.getDescription());
-            map.put("gram", meal.getGram());
-            map.put("quantity", meal.getQuantity());
             map.put("type", meal.getType());
             map.put("day", meal.getDay());
 
@@ -71,19 +64,14 @@ public class MealServiceImpl implements MealService {
         }
     }
 
-
-
     @Override
     public List<Map<String, Object>> findByType(Type type) {
         List<Meal> meals = mealRepository.findByType(type);
-        List<Map<String, Object>> mapList = new ArrayList<>();
         for (Meal meal : meals) {
             Map<String, Object> map = new HashMap<>();
             map.put("id", meal.getId());
             map.put("name", meal.getName());
             map.put("description", meal.getDescription());
-            map.put("gram", meal.getGram());
-            map.put("quantity", meal.getQuantity());
             map.put("type", meal.getType());
             map.put("day", meal.getDay());
             mapList.add(map);
@@ -99,11 +87,6 @@ public class MealServiceImpl implements MealService {
                 Meal meal = new Meal();
                 meal.setName(mealName);
                 meal.setDescription((String) requestMap.get("description"));
-
-                Object gramObject = requestMap.get("gram");
-                meal.setGram(gramObject != null ? Double.valueOf(String.valueOf(gramObject)) : 0.0);
-
-                meal.setQuantity(String.valueOf(requestMap.get("quantity")));
                 meal.setDay(Day.valueOf(String.valueOf(requestMap.get("day"))));
                 meal.setType(Type.valueOf(String.valueOf(requestMap.get("type"))));
 
@@ -111,11 +94,11 @@ public class MealServiceImpl implements MealService {
                 String message = "Το γεύμα '" + mealName + "' γράφτηκε επιτυχώς!";
                 ResponseMessage response = new ResponseMessage(message, requestMap);
                 return new ResponseEntity<>(response, HttpStatus.CREATED);
-            } else {
-                String message = "Το γεύμα '" + mealName + "' υπάρχει ήδη.";
-                ResponseMessage response = new ResponseMessage(message, null);
-                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
+            String message = "Το γεύμα '" + mealName + "' υπάρχει ήδη.";
+            ResponseMessage response = new ResponseMessage(message, null);
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+
         } catch (Exception ex) {
             log.info("{}", ex);
         }
@@ -124,7 +107,7 @@ public class MealServiceImpl implements MealService {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
-    @Transactional
+
     @Override
     public ResponseEntity<ResponseMessage> addFoodToMeal(Map<String, List<Object>> requestMap, String nameOfMeal) {
         try {
@@ -144,16 +127,12 @@ public class MealServiceImpl implements MealService {
                     Map<String, Object> map = objectMapper.convertValue(mealObject, Map.class);
                     String name = (String) map.get("name");
                     String description = (String) map.get("description");
-                    Double gram = Double.valueOf(String.valueOf(map.get("gram")));
-                    String quantity = (String.valueOf(map.get("quantity")));
                     Day day = Day.valueOf(String.valueOf(map.get("day")));
                     Type type = Type.valueOf(String.valueOf(map.get("type")));
 
                     meal = new Meal();
                     meal.setName(name);
                     meal.setDescription(description);
-                    meal.setGram(gram);
-                    meal.setQuantity(quantity);
                     meal.setType(type);
                     meal.setDay(day);
                     mealRepository.save(meal);
@@ -164,9 +143,9 @@ public class MealServiceImpl implements MealService {
                     return new ResponseEntity<>(response, HttpStatus.CREATED);
                 }
             }
-                String message = "Το γεύμα ΔΕΝ βρέθηκε..";
-                ResponseMessage response = new ResponseMessage(message, null);
-                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            String message = "Το γεύμα ΔΕΝ βρέθηκε..";
+            ResponseMessage response = new ResponseMessage(message, null);
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 
         } catch (Exception ex) {
             log.info("{}", ex);
@@ -185,7 +164,7 @@ public class MealServiceImpl implements MealService {
 
                 String foodName = String.valueOf(map.get("name"));
                 String foodDescr = String.valueOf(map.get("description"));
-                Double gram = Double.valueOf(String.valueOf(map.get("gram")));
+                String foodQuantiity = String.valueOf(map.get("quantity"));
                 Double calories = Double.valueOf(String.valueOf(map.get("calories")));
                 Type foodType = Type.valueOf(map.get("type"));
                 Food existingFood = foodRepository.findFoodName(foodName);
@@ -193,7 +172,7 @@ public class MealServiceImpl implements MealService {
                     existingFood = new Food();
                     existingFood.setName(foodName);
                     existingFood.setDescription(foodDescr);
-                    existingFood.setGram(gram);
+                    existingFood.setQuantity(foodQuantiity);
                     existingFood.setCalories(calories);
                     existingFood.setType(foodType);
                     foodRepository.save(existingFood);
@@ -208,7 +187,6 @@ public class MealServiceImpl implements MealService {
         mealRepository.save(meal);
     }
 
-    @Transactional
     @Override
     public ResponseEntity<ResponseMessage> updateMeal(Map<String, Object> requestMap, int id) {
         try {
@@ -217,19 +195,17 @@ public class MealServiceImpl implements MealService {
                 Meal updateMeal = existingMeal.get();
                 updateMeal.setName((String) requestMap.get("name"));
                 updateMeal.setDescription((String) requestMap.get("description"));
-                updateMeal.setGram(Double.valueOf(String.valueOf(requestMap.get("gram"))));
-                updateMeal.setQuantity((String.valueOf(requestMap.get("quantity"))));
                 updateMeal.setDay(Day.valueOf(String.valueOf(requestMap.get("day"))));
                 updateMeal.setType(Type.valueOf(String.valueOf(requestMap.get("type"))));
                 mealRepository.save(updateMeal);
                 String message = "Το γεύμα " + "'" + requestMap.get("name") + " ενημερώθηκε επιτυχώς!";
                 ResponseMessage response = new ResponseMessage(message, requestMap);
                 return new ResponseEntity<>(response , HttpStatus.OK);
-            } else {
-                String message = "Το γεύμα ΔΕΝ βρέθηκε..";
-                ResponseMessage response = new ResponseMessage(message, requestMap);
-                return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
             }
+            String message = "Το γεύμα ΔΕΝ βρέθηκε..";
+            ResponseMessage response = new ResponseMessage(message, requestMap);
+            return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
+
         } catch (Exception ex) {
             log.info("{}", ex);
         }
@@ -237,7 +213,7 @@ public class MealServiceImpl implements MealService {
         ResponseMessage response = new ResponseMessage(message, requestMap);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
-    @Transactional
+
     @Override
     public ResponseEntity<ResponseMessage> deleteMeal(int id) {
         try {
@@ -247,11 +223,11 @@ public class MealServiceImpl implements MealService {
                 String message = "Το γεύμα " + "'" + optionalMeal.get().getName() + " διαγράφηκε επιτυχώς!";
                 ResponseMessage response = new ResponseMessage(message, null);
                 return new ResponseEntity<>(response , HttpStatus.OK);
-            } else {
-                String message = "Το γεύμα ΔΕΝ βρέθηκε..";
-                ResponseMessage response = new ResponseMessage(message, null);
-                return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
             }
+            String message = "Το γεύμα ΔΕΝ βρέθηκε..";
+            ResponseMessage response = new ResponseMessage(message, null);
+            return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
+
         } catch (Exception ex) {
             log.info("An error occurred while deleting the meal with ID " + id, ex);
         }
@@ -260,68 +236,4 @@ public class MealServiceImpl implements MealService {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
-    @Transactional
-    @Override
-    public ResponseEntity<ResponseMessage> deleteMealAndFood(int planId, int mealId, int foodId) {
-        try {
-            Optional<Plan> existingPlan = planRepository.findById(planId);
-            Optional<Meal> existingMeal =  mealRepository.findById(mealId);
-            Optional<Food> existingFood =  foodRepository.findById(foodId);
-            if (existingPlan.isPresent()) {
-                existingPlan.get().getMeals().remove(existingMeal.get());
-                planRepository.save(existingPlan.get());
-            }
-
-            if (existingMeal.isPresent() && existingFood.isPresent() ){
-                mealRepository.deleteById(mealId);
-                foodRepository.deleteById(foodId);
-
-                String message = "Το γεύμα " + "'" + existingMeal.get().getName() + "'" + " και το φαγητό " + "'" + existingFood.get().getName()+ "'" + " διαγράφηκαν επιτυχώς!";
-                ResponseMessage response = new ResponseMessage(message, (MealDTO) null);
-                return new ResponseEntity<>(response , HttpStatus.OK);
-            } else {
-                String message = "Το γεύμα ΔΕΝ βρέθηκε..";
-                ResponseMessage response = new ResponseMessage(message, (MealDTO) null);
-                return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
-            }
-        } catch (Exception ex) {
-            log.info("{}", ex);
-        }
-        String message = "Κάτι πήγε λάθος..";
-        ResponseMessage response = new ResponseMessage(message, (MealDTO) null);
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-    }
-
-    @Transactional
-    @Override
-    public ResponseEntity<ResponseMessage> removeFoodFromMeal(int planId, int mealId, int foodId) {
-        try {
-            Optional<Plan> existingPlan = planRepository.findById(planId);
-            Optional<Meal> existingMeal =  mealRepository.findById(mealId);
-            Optional<Food> existingFood =  foodRepository.findById(foodId);
-            if (existingPlan.isPresent()) {
-                existingPlan.get().getMeals().remove(existingMeal.get());
-                planRepository.save(existingPlan.get());
-            }
-
-            if (existingMeal.isPresent() && existingFood.isPresent()) {
-                existingMeal.get().getFoods().remove(existingFood.get());
-                mealRepository.save(existingMeal.get());
-                foodRepository.deleteById(foodId);
-
-                String message = "Το φαγητό " + "'" + existingFood.get().getName() + "'" + " αφαιρέθηκε επιτυχώς από το γεύμα" + "'" + existingMeal.get().getName() + "'";
-                ResponseMessage response = new ResponseMessage(message, (MealDTO) null);
-                return new ResponseEntity<>(response , HttpStatus.OK);
-            } else {
-                String message = "Το γεύμα ή το φαγητό ΔΕΝ βρέθηκαν..";
-                ResponseMessage response = new ResponseMessage(message, (MealDTO) null);
-                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-            }
-        } catch (Exception ex) {
-            log.info("{}", ex);
-        }
-        String message = "Κάτι πήγε λάθος..";
-        ResponseMessage response = new ResponseMessage(message, (MealDTO) null);
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-    }
 }

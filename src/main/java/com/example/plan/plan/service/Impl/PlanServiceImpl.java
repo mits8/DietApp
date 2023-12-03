@@ -98,7 +98,6 @@ public class PlanServiceImpl implements PlanService {
 
             mapList.add(planMap);
         }
-
         return mapList;
     }
 
@@ -117,12 +116,12 @@ public class PlanServiceImpl implements PlanService {
                 }
             }
         }
-
         return foodList;
     }
 
     @Override
     public List<Map<String, Object>> getPlanDetailsByCustomerFullName(String firstName, String lastName) {
+        /*--------------review--------------*/
         List<Plan> plans = planRepository.findAll();
         List<Map<String, Object>> mapList = new ArrayList<>();
 
@@ -146,6 +145,19 @@ public class PlanServiceImpl implements PlanService {
             mapList.add(planMap);
         }
         return mapList;
+    }
+
+    @Override
+
+    public ResponseEntity<ResponseMessage> count() {
+        int countCustomers = customerRepository.countCustomer();
+        int countMeals = mealRepository.countMeal();
+        int countFoods = foodRepository.countFoods();
+        String message = "Πελάτες: " + "'" + countCustomers + "'" + "   " +
+                            "Φαγητά: " + "'" + countFoods + "'" + "   " +
+                            "Γεύματα: " +  "'" + countMeals + "'";
+        ResponseMessage response = new ResponseMessage(message, null);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @Override
@@ -174,33 +186,35 @@ public class PlanServiceImpl implements PlanService {
                 String fontPath = "src/main/java/com/example/plan/utils/fonts/Font.ttf";
                 String greekText = "Πρόγραμμα Διατροφής";
                 BaseFont bf = BaseFont.createFont(fontPath, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
-                Font headerFont = new Font(bf, 12);
+                Font headerFont = new Font(bf, 18);
+                Font informationFont = new Font(bf, 14);
+                Font columnFont = new Font(bf, 12);
                 Font dataFont = new Font(bf,8);
                 Font boldFont = new Font(bf,10, Font.BOLD);
 
                 Paragraph title = new Paragraph(greekText, headerFont);
                 title.setAlignment(Element.ALIGN_CENTER);
                 document.add(title);
-
                 for (Plan plan : plans) {
-                    String info = "Όνομα:" + firstName + "\n" +
+                    String info = "Όνομα: " + firstName + "\n" +
                                     "Επίθετο: " + lastName + "\n" +
                                     "Πλάνο: " + plan.getName() + "\n" +
                                     "Διάρκεια: " + plan.getDuration() + "\n" +
                                     "Ημερομηνίες: " + plan.getStartDate() + " - " + plan.getEndDate() + "\n";
-                    Paragraph paragraph = new Paragraph(info, headerFont);
+                    Paragraph paragraph = new Paragraph(info, informationFont);
                     document.add(paragraph);
                     document.add(new Paragraph("\n"));
                 }
-                PdfPTable table = new PdfPTable(5);
+                document.newPage();
+                PdfPTable table = new PdfPTable(4);
                 table.setWidthPercentage(100);
-                String[] columnTitles = {"ΔΕΥΤΕΡΑ", "ΤΡΙΤΗ", "ΤΕΤΑΡΤΗ", "ΠΕΜΠΤΗ", "ΠΑΡΑΣΚΕΥΗ"};
+                String[] columnTitles = {"ΔΕΥΤΕΡΑ", "ΤΡΙΤΗ", "ΤΕΤΑΡΤΗ", "ΠΕΜΠΤΗ"};
 
                 for (String columnTitle : columnTitles) {
                     PdfPCell header = new PdfPCell();
                     header.setBackgroundColor(BaseColor.LIGHT_GRAY);
                     header.setBorderWidth(1);
-                    header.setPhrase(new Phrase(columnTitle, headerFont));
+                    header.setPhrase(new Phrase(columnTitle, columnFont));
                     header.setHorizontalAlignment(Element.ALIGN_CENTER);
                     header.setVerticalAlignment(Element.ALIGN_MIDDLE);
                     table.addCell(header);
@@ -219,37 +233,97 @@ public class PlanServiceImpl implements PlanService {
                     PdfPCell mealCell = new PdfPCell();
                     mealCell.setBorderWidth(1);
 
+                    double totalCalories = 0;
+
                     for (Meal meal : mealsForDay) {
                         String boldText = String.valueOf(meal.getType());
-                        String text = "~Όνομα: " + meal.getName() + "\n" +
-                                      "~Ποσότητα: " + meal.getQuantity() + "\n" +
-                                      "~Γραμμάρια: " + meal.getGram();
+                        StringBuilder textBuilder = new StringBuilder("~Γεύμα: " + meal.getName() + "\n");
+
+                        for (Food food : meal.getFoods()) {
+                            totalCalories += food.getCalories();
+                            textBuilder.append("~Λεπτομέρεις: ").append(food.getDescription()).append("\n")
+                                        .append("   Ποσότητα: ").append(food.getQuantity()).append("\n")
+                                        .append("   Θερμήδες: ").append(food.getCalories()).append("\n");
+                        }
                         mealCell.addElement(new Phrase(boldText, boldFont));
-                        mealCell.addElement(new Phrase(text, dataFont));
+                        mealCell.addElement(new Phrase(textBuilder.toString(), dataFont));
                         mealCell.addElement(new Phrase("\n"));
                     }
+                    String totalCaloriesText = "Συνολικές Θερμίδες: " + totalCalories;
+                    mealCell.addElement(new Phrase(totalCaloriesText,boldFont));
                     mealCell.setHorizontalAlignment(Element.ALIGN_CENTER);
                     mealCell.setVerticalAlignment(Element.ALIGN_MIDDLE);
                     table.addCell(mealCell);
                 }
+
                 document.add(table);
+
+                document.newPage();
+
+                PdfPTable table2 = new PdfPTable(3);
+                String[] columnTitles2 = {"ΠΑΡΑΣΚΕΥΗ", "ΣΑΒΒΑΤΟ", "ΚΥΡΙΑΚΗ"};
+                for (String columnTitle : columnTitles2) {
+                    PdfPCell header = new PdfPCell();
+                    header.setBackgroundColor(BaseColor.LIGHT_GRAY);
+                    header.setBorderWidth(1);
+                    header.setPhrase(new Phrase(columnTitle, columnFont));
+                    header.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    header.setVerticalAlignment(Element.ALIGN_MIDDLE);
+                    table2.addCell(header);
+                }
+
+                Map<String, List<Meal>> mealsByDay2 = new HashMap<>();
+
+                for (Meal meal : plans.get(0).getMeals()) {
+                    String day = meal.getDay().toString();
+                    mealsByDay2.computeIfAbsent(day, k -> new ArrayList<>()).add(meal);
+                }
+
+                for (String day : columnTitles2) {
+                    List<Meal> mealsForDay = mealsByDay2.getOrDefault(day, Collections.emptyList());
+
+                    PdfPCell mealCell = new PdfPCell();
+                    mealCell.setBorderWidth(1);
+
+                    double totalCalories = 0;
+
+                    for (Meal meal : mealsForDay) {
+                        String boldText = String.valueOf(meal.getType());
+                        StringBuilder textBuilder = new StringBuilder("~Γεύμα: " + meal.getName() + "\n");
+
+                        for (Food food : meal.getFoods()) {
+                            totalCalories += food.getCalories();
+                            textBuilder.append("~Λεπτομέρεις: ").append(food.getDescription()).append("\n")
+                                        .append("   Ποσότητα: ").append(food.getQuantity()).append("\n")
+                                        .append("   Θερμήδες: ").append(food.getCalories()).append("\n");
+                        }
+                        mealCell.addElement(new Phrase(boldText, boldFont));
+                        mealCell.addElement(new Phrase(textBuilder.toString(), dataFont));
+                        mealCell.addElement(new Phrase("\n"));
+                    }
+                    String totalCaloriesText = "Συνολικές Θερμίδες: " + totalCalories;
+                    mealCell.addElement(new Phrase(totalCaloriesText,boldFont));
+                    mealCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    mealCell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+                    table2.addCell(mealCell);
+                }
+
+                document.add(table2);
                 document.close();
 
-                String successMessage = "PDF generated successfully";
+                String successMessage = "Το PDF δημιουργήθηκε επιτυχώς";
                 ResponseMessage successResponse = new ResponseMessage(successMessage, requestMap);
                 return new ResponseEntity<>(successResponse, HttpStatus.CREATED);
-            } else {
-                String message = "Τα στοιχεία δεν είναι σωστά..";
-                ResponseMessage successResponse = new ResponseMessage(message, null);
-                return new ResponseEntity<>(successResponse, HttpStatus.BAD_REQUEST);
             }
-
+            String message = "Τα στοιχεία δεν είναι σωστά..";
+            ResponseMessage successResponse = new ResponseMessage(message, null);
+            return new ResponseEntity<>(successResponse, HttpStatus.BAD_REQUEST);
 
             } catch (Exception ex) {
                 ex.printStackTrace();
-                String message = "Failed to generate PDF";
-                ResponseMessage response = new ResponseMessage(message, null);
-                return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+            String message = "Αποτυχία δημιυργίας PDF..";
+            ResponseMessage response = new ResponseMessage(message, null);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
 
@@ -264,7 +338,6 @@ public class PlanServiceImpl implements PlanService {
         document.add(rectangle);
     }
 
-    @Transactional
     @Override
     public ResponseEntity<ResponseMessage> addPlan(Map<String, Object> requestMap) {
         try {
@@ -281,12 +354,10 @@ public class PlanServiceImpl implements PlanService {
                     String message = "Το πλάνο γράφτηκε επιτυχώς!";
                     ResponseMessage response = new ResponseMessage(message, requestMap);
                     return new ResponseEntity<>(response, HttpStatus.CREATED);
-
-            } else {
-                String message = "Το πλάνο υπάρχει ήδη..";
-                ResponseMessage response = new ResponseMessage(message, requestMap);
-                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
+            String message = "Το πλάνο υπάρχει ήδη..";
+            ResponseMessage response = new ResponseMessage(message, requestMap);
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 
             } catch(Exception ex){
                 log.info("{}", ex);
@@ -296,7 +367,6 @@ public class PlanServiceImpl implements PlanService {
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-    @Transactional
     @Override
     public ResponseEntity<ResponseMessage> addToPlan(Map<String, List<Object>> requestMap, int id) {
         try {
@@ -324,7 +394,6 @@ public class PlanServiceImpl implements PlanService {
                     planRepository.save(plan);
                 }
             }
-
             String message = "Το πλάνο γράφτηκε επιτυχώς!";
             ResponseMessage response = new ResponseMessage(message, requestMap);
             return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -357,7 +426,6 @@ public class PlanServiceImpl implements PlanService {
                     existingMeal.setDescription(mealDescr);
                     existingMeal.setDay(day);
                     existingMeal.setType(mealType);
-                    existingMeal.setQuantity(quantity);
                     mealRepository.save(existingMeal);
                 }
                 List<Object> foods = (List<Object>) mealData.get("foods");
@@ -367,7 +435,7 @@ public class PlanServiceImpl implements PlanService {
 
                         String foodName = String.valueOf(foodData.get("name"));
                         String foodDescr = String.valueOf(mealData.get("description"));
-                        Double gram = Double.valueOf(String.valueOf(foodData.get("gram")));
+                        String foodQuantiity = String.valueOf(foodData.get("quantity"));
                         Double calories = Double.valueOf(String.valueOf(foodData.get("calories")));
                         Type foodType = Type.valueOf(foodData.get("type"));
 
@@ -377,7 +445,7 @@ public class PlanServiceImpl implements PlanService {
                             existingFood = new Food();
                             existingFood.setName(foodName);
                             existingFood.setDescription(foodDescr);
-                            existingFood.setGram(gram);
+                            existingFood.setQuantity(foodQuantiity);
                             existingFood.setCalories(calories);
                             existingFood.setType(foodType);
                             foodRepository.save(existingFood);
@@ -400,7 +468,6 @@ public class PlanServiceImpl implements PlanService {
         planRepository.save(plan);
     }
 
-    @Transactional
     @Override
     public ResponseEntity<ResponseMessage> addMealToPlan(Map<String, List<Object>> requestMap, String nameOfPlan) {
         try {
@@ -451,8 +518,6 @@ public class PlanServiceImpl implements PlanService {
                 String mealName = String.valueOf(mealData.get("name"));
                 String mealDescr = String.valueOf(mealData.get("description"));
                 Day day = Day.valueOf((String) mealData.get("day"));
-                Double mealGram = Double.valueOf(String.valueOf(mealData.get("gram")));
-                String quantity = String.valueOf(mealData.get("quantity"));
                 Type mealType = Type.valueOf((String) mealData.get("type"));
                 Meal existingMeal = mealRepository.findByName(mealName);
 
@@ -461,8 +526,6 @@ public class PlanServiceImpl implements PlanService {
                     existingMeal.setName(mealName);
                     existingMeal.setDescription(mealDescr);
                     existingMeal.setDay(day);
-                    existingMeal.setGram(mealGram);
-                    existingMeal.setQuantity(quantity);
                     existingMeal.setType(mealType);
                     mealRepository.save(existingMeal);
                 }
@@ -473,7 +536,7 @@ public class PlanServiceImpl implements PlanService {
 
                         String foodName = String.valueOf(foodData.get("name"));
                         String foodDescr = String.valueOf(mealData.get("description"));
-                        Double foodGram = Double.valueOf(String.valueOf(foodData.get("gram")));
+                        String foodQuantiity = String.valueOf(foodData.get("quantity"));
                         Double calories = Double.valueOf(String.valueOf(foodData.get("calories")));
                         Type foodType = Type.valueOf(String.valueOf(foodData.get("type")));
                         Food existingFood = foodRepository.findFoodName(foodName);
@@ -482,7 +545,7 @@ public class PlanServiceImpl implements PlanService {
                             existingFood = new Food();
                             existingFood.setName(foodName);
                             existingFood.setDescription(foodDescr);
-                            existingFood.setGram(foodGram);
+                            existingFood.setQuantity(foodQuantiity);
                             existingFood.setCalories(calories);
                             existingFood.setType(foodType);
                             foodRepository.save(existingFood);
@@ -507,14 +570,13 @@ public class PlanServiceImpl implements PlanService {
         }
     }
 
-    @Transactional
     @Override
-    public ResponseEntity<ResponseMessage> addCustomerToPlan(Map<String, List<Object>> requestMap, int id) {
+    public ResponseEntity<ResponseMessage> addCustomerToPlan(Map<String, List<Object>> requestMap, String nameOfPlan) {
         try {
-            Optional<Plan> existingPlan = planRepository.findById(id);
+            Plan existingPlan = planRepository.findByName(nameOfPlan);
             Plan plan;
-            if (existingPlan.isPresent()) {
-                plan = existingPlan.get();
+            if (existingPlan != null) {
+                plan = existingPlan;
                 addCustomer(plan, requestMap);
             } else {
                 List<Object> plans = requestMap.get("plans");
@@ -534,7 +596,6 @@ public class PlanServiceImpl implements PlanService {
                     planRepository.save(plan);
                 }
             }
-
             String message = "Το πλάνο γράφτηκε επιτυχώς!";
             ResponseMessage response = new ResponseMessage(message, requestMap);
             return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -551,7 +612,6 @@ public class PlanServiceImpl implements PlanService {
             List<Object> customers = requestMap.get("customers");
             if (customers != null) {
                 for (Object customerObject : customers) {
-
                     Map<String, Object> customerData = objectMapper.convertValue(customerObject, Map.class);
 
                     String customerFirstname = String.valueOf(customerData.get("firstName"));
@@ -564,7 +624,8 @@ public class PlanServiceImpl implements PlanService {
                     Gender gender = Gender.valueOf((String) customerData.get("gender"));
                     List<Customer> existingCustomer = customerRepository.findCustomerByName(customerFirstname, lastName);
 
-                    if (existingCustomer != null) {
+
+                    if (existingCustomer == null) {
                         Customer customer = new Customer();
                         customer.setFirstName(customerFirstname);
                         customer.setLastName(lastName);
@@ -577,6 +638,7 @@ public class PlanServiceImpl implements PlanService {
                         customerRepository.save(customer);
                         plan.getCustomers().add(customer);
                     }
+                    plan.getCustomers().add(existingCustomer.get(0));
                 }
             }
             planRepository.save(plan);
@@ -585,7 +647,6 @@ public class PlanServiceImpl implements PlanService {
         }
     }
 
-    @Transactional
     @Override
     public ResponseEntity<ResponseMessage> updatePlan(Map<String, String> requestMap, int id) {
         try {
@@ -597,14 +658,15 @@ public class PlanServiceImpl implements PlanService {
                 updatePlan.setStartDate(LocalDate.parse(requestMap.get("startDate")));
                 updatePlan.setEndDate(LocalDate.parse(requestMap.get("endDate")));
                 planRepository.save(updatePlan);
+
                 String message = "Το πλάνο " + "'" + requestMap.get("name") + " ενημερώθηκε επιτυχώς!";
                 ResponseMessage response = new ResponseMessage(message, requestMap);
                 return new ResponseEntity<>(response, HttpStatus.OK);
-            } else {
-                String message = "Το πλάνο ΔΕΝ βρέθηκε..";
-                ResponseMessage response = new ResponseMessage(message, null);
-                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
+            String message = "Το πλάνο ΔΕΝ βρέθηκε..";
+            ResponseMessage response = new ResponseMessage(message, null);
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+
         } catch (Exception ex) {
             log.info("{}", ex);
         }
@@ -613,7 +675,6 @@ public class PlanServiceImpl implements PlanService {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
-    @Transactional
     @Override
     public ResponseEntity<ResponseMessage> deletePlan(int id) {
         try {
@@ -623,11 +684,11 @@ public class PlanServiceImpl implements PlanService {
                 String message = "Το πλάνο " + "'" + optionalPlan.getName() + " διαγράφηκε επιτυχώς!";
                 ResponseMessage response = new ResponseMessage(message, null);
                 return new ResponseEntity<>(response, HttpStatus.OK);
-            } else {
-                String message = "Το πλάνο ΔΕΝ βρέθηκε..";
-                ResponseMessage response = new ResponseMessage(message, null);
-                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
+            String message = "Το πλάνο ΔΕΝ βρέθηκε..";
+            ResponseMessage response = new ResponseMessage(message, null);
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+
         } catch (Exception ex) {
             log.info("{}", ex);
         }
@@ -636,7 +697,6 @@ public class PlanServiceImpl implements PlanService {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
-    @Transactional
     @Override
     public ResponseEntity<ResponseMessage> removeCustomerFromPlan(int customerId, int PlanId) {
         try {
@@ -651,11 +711,76 @@ public class PlanServiceImpl implements PlanService {
                 String message = "Ο πελάτης " + "'" + existingCustomer.get().getFirstName() + " " + existingCustomer.get().getLastName() + "'" + " αφαιρέθηκε επιτυχώς από το πλάνο " + "'" + existingPlan.get().getName() + "'";
                 ResponseMessage response = new ResponseMessage(message, null);
                 return new ResponseEntity<>(response, HttpStatus.OK);
-            } else {
-                String message = "Το πλάνο ΔΕΝ βρέθηκε..";
-                ResponseMessage response = new ResponseMessage(message, null);
-                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
+            String message = "ΔΕΝ βρέθηκε..";
+            ResponseMessage response = new ResponseMessage(message, null);
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+
+        } catch (Exception ex) {
+            log.info("{}", ex);
+        }
+        String message = "Κάτι πήγε λάθος..";
+        ResponseMessage response = new ResponseMessage(message, null);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @Override
+    public ResponseEntity<ResponseMessage> removeFoodFromMeal(int planId, int mealId, int foodId) {
+        try {
+            Optional<Plan> existingPlan = planRepository.findById(planId);
+            Optional<Meal> existingMeal =  mealRepository.findById(mealId);
+            Optional<Food> existingFood =  foodRepository.findById(foodId);
+            if (existingPlan.isPresent()) {
+                existingPlan.get().getMeals().remove(existingMeal.get());
+                planRepository.save(existingPlan.get());
+            }
+
+            if (existingMeal.isPresent() && existingFood.isPresent()) {
+                existingMeal.get().getFoods().remove(existingFood.get());
+                mealRepository.save(existingMeal.get());
+                foodRepository.deleteById(foodId);
+
+                String message = "Το φαγητό " + "'" + existingFood.get().getName() + "'" + " αφαιρέθηκε επιτυχώς από το γεύμα" + "'" + existingMeal.get().getName() + "'";
+                ResponseMessage response = new ResponseMessage(message, null);
+                return new ResponseEntity<>(response , HttpStatus.OK);
+            }
+            String message = "Το γεύμα ή το φαγητό ΔΕΝ βρέθηκαν..";
+            ResponseMessage response = new ResponseMessage(message, null);
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+
+        } catch (Exception ex) {
+            log.info("{}", ex);
+        }
+        String message = "Κάτι πήγε λάθος..";
+        ResponseMessage response = new ResponseMessage(message, null);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+
+    @Override
+    public ResponseEntity<ResponseMessage> deleteMealAndFood(int planId, int mealId, int foodId) {
+        try {
+            Optional<Plan> existingPlan = planRepository.findById(planId);
+            Optional<Meal> existingMeal =  mealRepository.findById(mealId);
+            Optional<Food> existingFood =  foodRepository.findById(foodId);
+            if (existingPlan.isPresent()) {
+                existingPlan.get().getMeals().remove(existingMeal.get());
+                planRepository.save(existingPlan.get());
+            }
+
+            if (existingMeal.isPresent() && existingFood.isPresent() ){
+                existingMeal.get().getFoods().remove(existingFood.get());
+                mealRepository.save(existingMeal.get());
+                foodRepository.deleteById(foodId);
+                mealRepository.deleteById(mealId);
+                String message = "Το γεύμα " + "'" + existingMeal.get().getName() + "'" + " και το φαγητό " + "'" + existingFood.get().getName()+ "'" + " διαγράφηκαν επιτυχώς!";
+                ResponseMessage response = new ResponseMessage(message, null);
+                return new ResponseEntity<>(response , HttpStatus.OK);
+            }
+            String message = "Το γεύμα ΔΕΝ βρέθηκε..";
+            ResponseMessage response = new ResponseMessage(message, null);
+            return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
+
         } catch (Exception ex) {
             log.info("{}", ex);
         }

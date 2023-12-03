@@ -15,6 +15,8 @@ public interface PlanService {
 
     List<Map<String, Object>> getPlanDetailsByCustomerFullName(String firstName, String lastName);
 
+    ResponseEntity<ResponseMessage> count();
+
     ResponseEntity<ResponseMessage> generateReport(Map<String, Object> requestMap, String firstName, String lastName, LocalDate startDate, LocalDate endDate);
 
     @Transactional
@@ -27,7 +29,7 @@ public interface PlanService {
     ResponseEntity<ResponseMessage> addMealToPlan(Map<String, List<Object>> mealData, String name);
 
     @Transactional
-    ResponseEntity<ResponseMessage> addCustomerToPlan(Map<String, List<Object>> requestMap, int id);
+    ResponseEntity<ResponseMessage> addCustomerToPlan(Map<String, List<Object>> requestMap, String name);
 
     @Transactional
     ResponseEntity<ResponseMessage> updatePlan(Map<String, String> requestMap, int id);
@@ -38,4 +40,9 @@ public interface PlanService {
     @Transactional
     ResponseEntity<ResponseMessage> removeCustomerFromPlan(int customerId, int PlanId);
 
+    @Transactional
+    ResponseEntity<ResponseMessage> removeFoodFromMeal(int planId, int mealId, int foodId);
+
+    @Transactional
+    ResponseEntity<ResponseMessage> deleteMealAndFood(int planId, int mealId, int foodId);
 }

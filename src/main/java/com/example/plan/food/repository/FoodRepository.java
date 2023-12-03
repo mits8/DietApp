@@ -21,4 +21,7 @@ public interface FoodRepository extends JpaRepository<Food, Integer> {
 
     @Query("SELECT f FROM Food f WHERE f.name=:name")
     Food findFoodName(String name);
+
+    @Query("SELECT COUNT(f) FROM Food f")
+    int countFoods();
 }

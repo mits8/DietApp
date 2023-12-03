@@ -1,24 +1,23 @@
 package com.example.plan.user.service;
 
-import com.example.plan.dto.ChangePasswordDTO;
-import com.example.plan.user.entity.UserInfo;
+import com.example.plan.utils.ResponseMessage;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 
 public interface UserService {
 
-    List<UserInfo> findAll();
+    ResponseEntity<ResponseMessage>  findAll();
 
-    Optional<UserInfo> findById(int id) throws UsernameNotFoundException;
+    ResponseEntity<ResponseMessage> findById(int id) throws UsernameNotFoundException;
 
-    ResponseEntity<String> singUp(UserInfo userInfo);
+    ResponseEntity<ResponseMessage> singUp(Map<String, Object> requestMap);
 
-    ResponseEntity<String> changePassword(ChangePasswordDTO changePasswordDTO);
+    ResponseEntity<ResponseMessage> changePassword(Map<String, Object> requestMap);
 
-    ResponseEntity<String> updateUser(UserInfo userInfo, int id);
+    ResponseEntity<ResponseMessage> updateUser(Map<String, Object> requestMap, int id);
 
-    ResponseEntity<String> deleteUser(int id);
+    ResponseEntity<ResponseMessage> deleteUser(int id);
 }

@@ -1,8 +1,5 @@
 package com.example.plan.meal.service;
 
-import com.example.plan.dto.food.FoodDTO;
-import com.example.plan.dto.meal.MealDTO;
-import com.example.plan.dto.meal.MealFoodDTO;
 import com.example.plan.enums.Type;
 import com.example.plan.utils.ResponseMessage;
 import jakarta.transaction.Transactional;
@@ -11,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 import java.util.Map;
 
+@Transactional
 public interface MealService {
     List<Map<String, Object>> findAll();
 
@@ -20,16 +18,10 @@ public interface MealService {
 
     ResponseEntity<ResponseMessage> addMeal(Map<String, Object> requestMap);
 
-    @Transactional
     ResponseEntity<ResponseMessage> addFoodToMeal(Map<String, List<Object>> requestMap, String name);
 
     ResponseEntity<ResponseMessage> updateMeal(Map<String, Object> requestMap, int id);
 
     ResponseEntity<ResponseMessage> deleteMeal(int id);
 
-    @Transactional
-    ResponseEntity<ResponseMessage> deleteMealAndFood(int planId, int mealId, int foodId);
-
-    @Transactional
-    ResponseEntity<ResponseMessage> removeFoodFromMeal(int planId, int mealId, int foodId);
 }

@@ -29,10 +29,6 @@ public class Meal {
     private String name;
     @Column(name = "description")
     private String description;
-    @Column(name = "quantity")
-    private String quantity;
-    @Column(name = "gram")
-    private double gram;
     @Enumerated(EnumType.STRING)
     private Type type;
     @Column(name = "day")
@@ -49,9 +45,5 @@ public class Meal {
 
     @ManyToMany(mappedBy = "meals")
     private List<Plan> plans = new ArrayList<>();
-
-    public void setGram(Double gram) {
-        this.gram = gram;
-    }
 
 }

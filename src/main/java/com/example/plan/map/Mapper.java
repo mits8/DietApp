@@ -117,7 +117,6 @@ public class Mapper {
     public Meal mapMealFoodDTOToMeal(MealFoodDTO mealFoodDTO) {
         meal.setId(mealDTO.getId());
         meal.setName(mealDTO.getName());
-        meal.setQuantity(mealDTO.getQuantity());
         meal.setDescription(mealDTO.getDescription());
         meal.setDay(mealDTO.getDay());
         meal.setType(mealDTO.getType());
@@ -134,7 +133,6 @@ public class Mapper {
     public Food mapMealFoodDTOToFood(MealFoodDTO mealFoodDTO){
         food.setName(mealFoodDTO.getName());
         food.setDescription(mealFoodDTO.getDescription());
-        food.setGram(mealFoodDTO.getGram());
         food.setCalories(mealFoodDTO.getCalories());
         food.setType(mealFoodDTO.getType());
         return food;
@@ -221,7 +219,7 @@ public class Mapper {
     public FoodDTO mapFoodToFoodDTO(Food food) {
         foodDTO.setName(food.getName());
         foodDTO.setDescription(food.getDescription());
-        foodDTO.setGram(food.getGram());
+
         foodDTO.setCalories(food.getCalories());
         foodDTO.setType(food.getType());
         return foodDTO;
@@ -247,7 +245,7 @@ public class Mapper {
     public void mapFoodCommonProperties(Food food, FoodDTO foodDTO) {
         food.setName(foodDTO.getName());
         food.setDescription(foodDTO.getDescription());
-        food.setGram(foodDTO.getGram());
+
         food.setCalories(foodDTO.getCalories());
         food.setType(foodDTO.getType());
     }
@@ -255,7 +253,6 @@ public class Mapper {
     public void mapMealCommonProperties(Meal meal, MealDTO mealDTO) {
         meal.setId(mealDTO.getId());
         meal.setName(mealDTO.getName());
-        meal.setQuantity(mealDTO.getQuantity());
         meal.setDescription(mealDTO.getDescription());
         meal.setDay(mealDTO.getDay());
         meal.setType(mealDTO.getType());

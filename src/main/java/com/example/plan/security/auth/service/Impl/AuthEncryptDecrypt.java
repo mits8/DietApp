@@ -44,16 +44,3 @@ public class AuthEncryptDecrypt {
         return false;
     }
 }
-        /*public boolean checkEmail(String inputEmail, String storedEmail) {
-            try {
-                if (inputEmail.equals(storedEmail)){
-                    return true;
-                }
-                } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-            return false;
-        }
-
-    boolean checkEmail = authEncryptDecrypt.checkEmail(authRequest.getEmail(), userInfo.getEmail());*/
-

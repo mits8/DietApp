@@ -59,15 +59,4 @@ public class MealController {
         return mealService.deleteMeal(id);
     }
 
-    @DeleteMapping("/delete-from-plan/{planId}/both/meal/{mealId}/food/{foodId}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<ResponseMessage> deleteMealAndFood(@PathVariable int planId, @PathVariable int  mealId, @PathVariable int foodId) {
-        return mealService.deleteMealAndFood(planId, mealId, foodId);
-    }
-
-    @DeleteMapping("delete-from-plan/{planId}/ meal/{mealId}/food/{foodId}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<ResponseMessage> removeFoodFromMeal(@PathVariable int planId, @PathVariable int  mealId, @PathVariable int foodId) {
-        return mealService.removeFoodFromMeal(planId, mealId, foodId);
-    }
 }

@@ -1,12 +1,14 @@
 package com.example.plan.email.service;
 
-import com.example.plan.dto.EmailDTO;
+import com.example.plan.utils.ResponseMessage;
 import org.springframework.http.ResponseEntity;
+
+import java.util.Map;
 
 public interface EmailService {
 
 
-    ResponseEntity<String> sendEmail(EmailDTO emailDTO);
+    ResponseEntity<ResponseMessage> sendEmail(Map<String, Object> requestMap);
 
-    ResponseEntity<String> forgotPassword(EmailDTO emailDTO) throws Exception;
+    ResponseEntity<ResponseMessage> forgotPassword(Map<String, Object> requestMap) throws Exception;
 }

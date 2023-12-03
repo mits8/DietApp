@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.springframework.format.annotation.NumberFormat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,10 +31,10 @@ public class Food {
     @Column(name = "description")
     private String description;
 
+    @Column(name = "quantity")
+    private String quantity;
 
-    @Column(name = "gram")
-    private double gram;
-
+    @NumberFormat(pattern = "#,##0.0")
     @Column(name = "calories")
     private double calories;
 

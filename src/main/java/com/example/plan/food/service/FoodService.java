@@ -2,10 +2,12 @@ package com.example.plan.food.service;
 
 import com.example.plan.enums.Type;
 import com.example.plan.utils.ResponseMessage;
+import jakarta.transaction.Transactional;
 import org.springframework.http.ResponseEntity;
 import java.util.List;
 import java.util.Map;
 
+@Transactional
 public interface FoodService {
     List<Map<String, Object>> findAll();
 

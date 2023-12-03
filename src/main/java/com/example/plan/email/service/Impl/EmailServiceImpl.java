@@ -2,20 +2,23 @@ package com.example.plan.email.service.Impl;
 
 import com.example.plan.email.service.EmailService;
 import com.example.plan.security.auth.service.Impl.AuthEncryptDecrypt;
-import com.example.plan.dto.EmailDTO;
 import com.example.plan.user.entity.UserInfo;
 import com.example.plan.user.repository.UserInfoRepository;
+import com.example.plan.utils.ResponseMessage;
+import jakarta.activation.FileDataSource;
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Map;
 import java.util.Objects;
 
 
@@ -28,6 +31,8 @@ public class EmailServiceImpl implements EmailService {
 
     private String subject = "Προσοχή";
 
+    private String subjectOfDietProgram = "Πρόγραμμα Διατροφής";
+
     @Autowired
     private UserInfoRepository userInfoRepository;
 
@@ -36,54 +41,61 @@ public class EmailServiceImpl implements EmailService {
 
     private final JavaMailSender mailSender;
 
-
     public EmailServiceImpl(JavaMailSender mailSender) {
         this.mailSender = mailSender;
     }
 
     @Override
-    public ResponseEntity<String> sendEmail(EmailDTO emailDTO) {
+    public ResponseEntity<ResponseMessage> sendEmail(Map<String, Object> requestMap) {
         try {
+            String email = (String) requestMap.get("email");
+        //    Customer existingCustomer = customerRepository.findByEmail((String) requestMap.get("email"));
             MimeMessage mimeMessage = mailSender.createMimeMessage();
-
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
 
             mimeMessageHelper.setFrom(fromEmail);
-            mimeMessageHelper.setTo(emailDTO.getTo());
+            mimeMessageHelper.setTo(email);
             //mimeMessageHelper.setCc(emailDTO.getCc());
-            mimeMessageHelper.setSubject(emailDTO.getSubject());
-            mimeMessageHelper.setText(emailDTO.getBody());
+            mimeMessageHelper.setSubject(subjectOfDietProgram);
+            mimeMessageHelper.setText((String) requestMap.get("body"));
 
-            if (emailDTO.getFile() != null) {
-                for (int i = 0; i < emailDTO.getFile().length; i++) {
-                    mimeMessageHelper.addAttachment(
-                            emailDTO.getFile()[i].getOriginalFilename(),
-                            new ByteArrayResource(emailDTO.getFile()[i].getBytes()));
-                }
+            if (requestMap.containsKey("attachments[0].filename")) {
+                String fileName = (String) requestMap.get("filename");
+                Path filePath = Paths.get("C:\\Users\\dchatzop\\Downloads\\", fileName);
+                mimeMessageHelper.addAttachment(fileName, new FileDataSource(filePath.toFile()));
+
+                mailSender.send(mimeMessage);
+                String message = "Το email στάλθηκε!";
+                ResponseMessage response = new ResponseMessage(message, null);
+                return new ResponseEntity<>(response, HttpStatus.OK);
             }
-            mailSender.send(mimeMessage);
+            String message = "Το email δεν στάλθηκε..";
+            ResponseMessage response = new ResponseMessage(message, null);
+            return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
 
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            log.error("{}", e);
         }
-        return new ResponseEntity<>("Το email στάλθηκε!", HttpStatus.OK);
+        String message = "Κάτι πήγε λάθος..";
+        ResponseMessage response = new ResponseMessage(message, null);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     @Override
-    public ResponseEntity<String> forgotPassword(EmailDTO emailDTO) throws Exception {
+    public ResponseEntity<ResponseMessage> forgotPassword(Map<String, Object> requestMap) {
         try {
-            String email = emailDTO.getEmail();
+            String email = (String) requestMap.get("email");
             UserInfo user = userInfoRepository.findUserByEmail(email);
             String encryptedPassword = user.getPassword();
             String password = authEncryptDecrypt.decrypt(encryptedPassword);
             String contactInfo = user.getContactInfo();
-            String checkContactInfo = emailDTO.getContactInfo();
+            String checkContactInfo = (String) requestMap.get("contactInfo");
             if(!Objects.isNull(user) && contactInfo.equals(checkContactInfo)) {
                 MimeMessage mimeMessage = mailSender.createMimeMessage();
                 MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
 
                 mimeMessageHelper.setFrom(fromEmail);
-                mimeMessageHelper.setTo(emailDTO.getTo());
+                mimeMessageHelper.setTo(email);
                 //mimeMessageHelper.setCc(emailDTO.getCc());
                 mimeMessageHelper.setSubject(subject);
                 String htmlMsg = "<html><head><meta charset=\"UTF-8\"></head><body>" +
@@ -93,13 +105,19 @@ public class EmailServiceImpl implements EmailService {
                         "<a href=\"http://localhost:8081/auth/login-\">Click here to login</a></p>";
                 mimeMessageHelper.setText(htmlMsg, true);
                 mailSender.send(mimeMessage);
-                return new ResponseEntity<>("Το email στάλθηκε!", HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>("Λάθος email ή τηλέφωνο..", HttpStatus.BAD_REQUEST);
+                String message = "Ο κωδικός στάλθηκε στο email!";
+                ResponseMessage response = new ResponseMessage(message, null);
+                return new ResponseEntity<>(response , HttpStatus.OK);
             }
+            String message = "Λάθος email ή τηλέφωνο..";
+            ResponseMessage response = new ResponseMessage(message, null);
+            return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
+
         } catch (Exception ex) {
             log.info("{}", ex);
         }
-        return new ResponseEntity<>("Το email ΔΕΝ στάλθηκε..", HttpStatus.BAD_REQUEST);
+        String message = "Κάτι πήγε λάθος..";
+        ResponseMessage response = new ResponseMessage(message, null);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 }

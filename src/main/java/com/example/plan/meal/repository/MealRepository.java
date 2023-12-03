@@ -9,7 +9,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface MealRepository extends JpaRepository<Meal, Integer> {
@@ -21,13 +20,10 @@ public interface MealRepository extends JpaRepository<Meal, Integer> {
 
     @Query("SELECT m FROM Meal m WHERE m.type=:type")
     List<Meal> findByType(@Param("type") Type type);
-    @Query("SELECT m FROM Meal m WHERE m.id=:id")
-    Meal findMealById(@Param("id") int id);
 
     @Query("SELECT COUNT(mf) > 0 FROM Meal m JOIN m.foods mf WHERE m=:meal AND mf=:food")
     boolean existsMealFoodRelationship(@Param("meal") Meal meal, @Param("food") Food food);
 
-    @Query("SELECT DISTINCT m FROM Meal m JOIN FETCH m.foods")
-    List<Meal> findMealWIthFoods();
-
+    @Query("SELECT COUNT(m) FROM Meal m")
+    int countMeal();
 }

@@ -55,7 +55,7 @@ public class Validation {
     }
 
     public boolean isValidFieldNumbers(Map<String, Object> requestMap) {
-        return isValidFoodNumbers((Double) getDoubleValue(requestMap.get("gram"))) && isValidFoodNumbers((Double) getDoubleValue(requestMap.get("calories")));
+        return isValidFoodNumbers((Double) getDoubleValue(requestMap.get("calories")));
     }
 
     private Object getDoubleValue(Object value) {

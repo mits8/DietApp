@@ -1,12 +1,12 @@
 package com.example.plan.user.service.Impl;
 
-import com.example.plan.constants.PlanConstants;
+import com.example.plan.enums.Role;
 import com.example.plan.security.auth.service.Impl.AuthEncryptDecrypt;
-import com.example.plan.dto.ChangePasswordDTO;
 import com.example.plan.user.entity.UserInfo;
 import com.example.plan.user.repository.UserInfoRepository;
 import com.example.plan.user.service.UserService;
-import com.example.plan.utils.PlanUtils;
+import com.example.plan.utils.ResponseMessage;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,9 +15,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -34,48 +32,99 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public List<UserInfo> findAll() {
-        List<UserInfo> findAll = userInfoRepository.findAll();
-        return findAll;
-    }
-
-    @Override
-    public Optional<UserInfo> findById(int id) throws UsernameNotFoundException {
-        Optional<UserInfo> userInfo = userInfoRepository.findUserInfoById(id);
-        return userInfo;
-    }
-
-    @Override
-    public ResponseEntity<String> singUp(UserInfo userInfo) {
-        try {
-            UserInfo userEmail = userInfoRepository.findUserByEmail(userInfo.getEmail());
-            if (Objects.isNull(userEmail)) {
-                userInfo.setPassword(authEncryptDecrypt.encrypt(userInfo.getPassword()));
-                userInfoRepository.save(userInfo);
-                if (userInfo.isLoggedIn()) {
-                    userInfo.setLoggedIn(true);
-                }
-                return new ResponseEntity<>("Ο χρήστης " + userInfo.getEmail() + " γράφτηκε επιτυχώς!", HttpStatus.OK);
+    public ResponseEntity<ResponseMessage>  findAll() {
+        List<UserInfo> users = userInfoRepository.findAll();
+        List<Map<String, Object>> mapList = new ArrayList<>();
+        if (mapList != null) {
+            for (UserInfo user : users) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("id", user.getId());
+                map.put("name", user.getName());
+                map.put("email", user.getEmail());
+                map.put("contactInfo", user.getContactInfo());
+                map.put("isLoggedIn", user.isLoggedIn());
+                map.put("role", user.getRole());
+                mapList.add(map);
             }
-            return new ResponseEntity<>("Το email " + userInfo.getEmail() + " υπάρχει ήδη..", HttpStatus.BAD_REQUEST);
+            String message = "Οι χρήστες βρέθηκαν!";
+            ResponseMessage response = new ResponseMessage(message, mapList);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+        String message = "Οι χρήστες δεν βρέθηκε..";
+        ResponseMessage response = new ResponseMessage(message, null);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
 
+    @Override
+    public ResponseEntity<ResponseMessage> findById(int id) throws UsernameNotFoundException {
+        Optional<UserInfo> existingUser = userInfoRepository.findUserInfoById(id);
+        Map<String, Object> map = new HashMap<>();
+        if (existingUser.isPresent()) {
+            UserInfo user = existingUser.get();
+            map.put("id", user.getId());
+            map.put("name", user.getName());
+            map.put("email", user.getEmail());
+            map.put("password", user.getPassword());
+            map.put("contactInfo", user.getContactInfo());
+            map.put("isLoggedIn", user.isLoggedIn());
+            map.put("role", user.getRole());
+
+            String message = "Ο χρήστης " + user.getName() + " βρέθηκε!";
+            ResponseMessage response = new ResponseMessage(message, map);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+        String message = "Ο χρήστης δεν βρέθηκε..";
+        ResponseMessage response = new ResponseMessage(message, null);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @Override
+    public ResponseEntity<ResponseMessage> singUp(Map<String, Object> requestMap) {
+        try {
+            String userEmail = (String) requestMap.get("email");
+            UserInfo existingUser = userInfoRepository.findUserByEmail(userEmail);
+            if (Objects.isNull(existingUser)) {
+                String name = (String) requestMap.get("name");
+                String password = (String) requestMap.get("password");
+                String contactInfo = (String) requestMap.get("contactInfo");
+                Role role = Role.valueOf((String) requestMap.get("role"));
+
+                UserInfo newUser = new UserInfo();
+                newUser.setName(name);
+                newUser.setEmail(userEmail);
+                newUser.setPassword(authEncryptDecrypt.encrypt(password));
+                newUser.setContactInfo(contactInfo);
+                newUser.setRole(role);
+                newUser.setLoggedIn(true);
+
+                userInfoRepository.save(newUser);
+
+                String message = "Ο χρήστης " + userEmail + " γράφτηκε επιτυχώς!";
+                ResponseMessage response = new ResponseMessage(message, requestMap);
+                return new ResponseEntity<>(response, HttpStatus.CREATED);
+            }
+            String message = "Το email " + userEmail + "' υπάρχει ήδη.";
+            ResponseMessage response = new ResponseMessage(message, null);
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }catch (Exception ex) {
             log.info("{}", ex);
         }
-        return new ResponseEntity<>("Ο χρήστης " + userInfo.getEmail() + " γράφτηκε επιτυχώς!", HttpStatus.OK);
+        String message = "Κάτι πήγε λάθος.";
+        ResponseMessage response = new ResponseMessage(message, null);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     @Override
-    public ResponseEntity<String> changePassword(ChangePasswordDTO changePasswordDTO) {
+    public ResponseEntity<ResponseMessage> changePassword(Map<String, Object> requestMap) {
         try {
-            String email = changePasswordDTO.getEmail();
+            String email = (String) requestMap.get("email");
             UserInfo userInfo = userInfoRepository.findUserByEmail(email);
 
             if (!userInfo.equals(null) || userInfo != null) {
 
                 String passwordFromDatabase = userInfo.getPassword();
-                String declaredOldPassword = changePasswordDTO.getOldPassword();
-                String newPassword = changePasswordDTO.getNewPassword();
+                String declaredOldPassword = (String) requestMap.get("oldPassword");
+                String newPassword = (String) requestMap.get("newPassword");
 
                 boolean checkPassword = authEncryptDecrypt.checkPassword(declaredOldPassword, passwordFromDatabase);
 
@@ -83,50 +132,66 @@ public class UserServiceImpl implements UserService {
                     userInfo.setPassword(authEncryptDecrypt.encrypt(newPassword));
                     userInfoRepository.save(userInfo);
 
-                    return new ResponseEntity<>("Ο κωδικός σας άλλαξε επιτυχώς!", HttpStatus.OK);
+                    String message = "Ο κωδικός σας άλλαξε επιτυχώς!";
+                    ResponseMessage response = new ResponseMessage(message, null);
+                    return new ResponseEntity<>(response , HttpStatus.OK);
                 }
-                return new ResponseEntity<>("Ο παλιός κωδικός είναι λάθος!", HttpStatus.BAD_REQUEST);
+                String message = "Ο παλιός κωδικός είναι λάθος..";
+                ResponseMessage response = new ResponseMessage(message, null);
+                return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return new ResponseEntity<>("Το email " + changePasswordDTO.getEmail() + " είναι λάθος..", HttpStatus.BAD_REQUEST);
-    }
+        String message = "Κάτι πήγε λάθος..";
+        ResponseMessage response = new ResponseMessage(message, null);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);    }
 
     @Override
-    public ResponseEntity<String> updateUser(UserInfo userInfo, int id) {
+    public ResponseEntity<ResponseMessage> updateUser(Map<String, Object> requestMap, int id) {
         try {
             Optional<UserInfo> existingUser = userInfoRepository.findById(id);
             if (existingUser.isPresent()) {
                 UserInfo updateUser = existingUser.get();
-                updateUser.setName(userInfo.getName());
-                updateUser.setEmail(userInfo.getEmail());
-                updateUser.setContactInfo(userInfo.getContactInfo());
-                updateUser.setRole(userInfo.getRole());
+                updateUser.setName((String) requestMap.get("name"));
+                updateUser.setEmail((String) requestMap.get("email"));
+                updateUser.setContactInfo((String) requestMap.get("contactInfo"));
+                updateUser.setRole(Role.valueOf((String) requestMap.get("role")));
+                updateUser.setLoggedIn((Boolean) requestMap.get("isLoggedIn"));
                 userInfoRepository.save(updateUser);
-            } else {
-                return new ResponseEntity<>( "Ο χρήστης ΔΕΝ βρέθηκε..", HttpStatus.BAD_REQUEST);
+                String message = "Ο χρήστης ενημερώθηκε επιτυχώς!";
+                ResponseMessage response = new ResponseMessage(message, requestMap);
+                return new ResponseEntity<>(response, HttpStatus.OK);
             }
-            return new ResponseEntity<>("Ο χρήστης ενημερώθηκε επιτυχώς!", HttpStatus.OK);
+            String message = "Ο χρήστης ΔΕΝ βρέθηκε..";
+            ResponseMessage response = new ResponseMessage(message, requestMap);
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         } catch (Exception ex) {
             log.info("{}", ex);
         }
-        return PlanUtils.getResponseEntity(PlanConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+        String message = "Κάτι πήγε λάθος..";
+        ResponseMessage response = new ResponseMessage(message, requestMap);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     @Override
-    public ResponseEntity<String> deleteUser(int id) {
+    public ResponseEntity<ResponseMessage> deleteUser(int id) {
         try {
             Optional<UserInfo> user = userInfoRepository.findById(id);
             if (user.isPresent()) {
                 userInfoRepository.deleteById(id);
+                String message = "Ο χρήστης διαγράφτηκε επιτυχώς!";
+                ResponseMessage response = new ResponseMessage(message, null);
+                return new ResponseEntity<>(response, HttpStatus.OK);
             } else {
-                return new ResponseEntity<>("Ο χρήστης ΔΕΝ βρέθηκε..", HttpStatus.BAD_REQUEST);
+                String message = "Ο χρήστης ΔΕΝ βρέθηκε..";
+                ResponseMessage response = new ResponseMessage(message, null);
+                return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
             }
-            return new ResponseEntity<> ("Ο χρήστης διαγράφτηκε επιτυχώς!", HttpStatus.OK);
         } catch (Exception ex) {
             log.info("{}", ex);
         }
-        return PlanUtils.getResponseEntity(PlanConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+        String message = "Κάτι πήγε λάθος..";
+        ResponseMessage response = new ResponseMessage(message, null);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);    }
 }
