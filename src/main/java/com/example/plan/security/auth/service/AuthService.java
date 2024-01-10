@@ -7,11 +7,12 @@ import org.springframework.http.ResponseEntity;
 
 public interface AuthService {
 
-    ResponseEntity<String> login(AuthRequest authRequest);
+    ResponseEntity<String> generateToken(AuthRequest authRequest);
 
-    ResponseEntity<String> logout(LogoutRequest logoutRequest);
+    ResponseEntity<String> login(AuthRequest authRequest);
 
     ResponseEntity<String> auth(AuthRequest authRequest);
 
-    ResponseEntity<String> generateToken(AuthRequest authRequest);
+    ResponseEntity<String> logout(LogoutRequest logoutRequest);
+
 }

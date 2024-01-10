@@ -18,25 +18,21 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
+    @PostMapping("/generateToken")
+    public ResponseEntity<String> generateToken(AuthRequest authRequest) {
+        return authService.generateToken(authRequest);
+    }
     @PostMapping("/login")
-    @PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_USER')")
     public ResponseEntity<String> login (@RequestBody AuthRequest authRequest){
         return authService.login(authRequest);
     }
-
-    @PostMapping("/logout")
-    @PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_USER')")
-    public ResponseEntity<String> logout (@RequestBody LogoutRequest logoutRequest){
-        return authService.logout(logoutRequest);
-    }
-
     @PostMapping("/authenticate")
     public ResponseEntity<String> authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
         return authService.auth(authRequest);
     }
-
-    @PostMapping("/generateToken")
-    public ResponseEntity<String> generateToken(AuthRequest authRequest) {
-        return authService.generateToken(authRequest);
+    @PostMapping("/logout")
+    @PreAuthorize("hasRole('ROLE_ADMIN') OR hasRole('ROLE_USER')")
+    public ResponseEntity<String> logout (@RequestBody LogoutRequest logoutRequest){
+        return authService.logout(logoutRequest);
     }
 }

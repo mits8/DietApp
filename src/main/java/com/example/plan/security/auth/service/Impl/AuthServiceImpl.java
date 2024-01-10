@@ -27,23 +27,49 @@ import org.springframework.stereotype.Service;
     @Autowired
     private AuthEncryptDecrypt authEncryptDecrypt;
 
+    @Override
+    public ResponseEntity<String> generateToken(AuthRequest authRequest) {
+        return new ResponseEntity<>("token: " + jwtService.generateToken(authRequest.getEmail()), HttpStatus.OK);
+    }
 
     @Override
     public ResponseEntity<String> login(AuthRequest authRequest) {
         try{
                 String email = authRequest.getEmail();
-                UserInfo userInfo = userInfoRepository.findUserByEmail(email);
+                UserInfo user = userInfoRepository.findUserByEmail(email);
 
-                boolean userNotNull = userInfo != null && !userInfo.equals(null);
-                boolean checkPassword = authEncryptDecrypt.checkPassword(authRequest.getPassword(), userInfo.getPassword());
-                userInfo.setLoggedIn(true);
-
+                boolean userNotNull = user != null && !user.equals(null);
+                boolean checkPassword = authEncryptDecrypt.checkPassword(authRequest.getPassword(), user.getPassword());
+                user.setLoggedIn(true);
+                userInfoRepository.save(user);
             if ((userNotNull)){
                 if (!checkPassword) {
                     return PlanUtils.getResponseEntity(PlanConstants.INVALID_PASSWORD, HttpStatus.BAD_REQUEST);
                 }
                 return new ResponseEntity<>("Καλωςήρθατε!", HttpStatus.OK);
+            }
+        } catch (Exception ex) {
+            log.error("{}", ex);
+        }
+        return new ResponseEntity<>("Το email " + authRequest.getEmail() + " είναι λάθος..", HttpStatus.BAD_REQUEST);
+    }
 
+
+
+    @Override
+    public ResponseEntity<String> auth(AuthRequest authRequest) {
+        try{
+            String email = authRequest.getEmail();
+            UserInfo user = userInfoRepository.findUserByEmail(email);
+             boolean userNotNull = user != null && !user.equals(null);
+             boolean checkPassword = authEncryptDecrypt.checkPassword(authRequest.getPassword(), user.getPassword());
+             user.setLoggedIn(true);
+            userInfoRepository.save(user);
+            if ((userNotNull)){
+                if (!checkPassword) {
+                    return PlanUtils.getResponseEntity(PlanConstants.INVALID_PASSWORD, HttpStatus.BAD_REQUEST);
+                }
+                return new ResponseEntity<>("token: " + jwtService.generateToken(authRequest.getEmail()), HttpStatus.OK);
             }
         } catch (Exception ex) {
             log.error("{}", ex);
@@ -65,31 +91,5 @@ import org.springframework.stereotype.Service;
             log.error("{}", ex);
         }
         return new ResponseEntity<>("Το email " + logoutRequest.getUsername() + " είναι λάθος..", HttpStatus.BAD_REQUEST);
-    }
-
-    @Override
-    public ResponseEntity<String> auth(AuthRequest authRequest) {
-        try{
-            String email = authRequest.getEmail();
-            UserInfo userInfo = userInfoRepository.findUserByEmail(email);
-
-             boolean userNotNull = userInfo != null && !userInfo.equals(null);
-             boolean checkPassword = authEncryptDecrypt.checkPassword(authRequest.getPassword(), userInfo.getPassword());
-
-            if ((userNotNull)){
-                if (!checkPassword) {
-                    return PlanUtils.getResponseEntity(PlanConstants.INVALID_PASSWORD, HttpStatus.BAD_REQUEST);
-                }
-                return new ResponseEntity<>("token: " + jwtService.generateToken(authRequest.getEmail()), HttpStatus.OK);
-            }
-        } catch (Exception ex) {
-            log.error("{}", ex);
-        }
-        return new ResponseEntity<>("Το email " + authRequest.getEmail() + " είναι λάθος..", HttpStatus.BAD_REQUEST);
-    }
-
-    @Override
-    public ResponseEntity<String> generateToken(AuthRequest authRequest) {
-        return new ResponseEntity<>("token: " + jwtService.generateToken(authRequest.getEmail()), HttpStatus.OK);
     }
 }
