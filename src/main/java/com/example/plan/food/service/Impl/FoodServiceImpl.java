@@ -25,12 +25,12 @@ public class FoodServiceImpl implements FoodService {
     @Autowired
     private Validation validation;
 
-    List<Map<String, Object>> mapList = new ArrayList<>();
-    Map<String, Object> map = new HashMap<>();
 
     @Override
     public List<Map<String, Object>> findAll() {
         List<Food> foods = foodRepository.findAll();
+        List<Map<String, Object>> mapList = new ArrayList<>();
+        Map<String, Object> map = new HashMap<>();
         for(Food food : foods) {
             map.put("id", food.getId());
             map.put("name", food.getName());
@@ -46,6 +46,7 @@ public class FoodServiceImpl implements FoodService {
     @Override
     public Map<String, Object> findById(int id) {
         Optional<Food> existingFood = foodRepository.findById(id);
+        Map<String, Object> map = new HashMap<>();
         if (existingFood.isPresent()){
           Food food = existingFood.get();
             map.put("id", food.getId());
@@ -64,7 +65,9 @@ public class FoodServiceImpl implements FoodService {
     @Override
     public List<Map<String, Object>> findByType(Type type) {
         List<Food> foods = foodRepository.findByType(type);
+        List<Map<String, Object>> mapList = new ArrayList<>();
         for (Food food : foods) {
+            Map<String, Object> map = new HashMap<>();
             map.put("id", food.getId());
             map.put("name", food.getName());
             map.put("description", food.getDescription());
@@ -80,7 +83,8 @@ public class FoodServiceImpl implements FoodService {
     @Override
     public Map<String, Object> findByName(String name) {
 
-        Food food = foodRepository.findByName(name);
+        Food food = foodRepository.findFoodName(name);
+        Map<String, Object> map = new HashMap<>();
             map.put("id", food.getId());
             map.put("name", food.getName());
             map.put("description", food.getDescription());

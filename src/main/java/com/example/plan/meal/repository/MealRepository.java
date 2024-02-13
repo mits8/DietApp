@@ -1,5 +1,6 @@
 package com.example.plan.meal.repository;
 
+import com.example.plan.enums.Day;
 import com.example.plan.enums.Type;
 import com.example.plan.food.entity.Food;
 import com.example.plan.meal.entity.Meal;
@@ -13,8 +14,10 @@ import java.util.List;
 @Repository
 public interface MealRepository extends JpaRepository<Meal, Integer> {
 
-    @Query("SELECT m FROM Meal m WHERE m.name=:name")
+    @Query("SELECT m FROM Meal m WHERE m.name=:name and m.day=:day and m.type=:type")
     Meal findByName(@Param("name") String name);
+    @Query("SELECT m FROM Meal m WHERE m.name=:name and m.day=:day and m.type=:type")
+    Meal findByNameDayType(@Param("name") String name, @Param("day") Day day, @Param("type") Type type);
     @Query("SELECT m FROM Meal m WHERE m.name=:name")
     Meal findMealName(String name);
 

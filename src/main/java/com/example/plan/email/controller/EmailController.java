@@ -23,7 +23,7 @@ public class EmailController {
         return emailService.sendEmail(requestMap);
     }
 
-    @PostMapping("/forgotEmail")
+    @PostMapping("/forgotPassword")
     public ResponseEntity<ResponseMessage> forgotPassword(@RequestBody Map<String, Object> requestMap) throws Exception {
         return emailService.forgotPassword(requestMap);
     }

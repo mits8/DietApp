@@ -2,6 +2,7 @@ package com.example.plan.customer.entity;
 
 import com.example.plan.enums.Gender;
 import com.example.plan.plan.entity.Plan;
+import com.example.plan.user.entity.UserInfo;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.Data;
@@ -57,7 +58,8 @@ public class Customer {
     @ManyToMany (mappedBy = "customers")
     private List<Plan> plans = new ArrayList<>();
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private UserInfo userInfo;
 
-    public Customer(Customer customer) {
-    }
 }

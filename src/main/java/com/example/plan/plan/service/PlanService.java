@@ -13,7 +13,7 @@ public interface PlanService {
 
     List<Map<String, Object>> findPlanMealFood();
 
-    List<Map<String, Object>> getPlanDetailsByCustomerFullName(String firstName, String lastName);
+    List<Map<String, Object>> getPlanDetailsByCustomerFullName(String firstName, String lastName, LocalDate birthdate);
 
     ResponseEntity<ResponseMessage> count();
 
@@ -26,7 +26,7 @@ public interface PlanService {
     ResponseEntity<ResponseMessage> addToPlan(Map<String, List<Object>> requestMap, int id);
 
     @Transactional
-    ResponseEntity<ResponseMessage> addMealToPlan(Map<String, List<Object>> mealData, String name);
+    ResponseEntity<ResponseMessage> addMealToPlan(Map<String, List<Object>> mealData, String name, LocalDate startDate, LocalDate endDate);
 
     @Transactional
     ResponseEntity<ResponseMessage> addCustomerToPlan(Map<String, List<Object>> requestMap, String name);
@@ -45,4 +45,7 @@ public interface PlanService {
 
     @Transactional
     ResponseEntity<ResponseMessage> deleteMealAndFood(int planId, int mealId, int foodId);
+
+    @Transactional
+    ResponseEntity<ResponseMessage> deleteAll();
 }

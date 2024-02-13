@@ -3,6 +3,7 @@ package com.example.plan.plan.controller;
 import com.example.plan.plan.service.PlanService;
 import com.example.plan.utils.ResponseMessage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,8 +31,8 @@ public class PlanController {
     }
 
     @GetMapping("/find/Customer/byName")
-    public List<Map<String, Object>> getPlanDetailsByCustomerFirstName (@RequestParam String firstname, @RequestParam String lastname) {
-       return  planService.getPlanDetailsByCustomerFullName(firstname, lastname);
+    public List<Map<String, Object>> getPlanDetailsByCustomerFirstName (@RequestParam String firstname, @RequestParam String lastname, @RequestParam LocalDate birthdate) {
+       return  planService.getPlanDetailsByCustomerFullName(firstname, lastname, birthdate);
     }
 
     @GetMapping("/count")
@@ -40,7 +41,11 @@ public class PlanController {
     }
 
     @GetMapping("/generateReport")
-    public ResponseEntity<ResponseMessage> generateReport(Map<String, Object> requestMap, @RequestParam String firstName, @RequestParam String lastName, @RequestParam LocalDate startDate,  @RequestParam LocalDate endDate) {
+    public ResponseEntity<ResponseMessage> generateReport(Map<String, Object> requestMap,
+                                                          @RequestParam String firstName,
+                                                          @RequestParam String lastName,
+                                                          @RequestParam @DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate startDate,
+                                                          @RequestParam @DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate endDate) {
         return planService.generateReport(requestMap, firstName, lastName, startDate, endDate);
     }
 
@@ -56,8 +61,8 @@ public class PlanController {
 
 
     @PostMapping("/addMeal/{name}")
-    public ResponseEntity<ResponseMessage> addMealToPlan(@RequestBody Map<String, List<Object>> requestMap, @PathVariable String name){
-        return planService.addMealToPlan(requestMap, name);
+    public ResponseEntity<ResponseMessage> addMealToPlan(@RequestBody Map<String, List<Object>> requestMap, @PathVariable String name, @RequestParam LocalDate startDate, @RequestParam LocalDate endDate){
+        return planService.addMealToPlan(requestMap, name, startDate, endDate);
     }
 
     @PostMapping("/addCustomer")
@@ -92,4 +97,10 @@ public class PlanController {
     public ResponseEntity<ResponseMessage> deleteMealAndFood(@PathVariable int planId, @PathVariable int  mealId, @PathVariable int foodId) {
         return planService.deleteMealAndFood(planId, mealId, foodId);
     }
+
+    @DeleteMapping("/deleteAll")
+    public ResponseEntity<ResponseMessage> deleteAll() {
+        return planService.deleteAll();
+    }
+
 }

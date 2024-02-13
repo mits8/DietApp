@@ -6,7 +6,6 @@ import com.example.plan.user.entity.UserInfo;
 import com.example.plan.user.repository.UserInfoRepository;
 import com.example.plan.user.service.UserService;
 import com.example.plan.utils.ResponseMessage;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,14 +22,10 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserInfoRepository userInfoRepository;
-
     @Autowired
     private AuthEncryptDecrypt authEncryptDecrypt;
-
     @Autowired
     JavaMailSender javaMailSender;
-
-
     @Override
     public ResponseEntity<ResponseMessage>  findAll() {
         List<UserInfo> users = userInfoRepository.findAll();
@@ -95,7 +90,7 @@ public class UserServiceImpl implements UserService {
                 newUser.setPassword(authEncryptDecrypt.encrypt(password));
                 newUser.setContactInfo(contactInfo);
                 newUser.setRole(role);
-                newUser.setLoggedIn(true);
+                //newUser.setLoggedIn(true);
 
                 userInfoRepository.save(newUser);
 

@@ -1,7 +1,9 @@
 package com.example.plan.security.config;
 
 import com.example.plan.enums.Role;
+import com.example.plan.security.config.filter.JwtService;
 import com.example.plan.user.entity.UserInfo;
+import com.example.plan.utils.PlanUtils;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,6 +18,8 @@ public class UserInfoUserDetails implements UserDetails {
     private String name;
     private String password;
     private Role role;
+    private boolean isLoggedIn;
+    private String jwt;
     Set<SimpleGrantedAuthority> authorities = new HashSet<>();
 
 
@@ -23,12 +27,13 @@ public class UserInfoUserDetails implements UserDetails {
         name=userInfo.getEmail();
         password=userInfo.getPassword();
         role=userInfo.getRole();
-
+        this.isLoggedIn = false;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         authorities.add(new SimpleGrantedAuthority("ROLE_" + this.role));
+        this.isLoggedIn = true;
         return authorities;
     }
 
@@ -59,6 +64,8 @@ public class UserInfoUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return this.isLoggedIn;
     }
+
+
 }

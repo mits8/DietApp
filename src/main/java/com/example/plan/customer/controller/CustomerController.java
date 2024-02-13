@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -32,8 +33,8 @@ public class CustomerController {
 
     @GetMapping("/fullName")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<List<Map<String, Object>>> findCustomerByName(@RequestParam("firstName") String firstName, @RequestParam("lastName") String lastName) {
-        return new ResponseEntity<>(customerService.findCustomerByName(firstName, lastName), HttpStatus.OK);
+    public ResponseEntity<Map<String, Object>> findCustomerByName(@RequestParam("firstName") String firstName, @RequestParam("lastName") String lastName, @RequestParam("birthday") LocalDate birthday ) {
+        return new ResponseEntity<>(customerService.findCustomerByName(firstName, lastName, birthday), HttpStatus.OK);
     }
 
     @PostMapping("/add")

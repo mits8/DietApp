@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
 import java.util.*;
 
 @Slf4j
@@ -75,10 +77,9 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public List<Map<String, Object>> findCustomerByName(String firstName, String lastName) {
-        List<Customer> customers = customerRepository.findCustomerByName(firstName, lastName);
+    public Map<String, Object> findCustomerByName(String firstName, String lastName, LocalDate birthday) {
+        Customer customer = customerRepository.findCustomerByName(firstName, lastName, birthday);
 
-        for (Customer customer : customers) {
             Map<String, Object> customerObjectMap = new HashMap<>();
             customerObjectMap.put("id", customer.getId());
             customerObjectMap.put("firstName", customer.getFirstName());
@@ -89,9 +90,8 @@ public class CustomerServiceImpl implements CustomerService {
             customerObjectMap.put("address", customer.getAddress());
             customerObjectMap.put("birthday", customer.getBirthday());
             customerObjectMap.put("gender", customer.getGender());
-            mapList.add(customerObjectMap);
-        }
-        return mapList;
+
+        return customerObjectMap;
     }
 
     @Override
@@ -163,6 +163,7 @@ public class CustomerServiceImpl implements CustomerService {
                     ResponseMessage response = new ResponseMessage(message, null);
                     return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
                 }
+                updateCustomer.setCity((String) requestMap.get("city"));
                 updateCustomer.setAddress((String) requestMap.get("address"));
                 updateCustomer.setBirthday(PlanUtils.formatter(requestMap));
                 updateCustomer.setGender(Gender.valueOf((String) requestMap.get("gender")));

@@ -59,14 +59,14 @@ public class EmailServiceImpl implements EmailService {
             mimeMessageHelper.setSubject(subjectOfDietProgram);
             mimeMessageHelper.setText((String) requestMap.get("body"));
 
-            if (requestMap.containsKey("attachments[0].filename")) {
+            if (requestMap.containsKey("filename")) {
                 String fileName = (String) requestMap.get("filename");
-                Path filePath = Paths.get("C:\\Users\\dchatzop\\Downloads\\", fileName);
+                Path filePath = Paths.get("C:\\Users\\dchatzop\\Videos\\Thesis\\PDF\\", fileName);
                 mimeMessageHelper.addAttachment(fileName, new FileDataSource(filePath.toFile()));
 
                 mailSender.send(mimeMessage);
                 String message = "Το email στάλθηκε!";
-                ResponseMessage response = new ResponseMessage(message, null);
+                ResponseMessage response = new ResponseMessage(message, fileName);
                 return new ResponseEntity<>(response, HttpStatus.OK);
             }
             String message = "Το email δεν στάλθηκε..";

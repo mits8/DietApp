@@ -27,13 +27,12 @@ public class MealServiceImpl implements MealService {
     @Autowired
     private FoodRepository foodRepository;
 
-    List<Map<String, Object>> mapList = new ArrayList<>();
     ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public List<Map<String, Object>> findAll() {
         List<Meal> meals = mealRepository.findAll();
-
+        List<Map<String, Object>> mapList = new ArrayList<>();
         for (Meal meal : meals) {
             Map<String, Object> map = new HashMap<>();
             map.put("id", meal.getId());
@@ -67,6 +66,7 @@ public class MealServiceImpl implements MealService {
     @Override
     public List<Map<String, Object>> findByType(Type type) {
         List<Meal> meals = mealRepository.findByType(type);
+        List<Map<String, Object>> mapList = new ArrayList<>();
         for (Meal meal : meals) {
             Map<String, Object> map = new HashMap<>();
             map.put("id", meal.getId());
@@ -81,7 +81,7 @@ public class MealServiceImpl implements MealService {
     public ResponseEntity<ResponseMessage> addMeal(Map<String, Object> requestMap) {
         try {
             String mealName = (String) requestMap.get("name");
-            Meal existingMeal = mealRepository.findByName(mealName);
+            Meal existingMeal = mealRepository.findMealName(mealName);
 
             if (existingMeal == null) {
                 Meal meal = new Meal();

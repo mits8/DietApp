@@ -4,6 +4,7 @@ import com.example.plan.utils.ResponseMessage;
 import jakarta.transaction.Transactional;
 import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 @Transactional
@@ -12,7 +13,7 @@ public interface CustomerService {
 
     Map<String, Object>  findById(int id);
 
-    List<Map<String, Object> > findCustomerByName(String firstName, String lastName);
+    Map<String, Object> findCustomerByName(String firstName, String lastName, LocalDate birthday);
 
     ResponseEntity<ResponseMessage> addCustomer(Map<String, Object> requestMap);
 
