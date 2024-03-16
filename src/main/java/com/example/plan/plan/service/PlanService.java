@@ -38,7 +38,7 @@ public interface PlanService {
     ResponseEntity<ResponseMessage> deletePlan(int id);
 
     @Transactional
-    ResponseEntity<ResponseMessage> removeCustomerFromPlan(int customerId, int PlanId);
+    ResponseEntity<ResponseMessage> removeCustomerFromPlan(Long customerId, int PlanId);
 
     @Transactional
     ResponseEntity<ResponseMessage> removeFoodFromMeal(int planId, int mealId, int foodId);

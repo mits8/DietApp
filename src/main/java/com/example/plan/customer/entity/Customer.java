@@ -1,30 +1,28 @@
 package com.example.plan.customer.entity;
 
+import com.example.plan.customerInfo.entity.CustomerInfo;
 import com.example.plan.enums.Gender;
 import com.example.plan.plan.entity.Plan;
 import com.example.plan.user.entity.UserInfo;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.format.annotation.DateTimeFormat;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @Entity
 @Data
-@NoArgsConstructor
-@ToString(exclude = "plans")
+//@ToString(exclude = "plans")
 @Table(name = "customer")
 public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Long id;
 
     @Length(min= 5, max = 30)
     @Column(name = "firstName")
@@ -61,5 +59,16 @@ public class Customer {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private UserInfo userInfo;
+
+    @OneToMany(mappedBy = "customer",cascade = CascadeType.ALL,  orphanRemoval = true)
+    private List<CustomerInfo> customerInfos = new ArrayList<>();
+
+
+    @Override
+    public String toString() {
+        return "Customer{" +
+                "id=" + id +
+                '}';
+    }
 
 }

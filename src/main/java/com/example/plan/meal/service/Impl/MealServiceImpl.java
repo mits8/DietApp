@@ -1,5 +1,9 @@
 package com.example.plan.meal.service.Impl;
 
+import com.example.plan.customer.entity.Customer;
+import com.example.plan.customer.repository.CustomerRepository;
+import com.example.plan.customerInfo.entity.CustomerInfo;
+import com.example.plan.customerInfo.repository.CustomerInfoRepository;
 import com.example.plan.enums.Day;
 import com.example.plan.enums.Type;
 import com.example.plan.food.entity.Food;
@@ -7,7 +11,9 @@ import com.example.plan.food.repository.FoodRepository;
 import com.example.plan.meal.entity.Meal;
 import com.example.plan.meal.repository.MealRepository;
 import com.example.plan.meal.service.MealService;
+import com.example.plan.plan.entity.Plan;
 import com.example.plan.utils.ResponseMessage;
+import com.example.plan.utils.Utils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Slf4j
@@ -26,6 +33,10 @@ public class MealServiceImpl implements MealService {
     private MealRepository mealRepository;
     @Autowired
     private FoodRepository foodRepository;
+    @Autowired
+    private CustomerRepository customerRepository;
+    @Autowired
+    private CustomerInfoRepository customerInfoRepository;
 
     ObjectMapper objectMapper = new ObjectMapper();
 
@@ -212,6 +223,63 @@ public class MealServiceImpl implements MealService {
         String message = "Κάτι πήγε λάθος..";
         ResponseMessage response = new ResponseMessage(message, requestMap);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @Override
+    public ResponseEntity<ResponseMessage> recommendMeals(Long id, Type type, Map<String, Object> requestMap) {
+        try {
+            Optional<Customer> optionalCustomer = customerRepository.findById(id);
+            if (optionalCustomer.isPresent()) {
+                Customer customer = optionalCustomer.get();
+                List<CustomerInfo> customerInfos = customerInfoRepository.findLatestCustomerInfoByCustomerId(customer.getId());
+
+                Optional<LocalDateTime> mostRecentMeasureDate = customerInfos.stream()
+                        .map(CustomerInfo::getCreatedDate)
+                        .max(LocalDateTime::compareTo);
+
+                LocalDateTime recentlyMeasured;
+                CustomerInfo customerInfo = null;
+                if (mostRecentMeasureDate.isPresent()) {
+                    recentlyMeasured = mostRecentMeasureDate.get();
+                    customerInfo = customerInfoRepository.findLatestCustomerInfo(recentlyMeasured);
+                }
+
+                double requirements = Utils.calculateTotalCalories(customerInfo);
+
+                List<Meal> recommendedMeals = null;
+                if (requirements < 1000) {
+                    recommendedMeals = mealRepository.findMealsByCaloriesLessThanEqual(Utils.getDouble(requestMap, "minCalories"), type);
+                } else if (requirements > 1000 && requirements < 3000) {
+                    recommendedMeals = mealRepository.findMealsByCaloriesBetweenEqual(Utils.getDouble(requestMap, "minCalories"), Utils.getDouble(requestMap, "maxCalories"), type);
+                } else if (requirements > 5000){
+                    recommendedMeals = mealRepository.findMealsByCaloriesMoreThanEqual(Utils.getDouble(requestMap, "maxCalories"), type);
+                }
+                List<Map<String, Object>> mapList = new ArrayList<>();
+
+                if (recommendedMeals != null || !recommendedMeals.isEmpty()) {
+                    for (Meal meal : recommendedMeals) {
+                        Map<String, Object> mealMap = new HashMap<>();
+                        mealMap.put("id", meal.getId());
+                        mealMap.put("name", meal.getName());
+                        mealMap.put("type", meal.getType());
+                        mealMap.put("calories", meal.getCalories());
+                        mapList.add(mealMap);
+                    }
+                }
+                String message = "Recommended meals found successfully!";
+                ResponseMessage response = new ResponseMessage(message, mapList);
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } else {
+                String message = "No recommended meals found for the given criteria.";
+                ResponseMessage response = new ResponseMessage(message, null);
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception ex) {
+            log.error("Error recommending meals: {}", ex.getMessage());
+            String message = "An error occurred while recommending meals.";
+            ResponseMessage response = new ResponseMessage(message, null);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override

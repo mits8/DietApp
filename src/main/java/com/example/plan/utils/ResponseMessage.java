@@ -8,7 +8,6 @@ import lombok.Setter;
 public class ResponseMessage<T> {
 
     private String message;
-
     private T data;
 
     public ResponseMessage(String message, T data) {

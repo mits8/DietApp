@@ -7,7 +7,7 @@ import com.example.plan.security.auth.service.AuthService;
 import com.example.plan.security.config.filter.JwtService;
 import com.example.plan.user.entity.UserInfo;
 import com.example.plan.user.repository.UserInfoRepository;
-import com.example.plan.utils.PlanUtils;
+import com.example.plan.utils.Utils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -44,7 +44,7 @@ import org.springframework.stereotype.Service;
                 userInfoRepository.save(user);
             if ((userNotNull)){
                 if (!checkPassword) {
-                    return PlanUtils.getResponseEntity(PlanConstants.INVALID_PASSWORD, HttpStatus.BAD_REQUEST);
+                    return Utils.getResponseEntity(PlanConstants.INVALID_PASSWORD, HttpStatus.BAD_REQUEST);
                 }
                 return new ResponseEntity<>("Καλωςήρθατε!", HttpStatus.OK);
             }
@@ -67,7 +67,7 @@ import org.springframework.stereotype.Service;
             userInfoRepository.save(user);
             if ((userNotNull)){
                 if (!checkPassword) {
-                    return PlanUtils.getResponseEntity(PlanConstants.INVALID_PASSWORD, HttpStatus.BAD_REQUEST);
+                    return Utils.getResponseEntity(PlanConstants.INVALID_PASSWORD, HttpStatus.BAD_REQUEST);
                 }
                 return new ResponseEntity<>("token: " + jwtService.generateToken(authRequest.getEmail()), HttpStatus.OK);
             }

@@ -22,6 +22,8 @@ public interface MealService {
 
     ResponseEntity<ResponseMessage> updateMeal(Map<String, Object> requestMap, int id);
 
+    ResponseEntity<ResponseMessage> recommendMeals(Long id, Type type, Map<String, Object> requestMap);
+
     ResponseEntity<ResponseMessage> deleteMeal(int id);
 
 }

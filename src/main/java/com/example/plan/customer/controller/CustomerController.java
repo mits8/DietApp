@@ -27,7 +27,7 @@ public class CustomerController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<Map<String, Object> > findById(@PathVariable int id) {
+    public ResponseEntity<Map<String, Object> > findById(@PathVariable Long id) {
         return new ResponseEntity<>(customerService.findById(id), HttpStatus.OK);
     }
 
@@ -45,19 +45,19 @@ public class CustomerController {
 
     @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<ResponseMessage> updateCustomer(@RequestBody Map<String, Object> requestMap, @PathVariable int id) {
+    public ResponseEntity<ResponseMessage> updateCustomer(@RequestBody Map<String, Object> requestMap, @PathVariable Long id) {
         return customerService.updateCustomer(requestMap, id);
     }
 
     @DeleteMapping("/delete/customer/{customerId}/plan/{planId}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<ResponseMessage> deleteCustomerAndPlanById(@PathVariable int  customerId, @PathVariable int planId) {
+    public ResponseEntity<ResponseMessage> deleteCustomerAndPlanById(@PathVariable Long  customerId, @PathVariable int planId) {
         return customerService.deleteCustomerAndPlanById(customerId, planId);
     }
 
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<ResponseMessage> deleteCustomer(@PathVariable int  id) {
+    public ResponseEntity<ResponseMessage> deleteCustomer(@PathVariable Long  id) {
         return customerService.deleteCustomer(id);
     }
 

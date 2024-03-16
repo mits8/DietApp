@@ -1,9 +1,7 @@
 package com.example.plan.security.config;
 
 import com.example.plan.enums.Role;
-import com.example.plan.security.config.filter.JwtService;
 import com.example.plan.user.entity.UserInfo;
-import com.example.plan.utils.PlanUtils;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

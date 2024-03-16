@@ -42,7 +42,8 @@ public class UserController {
 
     @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<ResponseMessage> updateUser(@RequestBody Map<String, Object> requestMap, @PathVariable int id) {
+    public ResponseEntity<ResponseMessage> updateUser(@RequestBody Map<String, Object> requestMap,
+                                                      @PathVariable int id) {
         return userService.updateUser(requestMap, id);
     }
 

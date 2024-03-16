@@ -24,8 +24,7 @@ public class UserServiceImpl implements UserService {
     private UserInfoRepository userInfoRepository;
     @Autowired
     private AuthEncryptDecrypt authEncryptDecrypt;
-    @Autowired
-    JavaMailSender javaMailSender;
+
     @Override
     public ResponseEntity<ResponseMessage>  findAll() {
         List<UserInfo> users = userInfoRepository.findAll();

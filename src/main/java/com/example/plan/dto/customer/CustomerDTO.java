@@ -17,7 +17,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class CustomerDTO {
 
-    private int id;
+    private Long id;
 
     private String fullName ;
     private String firstName;

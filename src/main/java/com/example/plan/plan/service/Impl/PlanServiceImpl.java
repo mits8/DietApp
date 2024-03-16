@@ -560,6 +560,7 @@ public class PlanServiceImpl implements PlanService {
                 String mealDescr = String.valueOf(mealData.get("description"));
                 Day day = Day.valueOf((String) mealData.get("day"));
                 Type mealType = Type.valueOf((String) mealData.get("type"));
+                Double mealCalories = (Double) mealData.get("calories");
                 Meal meal = mealRepository.findByNameDayType(mealName, day, mealType);
                 //boolean existingMeal = meal.getName().equals(mealName) && meal.getDay().equals(day) && meal.getType().equals(mealType);
                 if (meal == null) {
@@ -568,6 +569,7 @@ public class PlanServiceImpl implements PlanService {
                     newMeal.setDescription(mealDescr);
                     newMeal.setDay(day);
                     newMeal.setType(mealType);
+                    newMeal.setCalories(mealCalories);
                     mealRepository.save(newMeal);
                 }
                 List<Object> foods = (List<Object>) mealData.get("foods");
@@ -578,7 +580,7 @@ public class PlanServiceImpl implements PlanService {
                         String foodName = String.valueOf(foodData.get("name"));
                         String foodDescr = String.valueOf(foodData.get("description"));
                         String foodQuantiity = String.valueOf(foodData.get("quantity"));
-                        Double calories = Double.valueOf(String.valueOf(foodData.get("calories")));
+                        Double foodCalories = Double.valueOf(String.valueOf(foodData.get("calories")));
                         Type foodType = Type.valueOf(String.valueOf(foodData.get("type")));
                         Food existingFood = foodRepository.findFoodName(foodName);
 
@@ -587,7 +589,7 @@ public class PlanServiceImpl implements PlanService {
                             existingFood.setName(foodName);
                             existingFood.setDescription(foodDescr);
                             existingFood.setQuantity(foodQuantiity);
-                            existingFood.setCalories(calories);
+                            existingFood.setCalories(foodCalories);
                             existingFood.setType(foodType);
                             foodRepository.save(existingFood);
                         }
@@ -747,7 +749,7 @@ public class PlanServiceImpl implements PlanService {
     }
 
     @Override
-    public ResponseEntity<ResponseMessage> removeCustomerFromPlan(int customerId, int PlanId) {
+    public ResponseEntity<ResponseMessage> removeCustomerFromPlan(Long customerId, int PlanId) {
         try {
             Optional<Customer> existingCustomer = customerRepository.findById(customerId);
             Optional<Plan> existingPlan = planRepository.findById(PlanId);

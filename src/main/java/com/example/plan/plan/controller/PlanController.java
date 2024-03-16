@@ -82,7 +82,7 @@ public class PlanController {
 
     @DeleteMapping("/delete/{planId}/customer/{customerId}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<ResponseMessage> deleteCustomerFromPlan(@PathVariable int planId, @PathVariable int customerId) {
+    public ResponseEntity<ResponseMessage> deleteCustomerFromPlan(@PathVariable Long planId, @PathVariable int customerId) {
         return planService.removeCustomerFromPlan(planId, customerId);
     }
 

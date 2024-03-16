@@ -6,9 +6,12 @@ import com.example.plan.customer.service.CustomerService;
 import com.example.plan.enums.Gender;
 import com.example.plan.plan.entity.Plan;
 import com.example.plan.plan.repository.PlanRepository;
-import com.example.plan.utils.PlanUtils;
+import com.example.plan.user.entity.UserInfo;
+import com.example.plan.user.repository.UserInfoRepository;
+import com.example.plan.utils.Utils;
 import com.example.plan.utils.ResponseMessage;
 import com.example.plan.validation.Validation;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,8 +34,8 @@ public class CustomerServiceImpl implements CustomerService {
     @Autowired
     private Validation validation;
 
-    List<Map<String, Object>> mapList = new ArrayList<>();
-    Map<String, Object> map = new HashMap<>();
+    @Autowired
+    private UserInfoRepository userInfoRepository;
 
     @Override
     public  List<Map<String, Object>> findAllCustomers() {
@@ -56,7 +59,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Map<String, Object> findById(int id) {
+    public Map<String, Object> findById(Long id) {
         Optional<Customer> existingCustomer = customerRepository.findById(id);
         if (existingCustomer.isPresent()) {
         Customer customer = existingCustomer.get();
@@ -108,8 +111,13 @@ public class CustomerServiceImpl implements CustomerService {
                         customer.setPhone((String) requestMap.get("phone"));
                         customer.setCity((String) requestMap.get("city"));
                         customer.setAddress((String) requestMap.get("address"));
-                        customer.setBirthday(PlanUtils.formatter(requestMap));
+                        customer.setBirthday(Utils.formatter(requestMap));
                         customer.setGender(Gender.valueOf((String) requestMap.get("gender")));
+
+                        Integer userId = (Integer) requestMap.get("user_id");
+                        UserInfo userInfo = userInfoRepository.findById(userId)
+                                .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + userId));
+                        customer.setUserInfo(userInfo);
                         customerRepository.save(customer);
 
                         String message = "Ο πελάτης " + "'" + customer.getFirstName() + " " + customer.getLastName() + "'" + " γράφτηκε επιτυχώς!";
@@ -140,7 +148,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public ResponseEntity<ResponseMessage> updateCustomer(Map<String, Object> requestMap, int id) {
+    public ResponseEntity<ResponseMessage> updateCustomer(Map<String, Object> requestMap, Long id) {
         try {
             Optional<Customer> existingCustomer = customerRepository.findById(id);
             if (existingCustomer.isPresent()) {
@@ -165,7 +173,7 @@ public class CustomerServiceImpl implements CustomerService {
                 }
                 updateCustomer.setCity((String) requestMap.get("city"));
                 updateCustomer.setAddress((String) requestMap.get("address"));
-                updateCustomer.setBirthday(PlanUtils.formatter(requestMap));
+                updateCustomer.setBirthday(Utils.formatter(requestMap));
                 updateCustomer.setGender(Gender.valueOf((String) requestMap.get("gender")));
                 customerRepository.save(updateCustomer);
 
@@ -186,7 +194,7 @@ public class CustomerServiceImpl implements CustomerService {
         }
 
     @Override
-    public ResponseEntity<ResponseMessage> deleteCustomer(int id) {
+    public ResponseEntity<ResponseMessage> deleteCustomer(Long id) {
         try {
             Optional<Customer> optionalCustomer = customerRepository.findById(id);
             if (optionalCustomer.isPresent()) {
@@ -208,7 +216,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public ResponseEntity<ResponseMessage> deleteCustomerAndPlanById(int customerId, int PlanId) {
+    public ResponseEntity<ResponseMessage> deleteCustomerAndPlanById(Long customerId, int PlanId) {
         try {
             Optional<Customer> existingCustomer = customerRepository.findById(customerId);
             Optional<Plan> existingPlan = PlanRepository.findById(PlanId);

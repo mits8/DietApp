@@ -29,4 +29,15 @@ public interface MealRepository extends JpaRepository<Meal, Integer> {
 
     @Query("SELECT COUNT(m) FROM Meal m")
     int countMeal();
+
+    @Query("SELECT m FROM Meal m WHERE m.calories <= :minCalories AND m.type = :type")
+    List<Meal> findMealsByCaloriesLessThanEqual(@Param("minCalories") double minCalories, @Param("type") Type type);
+
+    @Query("SELECT m FROM Meal m WHERE m.calories BETWEEN :minCalories AND :maxCalories AND m.type = :type")
+    List<Meal> findMealsByCaloriesBetweenEqual(@Param("minCalories") double minCalories, @Param("maxCalories") double maxCalories, @Param("type") Type type);
+
+    @Query("SELECT m FROM Meal m WHERE m.calories >= :maxCalories AND m.type = :type")
+    List<Meal> findMealsByCaloriesMoreThanEqual(@Param("maxCalories") double maxCalories, @Param("type") Type type);
+
+
 }

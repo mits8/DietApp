@@ -31,6 +31,8 @@ public class Meal {
     private String description;
     @Enumerated(EnumType.STRING)
     private Type type;
+    @Column(name = "calories")
+    private Double calories;
     @Column(name = "day")
     @Enumerated(EnumType.STRING)
     private Day day;

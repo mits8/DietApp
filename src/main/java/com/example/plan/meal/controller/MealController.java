@@ -1,5 +1,6 @@
 package com.example.plan.meal.controller;
 
+import com.example.plan.customerInfo.entity.CustomerInfo;
 import com.example.plan.enums.Type;
 import com.example.plan.meal.service.MealService;
 import com.example.plan.utils.ResponseMessage;
@@ -51,6 +52,12 @@ public class MealController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ResponseMessage> addFoodToMeal(@RequestBody Map<String, List<Object>> requestMap,@PathVariable String name) {
         return mealService.addFoodToMeal(requestMap, name);
+    }
+
+    @GetMapping("/recommendMeals/customerId{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<ResponseMessage> recommendMeals(@PathVariable Long id, @RequestParam("type") Type type, @RequestBody Map<String, Object> requestMap) {
+        return mealService.recommendMeals(id, type, requestMap);
     }
 
     @DeleteMapping("/delete/{id}")

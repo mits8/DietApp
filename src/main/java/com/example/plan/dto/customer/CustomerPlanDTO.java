@@ -19,7 +19,7 @@ import java.util.List;
 @NoArgsConstructor
 public class CustomerPlanDTO extends CustomerDTO {
 
-    private int id;
+    private Long id;
     private String firstName;
 
     private String lastName;
