@@ -1,15 +1,11 @@
 package com.example.plan.user.entity;
 
-import com.example.plan.customer.entity.Customer;
+import com.example.plan.customer.entity.DietCustomer;
 import com.example.plan.enums.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,8 +15,8 @@ public class UserInfo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-    private String name;
+    private Long id;
+    private String username;
     @Email
     private String email;
     private String password;
@@ -28,7 +24,7 @@ public class UserInfo {
     private boolean isLoggedIn;
     @Enumerated(EnumType.STRING)
     private Role role;
-    @OneToMany(mappedBy = "userInfo")
-    private List<Customer> customers = new ArrayList<>();
+    @OneToMany(mappedBy = "userInfo", fetch = FetchType.EAGER)
+    private List<DietCustomer> customers = new ArrayList<>();
 
 }

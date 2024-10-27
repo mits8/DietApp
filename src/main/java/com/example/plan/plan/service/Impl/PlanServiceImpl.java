@@ -1,7 +1,7 @@
 package com.example.plan.plan.service.Impl;
 
 import com.example.plan.constants.PlanConstants;
-import com.example.plan.customer.entity.Customer;
+import com.example.plan.customer.entity.DietCustomer;
 import com.example.plan.customer.repository.CustomerRepository;
 import com.example.plan.enums.Day;
 import com.example.plan.enums.Duration;
@@ -17,7 +17,6 @@ import com.example.plan.plan.entity.Plan;
 import com.example.plan.plan.repository.PlanRepository;
 import com.example.plan.plan.service.PlanService;
 import com.example.plan.utils.ResponseMessage;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.BaseFont;
@@ -127,9 +126,9 @@ public class PlanServiceImpl implements PlanService {
     }
 
     @Override
-    public List<Map<String, Object>> getPlanDetailsByCustomerFullName(String firstName, String lastName, LocalDate birthdate) {
+    public List<Map<String, Object>> getPlanDetailsByCustomerFullName(String firstname, String surname, LocalDate birthdate) {
         /*--------------review--------------*/
-        List<Plan> plans = planRepository.findPlanByCustomerName(firstName, lastName, birthdate);
+        List<Plan> plans = planRepository.findPlanByCustomerName(firstname, surname, birthdate);
         List<Map<String, Object>> mapList = new ArrayList<>();
 
 
@@ -143,13 +142,13 @@ public class PlanServiceImpl implements PlanService {
             planMap.put("duration", plan.getDuration());
 
             List<Map<String, Object>> customerList = plan.getCustomers().stream()
-                    .filter(customer -> Objects.equals(customer.getFirstName(), firstName) &&
-                                        Objects.equals(customer.getLastName(), lastName) &&
+                    .filter(customer -> Objects.equals(customer.getFirstname(), firstname) &&
+                                        Objects.equals(customer.getSurname(), surname) &&
                                         Objects.equals(customer.getBirthday(), birthdate))
                     .map(customer -> {
                         Map<String, Object> customerMap = new HashMap<>();
-                        customerMap.put("firstName", customer.getFirstName());
-                        customerMap.put("lastName", customer.getLastName());
+                        customerMap.put("firstname", customer.getFirstname());
+                        customerMap.put("surname", customer.getSurname());
                         customerMap.put("email", customer.getEmail());
                         customerMap.put("phone", customer.getPhone());
                         customerMap.put("city", customer.getCity());
@@ -191,12 +190,12 @@ public class PlanServiceImpl implements PlanService {
     }
 
     @Override
-    public ResponseEntity<ResponseMessage> generateReport(Map<String, Object> requestMap, String firstName, String lastName, LocalDate startDate, LocalDate endDate) {
+    public ResponseEntity<ResponseMessage> generateReport(Map<String, Object> requestMap, String firstname, String surname, LocalDate startDate, LocalDate endDate) {
         try {
             DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
             LocalDate startDateFormat = LocalDate.parse(startDate.format(dateFormatter), dateFormatter);
             LocalDate endDateFormat = LocalDate.parse(endDate.format(dateFormatter), dateFormatter);
-            List<Plan> plans = planRepository.findByCustomerNameAndDates(firstName, lastName, startDateFormat, endDateFormat);
+            List<Plan> plans = planRepository.findByCustomerNameAndDates(firstname, surname, startDateFormat, endDateFormat);
             if (plans == null || !plans.isEmpty()) {
                 for (Plan plan : plans) {
                     Map<String, Object> planMap = new HashMap<>();
@@ -207,7 +206,7 @@ public class PlanServiceImpl implements PlanService {
                     planMap.put("duration", plan.getDuration());
                 }
 
-                String filePath = "C:\\Users\\dchatzop\\Videos\\Thesis\\PDF\\" + firstName + "_" + lastName + "'" + startDate + "-" + endDate + "'" + "_Report.pdf";
+                String filePath = "C:\\Users\\dchatzop\\Videos\\Thesis\\PDF\\" + firstname + "_" + surname + "'" + startDate + "-" + endDate + "'" + "_Report.pdf";
 
                 Document document = new Document(PageSize.A4);
                 FileOutputStream fos = new FileOutputStream(filePath);
@@ -229,8 +228,8 @@ public class PlanServiceImpl implements PlanService {
                 title.setAlignment(Element.ALIGN_CENTER);
                 document.add(title);
                 for (Plan plan : plans) {
-                    String info = "Όνομα: " + firstName + "\n" +
-                                    "Επίθετο: " + lastName + "\n" +
+                    String info = "Όνομα: " + firstname + "\n" +
+                                    "Επίθετο: " + surname + "\n" +
                                     "Πλάνο: " + plan.getName() + "\n" +
                                     "Διάρκεια: " + plan.getDuration() + "\n" +
                                     "Ημερομηνίες: " + plan.getStartDate().format(dateFormatter) + " - " + plan.getEndDate().format(dateFormatter) + "\n";
@@ -662,21 +661,21 @@ public class PlanServiceImpl implements PlanService {
                 for (Object customerObject : customers) {
                     Map<String, Object> customerData = objectMapper.convertValue(customerObject, Map.class);
 
-                    String customerFirstname = String.valueOf(customerData.get("firstName"));
-                    String lastName = String.valueOf(customerData.get("lastName"));
+                    String customerfirstname = String.valueOf(customerData.get("firstname"));
+                    String surname = String.valueOf(customerData.get("surname"));
                     String email = String.valueOf(customerData.get("email"));
                     String phone = String.valueOf(customerData.get("phone"));
                     String city = String.valueOf(customerData.get("city"));
                     String address = String.valueOf(customerData.get("address"));
                     LocalDate birthday = LocalDate.parse(String.valueOf(customerData.get("birthday")));
                     Gender gender = Gender.valueOf((String) customerData.get("gender"));
-                    Customer existingCustomer = customerRepository.findCustomerByName(customerFirstname, lastName, birthday);
+                    DietCustomer existingCustomer = customerRepository.findCustomerByName(customerfirstname, surname, birthday);
 
 
                     if (existingCustomer == null) {
-                        Customer customer = new Customer();
-                        customer.setFirstName(customerFirstname);
-                        customer.setLastName(lastName);
+                        DietCustomer customer = new DietCustomer();
+                        customer.setFirstname(customerfirstname);
+                        customer.setSurname(surname);
                         customer.setEmail(email);
                         customer.setPhone(phone);
                         customer.setCity(city);
@@ -751,7 +750,7 @@ public class PlanServiceImpl implements PlanService {
     @Override
     public ResponseEntity<ResponseMessage> removeCustomerFromPlan(Long customerId, int PlanId) {
         try {
-            Optional<Customer> existingCustomer = customerRepository.findById(customerId);
+            Optional<DietCustomer> existingCustomer = customerRepository.findById(customerId);
             Optional<Plan> existingPlan = planRepository.findById(PlanId);
 
             if (existingCustomer.isPresent() && existingPlan.isPresent()) {
@@ -759,7 +758,7 @@ public class PlanServiceImpl implements PlanService {
                 planRepository.save(existingPlan.get());
                 customerRepository.deleteById(customerId);
 
-                String message = "Ο πελάτης " + "'" + existingCustomer.get().getFirstName() + " " + existingCustomer.get().getLastName() + "'" + " αφαιρέθηκε επιτυχώς από το πλάνο " + "'" + existingPlan.get().getName() + "'";
+                String message = "Ο πελάτης " + "'" + existingCustomer.get().getFirstname() + " " + existingCustomer.get().getSurname() + "'" + " αφαιρέθηκε επιτυχώς από το πλάνο " + "'" + existingPlan.get().getName() + "'";
                 ResponseMessage response = new ResponseMessage(message, null);
                 return new ResponseEntity<>(response, HttpStatus.OK);
             }

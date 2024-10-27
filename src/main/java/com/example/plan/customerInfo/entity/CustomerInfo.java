@@ -1,10 +1,8 @@
 package com.example.plan.customerInfo.entity;
 
-import com.example.plan.customer.entity.Customer;
+import com.example.plan.customer.entity.DietCustomer;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.springframework.format.annotation.NumberFormat;
 
@@ -58,7 +56,7 @@ public class CustomerInfo {
 
     @ManyToOne
     @JoinColumn(name = "customer_id")
-    private Customer customer;
+    private DietCustomer customer;
 
 
 }

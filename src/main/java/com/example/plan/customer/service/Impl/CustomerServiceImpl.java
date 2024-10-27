@@ -1,6 +1,6 @@
 package com.example.plan.customer.service.Impl;
 
-import com.example.plan.customer.entity.Customer;
+import com.example.plan.customer.entity.DietCustomer;
 import com.example.plan.customer.repository.CustomerRepository;
 import com.example.plan.customer.service.CustomerService;
 import com.example.plan.enums.Gender;
@@ -17,6 +17,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -36,17 +38,18 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Autowired
     private UserInfoRepository userInfoRepository;
+    PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Override
     public  List<Map<String, Object>> findAllCustomers() {
-        List<Customer> customers = customerRepository.findAll();
+        List<DietCustomer> customers = customerRepository.findAll();
         List<Map<String, Object>> mapList = new ArrayList<>();
 
-        for (Customer customer : customers) {
+        for (DietCustomer customer : customers) {
             Map<String, Object> customerObjectMap = new HashMap<>();
             customerObjectMap.put("id", customer.getId());
-            customerObjectMap.put("firstName", customer.getFirstName());
-            customerObjectMap.put("lastName", customer.getLastName());
+            customerObjectMap.put("firstname", customer.getFirstname());
+            customerObjectMap.put("surname", customer.getSurname());
             customerObjectMap.put("email", customer.getEmail());
             customerObjectMap.put("phone", customer.getPhone());
             customerObjectMap.put("city", customer.getCity());
@@ -60,13 +63,13 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public Map<String, Object> findById(Long id) {
-        Optional<Customer> existingCustomer = customerRepository.findById(id);
+        Optional<DietCustomer> existingCustomer = customerRepository.findById(id);
         if (existingCustomer.isPresent()) {
-        Customer customer = existingCustomer.get();
+        DietCustomer customer = existingCustomer.get();
             Map<String, Object> customerObjectMap = new HashMap<>();
             customerObjectMap.put("id", String.valueOf(customer.getId()));
-            customerObjectMap.put("firstName", customer.getFirstName());
-            customerObjectMap.put("lastName", customer.getLastName());
+            customerObjectMap.put("firstname", customer.getFirstname());
+            customerObjectMap.put("surname", customer.getSurname());
             customerObjectMap.put("email", customer.getEmail());
             customerObjectMap.put("phone", customer.getPhone());
             customerObjectMap.put("city", customer.getCity());
@@ -80,13 +83,13 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Map<String, Object> findCustomerByName(String firstName, String lastName, LocalDate birthday) {
-        Customer customer = customerRepository.findCustomerByName(firstName, lastName, birthday);
+    public Map<String, Object> findCustomerByName(String firstname, String surname, LocalDate birthday) {
+        DietCustomer customer = customerRepository.findCustomerByName(firstname, surname, birthday);
 
             Map<String, Object> customerObjectMap = new HashMap<>();
             customerObjectMap.put("id", customer.getId());
-            customerObjectMap.put("firstName", customer.getFirstName());
-            customerObjectMap.put("lastName", customer.getLastName());
+            customerObjectMap.put("firstname", customer.getFirstname());
+            customerObjectMap.put("surname", customer.getSurname());
             customerObjectMap.put("email", customer.getEmail());
             customerObjectMap.put("phone", customer.getPhone());
             customerObjectMap.put("city", customer.getCity());
@@ -100,14 +103,15 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public ResponseEntity<ResponseMessage> addCustomer(Map<String, Object> requestMap) {
         try {
-            Customer existingCustomer = customerRepository.findByEmail((String) requestMap.get("email"));
+            DietCustomer existingCustomer = customerRepository.findByEmail((String) requestMap.get("email"));
             if (existingCustomer == null) {
                 if (validation.isValidNameLengthCustomer(requestMap)) {
                     if (validation.isValidNumbersAndLengthCustomer(requestMap)) {
-                        Customer customer = new Customer();
-                        customer.setFirstName((String) requestMap.get("firstName"));
-                        customer.setLastName((String) requestMap.get("lastName"));
+                        DietCustomer customer = new DietCustomer();
+                        customer.setFirstname((String) requestMap.get("firstname"));
+                        customer.setSurname((String) requestMap.get("surname"));
                         customer.setEmail((String) requestMap.get("email"));
+                        customer.setPassword(passwordEncoder.encode((String) requestMap.get("password")));
                         customer.setPhone((String) requestMap.get("phone"));
                         customer.setCity((String) requestMap.get("city"));
                         customer.setAddress((String) requestMap.get("address"));
@@ -120,7 +124,7 @@ public class CustomerServiceImpl implements CustomerService {
                         customer.setUserInfo(userInfo);
                         customerRepository.save(customer);
 
-                        String message = "Ο πελάτης " + "'" + customer.getFirstName() + " " + customer.getLastName() + "'" + " γράφτηκε επιτυχώς!";
+                        String message = "Ο πελάτης " + "'" + customer.getFirstname() + " " + customer.getSurname() + "'" + " γράφτηκε επιτυχώς!";
                         ResponseMessage response = new ResponseMessage(message, requestMap);
                         return new ResponseEntity<>(response, HttpStatus.CREATED);
                     } else {
@@ -150,12 +154,12 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public ResponseEntity<ResponseMessage> updateCustomer(Map<String, Object> requestMap, Long id) {
         try {
-            Optional<Customer> existingCustomer = customerRepository.findById(id);
+            Optional<DietCustomer> existingCustomer = customerRepository.findById(id);
             if (existingCustomer.isPresent()) {
-                Customer updateCustomer = existingCustomer.get();
+                DietCustomer updateCustomer = existingCustomer.get();
                 if (validation.isValidNameLengthCustomer(requestMap)) {
-                updateCustomer.setFirstName((String) requestMap.get("firstName"));
-                updateCustomer.setLastName((String) requestMap.get("lastName"));
+                updateCustomer.setFirstname((String) requestMap.get("firstname"));
+                updateCustomer.setSurname((String) requestMap.get("surname"));
                 }else {
                     String message = "Οι χαρακτήρες πρέπει να είναι γράμματα  '5-30'..";
                     ResponseMessage response = new ResponseMessage(message, null);
@@ -177,7 +181,7 @@ public class CustomerServiceImpl implements CustomerService {
                 updateCustomer.setGender(Gender.valueOf((String) requestMap.get("gender")));
                 customerRepository.save(updateCustomer);
 
-                String message = "Ο πελάτης " + "'" + requestMap.get("firstName") + " " + requestMap.get("lastName") + "'" + " ενημερώθηκε επιτυχώς!";
+                String message = "Ο πελάτης " + "'" + requestMap.get("firstname") + " " + requestMap.get("surname") + "'" + " ενημερώθηκε επιτυχώς!";
                 ResponseMessage response = new ResponseMessage(message, requestMap);
                 return new ResponseEntity<>(response , HttpStatus.OK);
             }
@@ -196,10 +200,10 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public ResponseEntity<ResponseMessage> deleteCustomer(Long id) {
         try {
-            Optional<Customer> optionalCustomer = customerRepository.findById(id);
+            Optional<DietCustomer> optionalCustomer = customerRepository.findById(id);
             if (optionalCustomer.isPresent()) {
                 customerRepository.delete(optionalCustomer.get());
-                String message = "Ο πελάτης " + "'" + optionalCustomer.get().getFirstName() + " " + optionalCustomer.get().getLastName() + "'" + " διαγράφτηκε επιτυχώς!";
+                String message = "Ο πελάτης " + "'" + optionalCustomer.get().getFirstname() + " " + optionalCustomer.get().getSurname() + "'" + " διαγράφτηκε επιτυχώς!";
                 ResponseMessage response = new ResponseMessage(message, null);
                 return new ResponseEntity<>(response, HttpStatus.OK);
             }
@@ -218,14 +222,14 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public ResponseEntity<ResponseMessage> deleteCustomerAndPlanById(Long customerId, int PlanId) {
         try {
-            Optional<Customer> existingCustomer = customerRepository.findById(customerId);
+            Optional<DietCustomer> existingCustomer = customerRepository.findById(customerId);
             Optional<Plan> existingPlan = PlanRepository.findById(PlanId);
             if (existingCustomer.isPresent()) {
                 if (existingPlan.isPresent()) {
                     PlanRepository.deleteById(PlanId);
                     customerRepository.deleteById(customerId);
                 }
-                String message = "Ο πελάτης " + "'" + existingCustomer.get().getFirstName() + " " + existingCustomer.get().getLastName() + "'" + "και το πλάνο " + "'" + existingPlan.get().getName() + "'" + " διαγράφτηκε επιτυχώς!";
+                String message = "Ο πελάτης " + "'" + existingCustomer.get().getFirstname() + " " + existingCustomer.get().getSurname() + "'" + "και το πλάνο " + "'" + existingPlan.get().getName() + "'" + " διαγράφτηκε επιτυχώς!";
                 ResponseMessage response = new ResponseMessage(message, null);
                 return new ResponseEntity<> (response, HttpStatus.OK);
             }

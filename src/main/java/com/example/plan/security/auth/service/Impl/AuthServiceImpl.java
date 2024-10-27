@@ -29,7 +29,7 @@ import org.springframework.stereotype.Service;
 
     @Override
     public ResponseEntity<String> generateToken(AuthRequest authRequest) {
-        return new ResponseEntity<>("token: " + jwtService.generateToken(authRequest.getEmail()), HttpStatus.OK);
+        return new ResponseEntity<>("token: " + jwtService.generateToken(authRequest.getEmail(), authRequest.getRole()), HttpStatus.OK);
     }
 
     @Override
@@ -69,7 +69,7 @@ import org.springframework.stereotype.Service;
                 if (!checkPassword) {
                     return Utils.getResponseEntity(PlanConstants.INVALID_PASSWORD, HttpStatus.BAD_REQUEST);
                 }
-                return new ResponseEntity<>("token: " + jwtService.generateToken(authRequest.getEmail()), HttpStatus.OK);
+                return new ResponseEntity<>("token: " + jwtService.generateToken(authRequest.getEmail(), authRequest.getRole()), HttpStatus.OK);
             }
         } catch (Exception ex) {
             log.error("{}", ex);

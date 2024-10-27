@@ -13,11 +13,11 @@ public interface PlanService {
 
     List<Map<String, Object>> findPlanMealFood();
 
-    List<Map<String, Object>> getPlanDetailsByCustomerFullName(String firstName, String lastName, LocalDate birthdate);
+    List<Map<String, Object>> getPlanDetailsByCustomerFullName(String firstname, String surname, LocalDate birthdate);
 
     ResponseEntity<ResponseMessage> count();
 
-    ResponseEntity<ResponseMessage> generateReport(Map<String, Object> requestMap, String firstName, String lastName, LocalDate startDate, LocalDate endDate);
+    ResponseEntity<ResponseMessage> generateReport(Map<String, Object> requestMap, String firstname, String surname, LocalDate startDate, LocalDate endDate);
 
     @Transactional
     ResponseEntity<ResponseMessage> addPlan(Map<String, Object> requestMap);

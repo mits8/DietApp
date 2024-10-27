@@ -1,6 +1,6 @@
 package com.example.plan.map;
 
-import com.example.plan.customer.entity.Customer;
+import com.example.plan.customer.entity.DietCustomer;
 import com.example.plan.dto.Plan.PlanDTO;
 import com.example.plan.dto.customer.CustomerDTO;
 import com.example.plan.dto.customer.CustomerPlanDTO;
@@ -28,7 +28,7 @@ public class Mapper {
     @Autowired
     private PlanRepository planRepository;
 
-    private Customer customer = new Customer();
+    private DietCustomer customer = new DietCustomer();
     private CustomerDTO customerDTO = new CustomerDTO();
     private CustomerPlanDTO customerPlanDTO = new CustomerPlanDTO();
 
@@ -86,10 +86,10 @@ public class Mapper {
         return mealFoodPlanDTO;
     }
 
-    public CustomerPlanDTO customerPlanDTO(Customer customer) {
+    public CustomerPlanDTO customerPlanDTO(DietCustomer customer) {
         customerPlanDTO.setId(customer.getId());
-        customerPlanDTO.setFirstName(customer.getFirstName());
-        customerPlanDTO.setLastName(customer.getLastName());
+        customerPlanDTO.setFirstname(customer.getFirstname());
+        customerPlanDTO.setSurname(customer.getSurname());
         customerPlanDTO.setEmail(customer.getEmail());
         customerPlanDTO.setPhone(customer.getPhone());
 
@@ -138,10 +138,10 @@ public class Mapper {
         return food;
     }
 
-    public CustomerDTO mapCustomerToCustomerDTO(Customer customer){
+    public CustomerDTO mapCustomerToCustomerDTO(DietCustomer customer){
         customerDTO.setId(customer.getId());
-        customerDTO.setFirstName(customer.getFirstName());
-        customerDTO.setLastName(customer.getLastName());
+        customerDTO.setFirstname(customer.getFirstname());
+        customerDTO.setSurname(customer.getSurname());
         customerDTO.setEmail(customer.getEmail());
         customerDTO.setPhone(customer.getPhone());
         customerDTO.setAddress(customer.getAddress());
@@ -150,14 +150,14 @@ public class Mapper {
         return customerDTO;
     }
 
-    public Customer mapCustomerDTOToCustomer(CustomerDTO customerDTO) {
-        Customer customer = new Customer();
+    public DietCustomer mapCustomerDTOToCustomer(CustomerDTO customerDTO) {
+        DietCustomer customer = new DietCustomer();
         mapCustomerCommonProperties(customer, customerDTO);
         return customer;
     }
 
-    public Customer mapCustomerPlanDTOToCustomer(CustomerPlanDTO customerPlanDTO) {
-        Customer customer = new Customer();
+    public DietCustomer mapCustomerPlanDTOToCustomer(CustomerPlanDTO customerPlanDTO) {
+        DietCustomer customer = new DietCustomer();
         mapCustomerCommonProperties(customer, customerPlanDTO);
         return customer;
     }
@@ -230,10 +230,10 @@ public class Mapper {
         return food;
     }
 
-    public void mapCustomerCommonProperties(Customer customer, CustomerDTO customerDTO) {
+    public void mapCustomerCommonProperties(DietCustomer customer, CustomerDTO customerDTO) {
         customer.setId(customerDTO.getId());
-        customer.setFirstName(customerDTO.getFirstName());
-        customer.setLastName(customerDTO.getLastName());
+        customer.setFirstname(customerDTO.getFirstname());
+        customer.setSurname(customerDTO.getSurname());
         customer.setEmail(customerDTO.getEmail());
         customer.setPhone(customerDTO.getPhone());
         customer.setCity(customerDTO.getCity());

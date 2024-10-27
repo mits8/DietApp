@@ -10,8 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -24,6 +24,8 @@ public class UserServiceImpl implements UserService {
     private UserInfoRepository userInfoRepository;
     @Autowired
     private AuthEncryptDecrypt authEncryptDecrypt;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public ResponseEntity<ResponseMessage>  findAll() {
@@ -33,7 +35,7 @@ public class UserServiceImpl implements UserService {
             for (UserInfo user : users) {
                 Map<String, Object> map = new HashMap<>();
                 map.put("id", user.getId());
-                map.put("name", user.getName());
+                map.put("name", user.getUsername());
                 map.put("email", user.getEmail());
                 map.put("contactInfo", user.getContactInfo());
                 map.put("isLoggedIn", user.isLoggedIn());
@@ -56,14 +58,14 @@ public class UserServiceImpl implements UserService {
         if (existingUser.isPresent()) {
             UserInfo user = existingUser.get();
             map.put("id", user.getId());
-            map.put("name", user.getName());
+            map.put("name", user.getUsername());
             map.put("email", user.getEmail());
             map.put("password", user.getPassword());
             map.put("contactInfo", user.getContactInfo());
             map.put("isLoggedIn", user.isLoggedIn());
             map.put("role", user.getRole());
 
-            String message = "Ο χρήστης " + user.getName() + " βρέθηκε!";
+            String message = "Ο χρήστης " + user.getUsername() + " βρέθηκε!";
             ResponseMessage response = new ResponseMessage(message, map);
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
@@ -84,9 +86,9 @@ public class UserServiceImpl implements UserService {
                 Role role = Role.valueOf((String) requestMap.get("role"));
 
                 UserInfo newUser = new UserInfo();
-                newUser.setName(name);
+                newUser.setUsername(name);
                 newUser.setEmail(userEmail);
-                newUser.setPassword(authEncryptDecrypt.encrypt(password));
+                newUser.setPassword(passwordEncoder.encode(password));
                 newUser.setContactInfo(contactInfo);
                 newUser.setRole(role);
                 //newUser.setLoggedIn(true);
@@ -123,7 +125,7 @@ public class UserServiceImpl implements UserService {
                 boolean checkPassword = authEncryptDecrypt.checkPassword(declaredOldPassword, passwordFromDatabase);
 
                 if (checkPassword) {
-                    userInfo.setPassword(authEncryptDecrypt.encrypt(newPassword));
+                    userInfo.setPassword(passwordEncoder.encode(newPassword));
                     userInfoRepository.save(userInfo);
 
                     String message = "Ο κωδικός σας άλλαξε επιτυχώς!";
@@ -147,7 +149,7 @@ public class UserServiceImpl implements UserService {
             Optional<UserInfo> existingUser = userInfoRepository.findById(id);
             if (existingUser.isPresent()) {
                 UserInfo updateUser = existingUser.get();
-                updateUser.setName((String) requestMap.get("name"));
+                updateUser.setUsername((String) requestMap.get("name"));
                 updateUser.setEmail((String) requestMap.get("email"));
                 updateUser.setContactInfo((String) requestMap.get("contactInfo"));
                 updateUser.setRole(Role.valueOf((String) requestMap.get("role")));

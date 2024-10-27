@@ -17,24 +17,27 @@ import java.util.List;
 @Entity
 @Data
 //@ToString(exclude = "plans")
-@Table(name = "customer")
-public class Customer {
+@Table(name = "diet_customer")
+public class DietCustomer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
     @Length(min= 5, max = 30)
-    @Column(name = "firstName")
-    private String firstName;
+    @Column(name = "firstname")
+    private String firstname;
 
     @Length(min= 5, max = 30)
-    @Column(name = "lastName")
-    private String lastName;
+    @Column(name = "surname")
+    private String surname;
     
     @Email
     @Column(name = "email",  unique = true)
     private String email;
+
+    @Column(name = "password")
+    private String password;
 
     @Column(name = "phone", length = 10)
     private String phone;

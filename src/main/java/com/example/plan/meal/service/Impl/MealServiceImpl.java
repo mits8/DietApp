@@ -1,6 +1,6 @@
 package com.example.plan.meal.service.Impl;
 
-import com.example.plan.customer.entity.Customer;
+import com.example.plan.customer.entity.DietCustomer;
 import com.example.plan.customer.repository.CustomerRepository;
 import com.example.plan.customerInfo.entity.CustomerInfo;
 import com.example.plan.customerInfo.repository.CustomerInfoRepository;
@@ -11,7 +11,6 @@ import com.example.plan.food.repository.FoodRepository;
 import com.example.plan.meal.entity.Meal;
 import com.example.plan.meal.repository.MealRepository;
 import com.example.plan.meal.service.MealService;
-import com.example.plan.plan.entity.Plan;
 import com.example.plan.utils.ResponseMessage;
 import com.example.plan.utils.Utils;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -228,9 +227,9 @@ public class MealServiceImpl implements MealService {
     @Override
     public ResponseEntity<ResponseMessage> recommendMeals(Long id, Type type, Map<String, Object> requestMap) {
         try {
-            Optional<Customer> optionalCustomer = customerRepository.findById(id);
+            Optional<DietCustomer> optionalCustomer = customerRepository.findById(id);
             if (optionalCustomer.isPresent()) {
-                Customer customer = optionalCustomer.get();
+                DietCustomer customer = optionalCustomer.get();
                 List<CustomerInfo> customerInfos = customerInfoRepository.findLatestCustomerInfoByCustomerId(customer.getId());
 
                 Optional<LocalDateTime> mostRecentMeasureDate = customerInfos.stream()

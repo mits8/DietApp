@@ -1,6 +1,6 @@
 package com.example.plan.plan.entity;
 
-import com.example.plan.customer.entity.Customer;
+import com.example.plan.customer.entity.DietCustomer;
 import com.example.plan.enums.Duration;
 import com.example.plan.meal.entity.Meal;
 import jakarta.persistence.*;
@@ -50,6 +50,6 @@ public class Plan {
             inverseJoinColumns = @JoinColumn(name = "customer_id")
     )
 
-    private List<Customer> customers = new ArrayList<>();
+    private List<DietCustomer> customers = new ArrayList<>();
 
 }

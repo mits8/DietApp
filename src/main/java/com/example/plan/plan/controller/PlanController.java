@@ -31,8 +31,8 @@ public class PlanController {
     }
 
     @GetMapping("/find/Customer/byName")
-    public List<Map<String, Object>> getPlanDetailsByCustomerFirstName (@RequestParam String firstname, @RequestParam String lastname, @RequestParam LocalDate birthdate) {
-       return  planService.getPlanDetailsByCustomerFullName(firstname, lastname, birthdate);
+    public List<Map<String, Object>> getPlanDetailsByCustomerfirstname (@RequestParam String firstname, @RequestParam String surname, @RequestParam LocalDate birthdate) {
+       return  planService.getPlanDetailsByCustomerFullName(firstname, surname, birthdate);
     }
 
     @GetMapping("/count")
@@ -42,11 +42,11 @@ public class PlanController {
 
     @GetMapping("/generateReport")
     public ResponseEntity<ResponseMessage> generateReport(Map<String, Object> requestMap,
-                                                          @RequestParam String firstName,
-                                                          @RequestParam String lastName,
+                                                          @RequestParam String firstname,
+                                                          @RequestParam String surname,
                                                           @RequestParam @DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate startDate,
                                                           @RequestParam @DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate endDate) {
-        return planService.generateReport(requestMap, firstName, lastName, startDate, endDate);
+        return planService.generateReport(requestMap, firstname, surname, startDate, endDate);
     }
 
     @PostMapping("/add")

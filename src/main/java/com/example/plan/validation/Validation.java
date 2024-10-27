@@ -7,18 +7,18 @@ import java.util.Map;
 @Component
 public class Validation {
 
-    public boolean isValidNameLengthAndLetters(String firstName, String lastName) {
-        int lengthFirstName = firstName.trim().length();
-        int lengthLastName = lastName.trim().length();
+    public boolean isValidNameLengthAndLetters(String firstname, String surname) {
+        int lengthfirstname = firstname.trim().length();
+        int lengthsurname = surname.trim().length();
 
-        boolean isLengthValid = (lengthFirstName >= 5 && lengthFirstName < 30) && (lengthLastName >= 5 && lengthLastName < 30);
-        boolean isLettersValid = firstName.matches("^[\\p{L}\\p{M}]+$") && lastName.matches("^[\\p{L}\\p{M}]+$");
+        boolean isLengthValid = (lengthfirstname >= 5 && lengthfirstname < 30) && (lengthsurname >= 5 && lengthsurname < 30);
+        boolean isLettersValid = firstname.matches("^[\\p{L}\\p{M}]+$") && surname.matches("^[\\p{L}\\p{M}]+$");
 
         return isLengthValid && isLettersValid;
     }
 
     public boolean isValidNameLengthCustomer(Map<String, Object> requestMap) {
-        return isValidNameLengthAndLetters((String) requestMap.get("firstName"), (String) requestMap.get("lastName"));
+        return isValidNameLengthAndLetters((String) requestMap.get("firstname"), (String) requestMap.get("surname"));
     }
 
     public boolean isValidPhone(String phone) {

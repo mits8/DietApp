@@ -1,7 +1,6 @@
 package com.example.plan.plan.repository;
 
-import com.example.plan.customer.entity.Customer;
-import com.example.plan.food.entity.Food;
+import com.example.plan.customer.entity.DietCustomer;
 import com.example.plan.meal.entity.Meal;
 import com.example.plan.plan.entity.Plan;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,8 +18,8 @@ public interface PlanRepository extends JpaRepository<Plan, Integer> {
     @Query("SELECT DISTINCT p FROM Plan p "
             + "JOIN  p.customers c "
             + "JOIN  p.meals m "
-            + "WHERE c.firstName=:firstName AND c.lastName=:lastName AND c.birthday=:birthday")
-    List<Plan> findPlanByCustomerName(String firstName, String lastName, LocalDate birthday);
+            + "WHERE c.firstname=:firstname AND c.surname=:surname AND c.birthday=:birthday")
+    List<Plan> findPlanByCustomerName(String firstname, String surname, LocalDate birthday);
 
     @Query("SELECT DISTINCT p FROM Plan p "
             + "JOIN FETCH p.meals m")
@@ -39,14 +38,14 @@ public interface PlanRepository extends JpaRepository<Plan, Integer> {
     @Query("SELECT DISTINCT p FROM Plan p "
             + "JOIN  p.meals m "
             + "JOIN  p.customers c "
-            + "WHERE c.firstName=:firstName AND c.lastName=:lastName AND p.startDate=:startDate AND p.endDate=:endDate")
-    List<Plan> findByCustomerNameAndDates(@Param("firstName") String firstName, @Param("lastName") String lastName, @Param("startDate")LocalDate startDate, @Param("endDate")LocalDate endDate);
+            + "WHERE c.firstname=:firstname AND c.surname=:surname AND p.startDate=:startDate AND p.endDate=:endDate")
+    List<Plan> findByCustomerNameAndDates(@Param("firstname") String firstname, @Param("surname") String surname, @Param("startDate")LocalDate startDate, @Param("endDate")LocalDate endDate);
 
     @Query("SELECT DISTINCT p FROM Plan p "
             + "JOIN  p.meals m "
             + "JOIN  p.customers c "
-            + "WHERE c.firstName=:firstName AND c.lastName=:lastName")
-    List<Map<String, Object>> findPlanWithRelationships(@Param("firstName") String firstName, @Param("lastName") String lastName);
+            + "WHERE c.firstname=:firstname AND c.surname=:surname")
+    List<Map<String, Object>> findPlanWithRelationships(@Param("firstname") String firstname, @Param("surname") String surname);
 
     @Query("SELECT COUNT(pm) > 0 FROM Plan p JOIN p.meals pm WHERE p=:plan and pm=:meal")
     boolean existPlanMealRelationship(@Param("plan") Plan plan, @Param("meal") Meal meal);
@@ -55,6 +54,6 @@ public interface PlanRepository extends JpaRepository<Plan, Integer> {
     int countPlans();
 
     @Query("SELECT COUNT(pc) > 0 FROM Plan m JOIN m.customers pc WHERE m=:plan AND pc=:customer")
-    boolean existsCustomerPlanRelationship(@Param("plan") Plan plan, @Param("customer") Customer customer);
+    boolean existsCustomerPlanRelationship(@Param("plan") Plan plan, @Param("customer") DietCustomer customer);
 
 }

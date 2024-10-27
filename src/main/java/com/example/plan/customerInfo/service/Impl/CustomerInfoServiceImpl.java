@@ -1,12 +1,11 @@
 package com.example.plan.customerInfo.service.Impl;
 
 
-import com.example.plan.customer.entity.Customer;
+import com.example.plan.customer.entity.DietCustomer;
 import com.example.plan.customer.repository.CustomerRepository;
 import com.example.plan.customerInfo.entity.CustomerInfo;
 import com.example.plan.customerInfo.repository.CustomerInfoRepository;
 import com.example.plan.customerInfo.service.CustomerInfoService;
-import com.example.plan.enums.Gender;
 import com.example.plan.utils.ResponseMessage;
 import com.example.plan.utils.Utils;
 import jakarta.transaction.Transactional;
@@ -78,7 +77,7 @@ public class CustomerInfoServiceImpl implements CustomerInfoService {
     @Override
     public ResponseEntity<ResponseMessage> addCustomerInfo(Map<String, Object> requestMap, Long id) {
         try {
-            Optional<Customer> existingCustomer = customerRepository.findById(id);
+            Optional<DietCustomer> existingCustomer = customerRepository.findById(id);
 
             if (existingCustomer.isPresent()) {
                 CustomerInfo customerInfo = new CustomerInfo();
@@ -94,7 +93,7 @@ public class CustomerInfoServiceImpl implements CustomerInfoService {
                 customerInfo.setCustomer(existingCustomer.get());
                 customerInfoRepository.save(customerInfo);
 
-                String message = "Οι πληροφορίες του πελάτης " + "'" + customerInfo.getCustomer().getFirstName() + " " + customerInfo.getCustomer().getFirstName() + "'" + " γράφτηκαν επιτυχώς!";
+                String message = "Οι πληροφορίες του πελάτης " + "'" + customerInfo.getCustomer().getFirstname() + " " + customerInfo.getCustomer().getFirstname() + "'" + " γράφτηκαν επιτυχώς!";
                 ResponseMessage response = new ResponseMessage(message, requestMap);
                 return new ResponseEntity<>(response, HttpStatus.CREATED);
             }
@@ -110,7 +109,7 @@ public class CustomerInfoServiceImpl implements CustomerInfoService {
     @Override
     public ResponseEntity<ResponseMessage> updateCustomerInfo(Map<String, Object> requestMap, Long id) {
         try{
-            Optional<Customer> existingCustomer = Optional.ofNullable(customerRepository.findByEmail(String.valueOf(requestMap.get("email"))));
+            Optional<DietCustomer> existingCustomer = Optional.ofNullable(customerRepository.findByEmail(String.valueOf(requestMap.get("email"))));
             Optional<CustomerInfo> existingCustomerInfo = customerInfoRepository.findById(id);
             if (existingCustomerInfo.isPresent()) {
                 CustomerInfo updateCustomerInfo = existingCustomerInfo.get();
@@ -147,7 +146,7 @@ public class CustomerInfoServiceImpl implements CustomerInfoService {
             Optional<CustomerInfo> optionalCustomerInfo = customerInfoRepository.findById(id);
             if (optionalCustomerInfo.isPresent()) {
                 CustomerInfo customerInfo = optionalCustomerInfo.get();
-                Customer customer = customerInfo.getCustomer();
+                DietCustomer customer = customerInfo.getCustomer();
                 String formattedBmr = null;
                 String formattedTdee = null;
                 if (customer != null) {
@@ -204,7 +203,7 @@ public class CustomerInfoServiceImpl implements CustomerInfoService {
     @Override
     public ResponseEntity<ResponseMessage> deleteAllCustomerInfoByCustomerId(Long id) {
         try {
-            Optional<Customer> optionalCustomer = customerRepository.findById(id);
+            Optional<DietCustomer> optionalCustomer = customerRepository.findById(id);
             if (optionalCustomer.isPresent()) {
                 List<CustomerInfo> customerInfoList = customerInfoRepository.findByCustomer(optionalCustomer.get());
                 customerInfoRepository.deleteAll(customerInfoList);

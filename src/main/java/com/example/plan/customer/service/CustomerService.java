@@ -13,7 +13,7 @@ public interface CustomerService {
 
     Map<String, Object>  findById(Long id);
 
-    Map<String, Object> findCustomerByName(String firstName, String lastName, LocalDate birthday);
+    Map<String, Object> findCustomerByName(String firstname, String surname, LocalDate birthday);
 
     ResponseEntity<ResponseMessage> addCustomer(Map<String, Object> requestMap);
 

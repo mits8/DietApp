@@ -33,15 +33,14 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http.csrf().disable()
-                .authorizeHttpRequests()
-                //.requestMatchers("/products/new","/products/authenticate").permitAll()
-                .requestMatchers("/user/singUp","/user/authenticate", "/user/login").permitAll()
-                .requestMatchers("/auth/login","/auth/authenticate", "/auth/logout", "/auth/generateToken").permitAll()
+        return http
+                .cors()
                 .and()
-                .authorizeHttpRequests()
-                .requestMatchers("/user/**", "/products/**", "/auth/**", "/email/**", "/customer/**" , "/customerInformation/**", "/food/**", "/meal/**", "/plan/**")
-                .authenticated().and()
+                .csrf().disable()
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/user/singUp", "/user/authenticate", "/user/login", "/auth/login","/auth/authenticate", "/auth/logout", "/auth/generateToken").permitAll()
+                        .anyRequest().authenticated()
+                )
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()

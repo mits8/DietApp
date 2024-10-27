@@ -1,4 +1,4 @@
-package com.example.plan.product.dto;
+package com.example.plan.product.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,8 +11,8 @@ import lombok.NoArgsConstructor;
 @Builder
 public class Product {
 
-    private int productId;
-    private String name;
-    private int qty;
-    private double price;
+    private int customers;
+    private int foods;
+    private int meals;
+    private int plan;
 }

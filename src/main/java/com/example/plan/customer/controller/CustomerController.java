@@ -33,8 +33,8 @@ public class CustomerController {
 
     @GetMapping("/fullName")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<Map<String, Object>> findCustomerByName(@RequestParam("firstName") String firstName, @RequestParam("lastName") String lastName, @RequestParam("birthday") LocalDate birthday ) {
-        return new ResponseEntity<>(customerService.findCustomerByName(firstName, lastName, birthday), HttpStatus.OK);
+    public ResponseEntity<Map<String, Object>> findCustomerByName(@RequestParam("firstname") String firstname, @RequestParam("surname") String surname, @RequestParam("birthday") LocalDate birthday ) {
+        return new ResponseEntity<>(customerService.findCustomerByName(firstname, surname, birthday), HttpStatus.OK);
     }
 
     @PostMapping("/add")

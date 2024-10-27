@@ -2,6 +2,7 @@ package com.example.plan.security.config;
 
 import com.example.plan.enums.Role;
 import com.example.plan.user.entity.UserInfo;
+import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,6 +11,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+@Data
 public class UserInfoUserDetails implements UserDetails {
 
 
@@ -64,6 +66,5 @@ public class UserInfoUserDetails implements UserDetails {
     public boolean isEnabled() {
         return this.isLoggedIn;
     }
-
 
 }

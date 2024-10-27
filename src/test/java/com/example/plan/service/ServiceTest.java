@@ -30,10 +30,10 @@ public class ServiceTest {
 
     @Test
     void checkPassword() {
-        AuthRequest authRequest = new AuthRequest("d@gmail.com", "2");
+        AuthRequest authRequest = new AuthRequest("d@gmail.com", "2", Role.ADMIN.toString());
         UserInfo userInfo = new UserInfo();
-        userInfo.setId(1);
-        userInfo.setName("Dimi");
+        userInfo.setId(1L);
+        userInfo.setUsername("Dimi");
         userInfo.setEmail("d@gmail.com");
         userInfo.setPassword("2");
         userInfo.setRole(Role.ADMIN);
@@ -49,10 +49,10 @@ public class ServiceTest {
 
     @Test
     void checkInvalidPassword() {
-        AuthRequest authRequest = new AuthRequest("d@gmail.com", "1");
+        AuthRequest authRequest = new AuthRequest("d@gmail.com", "1", Role.ADMIN.toString());
         UserInfo userInfo = new UserInfo();
-        userInfo.setId(1);
-        userInfo.setName("Dimi");
+        userInfo.setId(1L);
+        userInfo.setUsername("Dimi");
         userInfo.setEmail("d@gmail.com");
         userInfo.setPassword("123");
         userInfo.setRole(Role.ADMIN);

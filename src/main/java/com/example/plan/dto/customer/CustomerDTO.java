@@ -20,9 +20,9 @@ public class CustomerDTO {
     private Long id;
 
     private String fullName ;
-    private String firstName;
+    private String firstname;
 
-    private String lastName;
+    private String surname;
 
     private String email;
 

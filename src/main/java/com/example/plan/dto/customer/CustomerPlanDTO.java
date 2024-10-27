@@ -20,9 +20,9 @@ import java.util.List;
 public class CustomerPlanDTO extends CustomerDTO {
 
     private Long id;
-    private String firstName;
+    private String firstname;
 
-    private String lastName;
+    private String surname;
 
     private String email;
 
