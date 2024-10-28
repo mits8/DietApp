@@ -88,9 +88,9 @@ public class EmailServiceImpl implements EmailService {
             UserInfo user = userInfoRepository.findUserByEmail(email);
             String encryptedPassword = user.getPassword();
             String password = authEncryptDecrypt.decrypt(encryptedPassword);
-            String contactInfo = user.getContactInfo();
+            /*String contactInfo = user.getStringContactInfo();*/
             String checkContactInfo = (String) requestMap.get("contactInfo");
-            if(!Objects.isNull(user) && contactInfo.equals(checkContactInfo)) {
+            if(!Objects.isNull(user) /*&& contactInfo.equals(checkContactInfo)*/) {
                 MimeMessage mimeMessage = mailSender.createMimeMessage();
                 MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
 
@@ -100,7 +100,7 @@ public class EmailServiceImpl implements EmailService {
                 mimeMessageHelper.setSubject(subject);
                 String htmlMsg = "<html><head><meta charset=\"UTF-8\"></head><body>" +
                         "<p><b>Πρόσβαση στο Σύστημα Διαχείρησης Διατροφής</b><br>\n" +
-                        "<b>Όνομα Χρήστη: </b>" + user.getEmail() + "<br>\n" +
+                        "<b>Όνομα Χρήστη: </b>" + user.getContactInfo().getEmail() + "<br>\n" +
                         "<b>Κωδικός: </b>" + password + "<br>\n" +
                         "<a href=\"http://localhost:8081/auth/login-\">Click here to login</a></p>";
                 mimeMessageHelper.setText(htmlMsg, true);

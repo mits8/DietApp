@@ -7,15 +7,18 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Repository
 public interface CustomerRepository extends JpaRepository<DietCustomer, Long> {
 
+    @Query("SELECT c FROM DietCustomer c JOIN c.contactInfo con JOIN c.customerInfos cus")
+    List<DietCustomer> findAllWithContactInfo();
 
     @Query("SELECT c FROM DietCustomer c  WHERE c.firstname=:firstname and c.surname=:surname and c.birthday=:birthday")
     DietCustomer findCustomerByName(String firstname, String surname, LocalDate birthday);
 
-    @Query("SELECT c FROM DietCustomer c WHERE c.email=:email")
+    @Query("SELECT c FROM DietCustomer c JOIN c.contactInfo co WHERE co.email=:email")
     DietCustomer findByEmail(@Param("email") String email);
 
     @Query("SELECT COUNT(c) FROM DietCustomer c")

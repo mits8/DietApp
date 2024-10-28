@@ -16,10 +16,7 @@ public class ProductController {
 
     @Autowired
     private ProductService productService;
-    @Autowired
-    private JwtService jwtService;
-    @Autowired
-    private AuthenticationManager authenticationManager;
+
 
     @GetMapping("/getAll")
     public ResponseEntity<Product> getAll() {

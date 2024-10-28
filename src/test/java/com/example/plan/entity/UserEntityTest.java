@@ -20,7 +20,7 @@ public class UserEntityTest {
         userInfo = new UserInfo();
         userInfo.setId(1L);
         userInfo.setUsername("Dimitris");
-        userInfo.setEmail("dim@gmail.com");
+        userInfo.getContactInfo().setEmail("dim@gmail.com");
         userInfo.setPassword("123");
         userInfo.setLoggedIn(false);
         userInfo.setRole(Role.NUTRITIONIST);
@@ -38,7 +38,7 @@ public class UserEntityTest {
     public void testEntity() {
         assertEquals(1, userInfo.getId());
         assertEquals("Dimitris", userInfo.getUsername());
-        assertEquals("dim@gmail.com", userInfo.getEmail());
+        assertEquals("dim@gmail.com", userInfo.getContactInfo().getEmail());
         assertEquals("123", userInfo.getPassword());
         assertFalse(userInfo.isLoggedIn());
         assertEquals(Role.NUTRITIONIST, userInfo.getRole());
@@ -50,7 +50,7 @@ public class UserEntityTest {
     public void nullEmail() {
 
         assertThrows(Exception.class, () -> {
-            if (userInfo1.getEmail().equals(null)) {
+            if (userInfo1.getContactInfo().getEmail().equals(null)) {
                 throw new Exception("Email is null");
             }
         });

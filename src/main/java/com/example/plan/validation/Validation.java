@@ -29,7 +29,10 @@ public class Validation {
     }
 
     public boolean isValidNumbersAndLengthCustomer(Map<String, Object> requestMap) {
-        return isValidPhone((String) requestMap.get("phone"));
+        if (requestMap.get("mobilePhone") != null) {
+            isValidPhone((String) requestMap.get("mobilePhone"));
+        }
+        return false;
     }
 
     public boolean isValidFoodLetters(String lettersField) {

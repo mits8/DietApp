@@ -1,12 +1,17 @@
 package com.example.plan.customer.entity;
 
+import com.example.plan.contactInfo.entity.ContactInfo;
 import com.example.plan.customerInfo.entity.CustomerInfo;
 import com.example.plan.enums.Gender;
 import com.example.plan.plan.entity.Plan;
 import com.example.plan.user.entity.UserInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.format.annotation.DateTimeFormat;
 import java.time.LocalDate;
@@ -16,8 +21,10 @@ import java.util.List;
 
 @Entity
 @Data
-//@ToString(exclude = "plans")
-@Table(name = "diet_customer")
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString(exclude = {"contactInfo", "plans", "customerInfos", "userInfo"})
+@Table(name = "diet_customer", schema = "plan")
 public class DietCustomer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,16 +38,9 @@ public class DietCustomer {
     @Length(min= 5, max = 30)
     @Column(name = "surname")
     private String surname;
-    
-    @Email
-    @Column(name = "email",  unique = true)
-    private String email;
 
     @Column(name = "password")
     private String password;
-
-    @Column(name = "phone", length = 10)
-    private String phone;
 
     @Column(name = "city")
     private String city;
@@ -61,17 +61,15 @@ public class DietCustomer {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonIgnore
     private UserInfo userInfo;
 
     @OneToMany(mappedBy = "customer",cascade = CascadeType.ALL,  orphanRemoval = true)
+    @JsonIgnore
     private List<CustomerInfo> customerInfos = new ArrayList<>();
 
+    @OneToOne(mappedBy = "dietCustomer", cascade = CascadeType.ALL)
+    private ContactInfo contactInfo;
 
-    @Override
-    public String toString() {
-        return "Customer{" +
-                "id=" + id +
-                '}';
-    }
 
 }

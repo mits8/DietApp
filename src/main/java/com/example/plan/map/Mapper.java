@@ -90,8 +90,8 @@ public class Mapper {
         customerPlanDTO.setId(customer.getId());
         customerPlanDTO.setFirstname(customer.getFirstname());
         customerPlanDTO.setSurname(customer.getSurname());
-        customerPlanDTO.setEmail(customer.getEmail());
-        customerPlanDTO.setPhone(customer.getPhone());
+        /*customerPlanDTO.setEmail(customer.getEmail());
+        customerPlanDTO.setPhone(customer.getPhone());*/
 
         List<PlanDTO> PlanDTOS = customer.getPlans().stream()
                 .map(this::PlanToPlanDTO)
@@ -142,8 +142,8 @@ public class Mapper {
         customerDTO.setId(customer.getId());
         customerDTO.setFirstname(customer.getFirstname());
         customerDTO.setSurname(customer.getSurname());
-        customerDTO.setEmail(customer.getEmail());
-        customerDTO.setPhone(customer.getPhone());
+        /*customerDTO.setEmail(customer.getEmail());
+        customerDTO.setPhone(customer.getPhone());*/
         customerDTO.setAddress(customer.getAddress());
         customerDTO.setBirthday(customer.getBirthday());
         customerDTO.setGender(customer.getGender());
@@ -234,8 +234,8 @@ public class Mapper {
         customer.setId(customerDTO.getId());
         customer.setFirstname(customerDTO.getFirstname());
         customer.setSurname(customerDTO.getSurname());
-        customer.setEmail(customerDTO.getEmail());
-        customer.setPhone(customerDTO.getPhone());
+        /*customer.setEmail(customerDTO.getEmail());
+        customer.setPhone(customerDTO.getPhone());*/
         customer.setCity(customerDTO.getCity());
         customer.setAddress(customerDTO.getAddress());
         customer.setBirthday(customerDTO.getBirthday());

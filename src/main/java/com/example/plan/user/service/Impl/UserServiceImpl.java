@@ -1,11 +1,14 @@
 package com.example.plan.user.service.Impl;
 
+import com.example.plan.contactInfo.entity.ContactInfo;
+import com.example.plan.contactInfo.repository.ContactInfoRepository;
 import com.example.plan.enums.Role;
 import com.example.plan.security.auth.service.Impl.AuthEncryptDecrypt;
 import com.example.plan.user.entity.UserInfo;
 import com.example.plan.user.repository.UserInfoRepository;
 import com.example.plan.user.service.UserService;
 import com.example.plan.utils.ResponseMessage;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,9 +26,29 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserInfoRepository userInfoRepository;
     @Autowired
+    private ContactInfoRepository contactInfoRepository;
+    @Autowired
     private AuthEncryptDecrypt authEncryptDecrypt;
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @PostConstruct
+    public void init() {
+        if (userInfoRepository.count() == 0) {
+            UserInfo user = new UserInfo();
+            user.setUsername("ADMIN-DIET");
+            user.setPassword(passwordEncoder.encode("admin"));
+            user.setRole(Role.ADMIN);
+            userInfoRepository.save(user);
+            ContactInfo contactInfo = new ContactInfo();
+            contactInfo.setMobilePhone("6975885452");
+            contactInfo.setEmail("admin.diet@gmail.com");
+            contactInfo.setUserInfo(user);
+            user.setContactInfo(contactInfo);
+            contactInfoRepository.save(contactInfo);
+            log.info("Create admin user");
+        }
+    }
 
     @Override
     public ResponseEntity<ResponseMessage>  findAll() {
@@ -36,7 +59,6 @@ public class UserServiceImpl implements UserService {
                 Map<String, Object> map = new HashMap<>();
                 map.put("id", user.getId());
                 map.put("name", user.getUsername());
-                map.put("email", user.getEmail());
                 map.put("contactInfo", user.getContactInfo());
                 map.put("isLoggedIn", user.isLoggedIn());
                 map.put("role", user.getRole());
@@ -59,7 +81,6 @@ public class UserServiceImpl implements UserService {
             UserInfo user = existingUser.get();
             map.put("id", user.getId());
             map.put("name", user.getUsername());
-            map.put("email", user.getEmail());
             map.put("password", user.getPassword());
             map.put("contactInfo", user.getContactInfo());
             map.put("isLoggedIn", user.isLoggedIn());
@@ -82,16 +103,22 @@ public class UserServiceImpl implements UserService {
             if (Objects.isNull(existingUser)) {
                 String name = (String) requestMap.get("name");
                 String password = (String) requestMap.get("password");
-                String contactInfo = (String) requestMap.get("contactInfo");
                 Role role = Role.valueOf((String) requestMap.get("role"));
 
                 UserInfo newUser = new UserInfo();
                 newUser.setUsername(name);
-                newUser.setEmail(userEmail);
                 newUser.setPassword(passwordEncoder.encode(password));
-                newUser.setContactInfo(contactInfo);
+                //newUser.setStringContactInfo(contactInfo);
                 newUser.setRole(role);
                 //newUser.setLoggedIn(true);
+
+                ContactInfo contactInfo = new ContactInfo();
+                Map<String , Object> mapContactInfo = (Map<String, Object>) requestMap.get("contactInfo");
+                contactInfo.setMobilePhone((String) mapContactInfo.get("mobilePhone"));
+                contactInfo.setPhone((String) mapContactInfo.get("phone"));
+                contactInfo.setEmail((String) mapContactInfo.get("email"));
+                contactInfo.setUserInfo(newUser);
+                newUser.setContactInfo(contactInfo);
 
                 userInfoRepository.save(newUser);
 
@@ -150,8 +177,6 @@ public class UserServiceImpl implements UserService {
             if (existingUser.isPresent()) {
                 UserInfo updateUser = existingUser.get();
                 updateUser.setUsername((String) requestMap.get("name"));
-                updateUser.setEmail((String) requestMap.get("email"));
-                updateUser.setContactInfo((String) requestMap.get("contactInfo"));
                 updateUser.setRole(Role.valueOf((String) requestMap.get("role")));
                 updateUser.setLoggedIn((Boolean) requestMap.get("isLoggedIn"));
                 userInfoRepository.save(updateUser);

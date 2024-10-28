@@ -34,7 +34,7 @@ public class ServiceTest {
         UserInfo userInfo = new UserInfo();
         userInfo.setId(1L);
         userInfo.setUsername("Dimi");
-        userInfo.setEmail("d@gmail.com");
+        userInfo.getContactInfo().setEmail("d@gmail.com");
         userInfo.setPassword("2");
         userInfo.setRole(Role.ADMIN);
 
@@ -53,7 +53,7 @@ public class ServiceTest {
         UserInfo userInfo = new UserInfo();
         userInfo.setId(1L);
         userInfo.setUsername("Dimi");
-        userInfo.setEmail("d@gmail.com");
+        userInfo.getContactInfo().setEmail("d@gmail.com");
         userInfo.setPassword("123");
         userInfo.setRole(Role.ADMIN);
 

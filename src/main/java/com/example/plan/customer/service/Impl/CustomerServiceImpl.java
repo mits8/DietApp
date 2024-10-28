@@ -1,8 +1,11 @@
 package com.example.plan.customer.service.Impl;
 
+import com.example.plan.contactInfo.entity.ContactInfo;
+import com.example.plan.contactInfo.repository.ContactInfoRepository;
 import com.example.plan.customer.entity.DietCustomer;
 import com.example.plan.customer.repository.CustomerRepository;
 import com.example.plan.customer.service.CustomerService;
+import com.example.plan.customerInfo.entity.CustomerInfo;
 import com.example.plan.enums.Gender;
 import com.example.plan.plan.entity.Plan;
 import com.example.plan.plan.repository.PlanRepository;
@@ -17,6 +20,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -34,6 +39,10 @@ public class CustomerServiceImpl implements CustomerService {
     @Autowired
     private PlanRepository PlanRepository;
     @Autowired
+    private ContactInfoRepository customerContactInfoRepository;
+    @Autowired
+    private UserInfoRepository customerUserInfoRepository;
+    @Autowired
     private Validation validation;
 
     @Autowired
@@ -41,7 +50,7 @@ public class CustomerServiceImpl implements CustomerService {
     PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Override
-    public  List<Map<String, Object>> findAllCustomers() {
+    public List<Map<String, Object>> findAllCustomers() {
         List<DietCustomer> customers = customerRepository.findAll();
         List<Map<String, Object>> mapList = new ArrayList<>();
 
@@ -50,15 +59,53 @@ public class CustomerServiceImpl implements CustomerService {
             customerObjectMap.put("id", customer.getId());
             customerObjectMap.put("firstname", customer.getFirstname());
             customerObjectMap.put("surname", customer.getSurname());
-            customerObjectMap.put("email", customer.getEmail());
-            customerObjectMap.put("phone", customer.getPhone());
             customerObjectMap.put("city", customer.getCity());
             customerObjectMap.put("address", customer.getAddress());
             customerObjectMap.put("birthday", customer.getBirthday());
-            customerObjectMap.put("gender", customer.getGender());
+            customerObjectMap.put("gender", customer.getGender().toString());
+            if (customer.getContactInfo() != null) {
+                customerObjectMap.put("mobilePhone", customer.getContactInfo().getMobilePhone());
+                customerObjectMap.put("phone", customer.getContactInfo().getPhone());
+                customerObjectMap.put("email", customer.getContactInfo().getEmail());
+            }
+            /*if (customer.getCustomerInfos() != null || customer.getContactInfo() == 0) {
+                CustomerInfo customerInfos = customer.getCustomerInfos().get(0);
+                customerObjectMap.put("age", customerInfos.getAge());
+                customerObjectMap.put("height", customerInfos.getHeight());
+                customerObjectMap.put("water", customerInfos.getWater());
+                customerObjectMap.put("weight", customerInfos.getWeight());
+                customerObjectMap.put("muscleMass", customerInfos.getMuscleMass());
+                customerObjectMap.put("bodyFatMass", customerInfos.getBodyFatMass());
+                customerObjectMap.put("fat", customerInfos.getFat());
+                customerObjectMap.put("bmr", customerInfos.getBmr());
+                customerObjectMap.put("tdee", customerInfos.getTdee());
+                customerObjectMap.put("activityLevel", customerInfos.getActivityLevel());
+            }*/
             mapList.add(customerObjectMap);
         }
         return mapList;
+    }
+
+    @Override
+    public Map<String, Object> findContactInfosByCustomerId(Long id) {
+        Map<String, Object> customerObjectMap = new HashMap<>();
+        Optional<DietCustomer> existingCustomer = customerRepository.findById(id);
+        if (existingCustomer.isPresent()) {
+            List<CustomerInfo> customerInfos = existingCustomer.get().getCustomerInfos().stream().toList();
+            for (CustomerInfo customerInfo : customerInfos) {
+            customerObjectMap.put("age", customerInfo.getAge());
+            customerObjectMap.put("height", customerInfo.getHeight());
+            customerObjectMap.put("water", customerInfo.getWater());
+            customerObjectMap.put("weight", customerInfo.getWeight());
+            customerObjectMap.put("muscleMass", customerInfo.getMuscleMass());
+            customerObjectMap.put("bodyFatMass", customerInfo.getBodyFatMass());
+            customerObjectMap.put("fat", customerInfo.getFat());
+            customerObjectMap.put("bmr", customerInfo.getBmr());
+            customerObjectMap.put("tdee", customerInfo.getTdee());
+            customerObjectMap.put("activityLevel", customerInfo.getActivityLevel());
+            }
+        }
+        return customerObjectMap;
     }
 
     @Override
@@ -70,12 +117,11 @@ public class CustomerServiceImpl implements CustomerService {
             customerObjectMap.put("id", String.valueOf(customer.getId()));
             customerObjectMap.put("firstname", customer.getFirstname());
             customerObjectMap.put("surname", customer.getSurname());
-            customerObjectMap.put("email", customer.getEmail());
-            customerObjectMap.put("phone", customer.getPhone());
             customerObjectMap.put("city", customer.getCity());
             customerObjectMap.put("address", customer.getAddress());
             customerObjectMap.put("birthday", String.valueOf(customer.getBirthday()));
             customerObjectMap.put("gender", String.valueOf(customer.getGender()));
+            customerObjectMap.put("contactInfo", customer.getContactInfo());
         return  customerObjectMap;
         } else {
             throw new RuntimeException("Ο πελάτης δεν βρέθηκε..");
@@ -90,8 +136,6 @@ public class CustomerServiceImpl implements CustomerService {
             customerObjectMap.put("id", customer.getId());
             customerObjectMap.put("firstname", customer.getFirstname());
             customerObjectMap.put("surname", customer.getSurname());
-            customerObjectMap.put("email", customer.getEmail());
-            customerObjectMap.put("phone", customer.getPhone());
             customerObjectMap.put("city", customer.getCity());
             customerObjectMap.put("address", customer.getAddress());
             customerObjectMap.put("birthday", customer.getBirthday());
@@ -104,46 +148,63 @@ public class CustomerServiceImpl implements CustomerService {
     public ResponseEntity<ResponseMessage> addCustomer(Map<String, Object> requestMap) {
         try {
             DietCustomer existingCustomer = customerRepository.findByEmail((String) requestMap.get("email"));
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Integer userId = null;
+            if (authentication != null && authentication.isAuthenticated()) {
+                Object userDetails = authentication.getPrincipal();
+                if (userDetails != null) {
+                    String email = authentication.getName();
+                    Optional<UserInfo> user = userInfoRepository.findByEmail(email);
+                    userId = Math.toIntExact(user.get().getId());
+                }
+            }
             if (existingCustomer == null) {
-                if (validation.isValidNameLengthCustomer(requestMap)) {
-                    if (validation.isValidNumbersAndLengthCustomer(requestMap)) {
+//                if (validation.isValidNameLengthCustomer(requestMap)) {
+//                    if (validation.isValidNumbersAndLengthCustomer(requestMap)) {
                         DietCustomer customer = new DietCustomer();
                         customer.setFirstname((String) requestMap.get("firstname"));
                         customer.setSurname((String) requestMap.get("surname"));
-                        customer.setEmail((String) requestMap.get("email"));
                         customer.setPassword(passwordEncoder.encode((String) requestMap.get("password")));
-                        customer.setPhone((String) requestMap.get("phone"));
                         customer.setCity((String) requestMap.get("city"));
                         customer.setAddress((String) requestMap.get("address"));
-                        customer.setBirthday(Utils.formatter(requestMap));
+                        //customer.setBirthday(Utils.formatter(requestMap));
                         customer.setGender(Gender.valueOf((String) requestMap.get("gender")));
 
-                        Integer userId = (Integer) requestMap.get("user_id");
+                        //Integer userId = (Integer) requestMap.get("user_id");
+
                         UserInfo userInfo = userInfoRepository.findById(userId)
-                                .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + userId));
+                                .orElseThrow(() -> new EntityNotFoundException("User not found."));
                         customer.setUserInfo(userInfo);
-                        customerRepository.save(customer);
+                        DietCustomer savedCustomer = customerRepository.save(customer);
+
+                        if (requestMap.get("contactInfo") != null) {
+                            ContactInfo contactInfo = new ContactInfo();
+                            contactInfo.setMobilePhone((String) requestMap.get("mobilePhone"));
+                            contactInfo.setEmail((String) requestMap.get("email"));
+                            contactInfo.setPhone((String) requestMap.get("phone"));
+                            contactInfo.setDietCustomer(savedCustomer);
+                            customerContactInfoRepository.save(contactInfo);
+                        }
 
                         String message = "Ο πελάτης " + "'" + customer.getFirstname() + " " + customer.getSurname() + "'" + " γράφτηκε επιτυχώς!";
                         ResponseMessage response = new ResponseMessage(message, requestMap);
                         return new ResponseEntity<>(response, HttpStatus.CREATED);
-                    } else {
+                    /*} else {
                         String message = "Το τηλέφωνο πρέπει να περιέχει 10 αριθμούς ..";
                         ResponseMessage response = new ResponseMessage(message, null);
                         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-                    }
-                } else {
+                    }*/
+                /*} else {
                     String message = "Οι χαρακτήρες πρέπει να είναι γράμματα '5-30'..";
                     ResponseMessage response = new ResponseMessage(message, null);
                     return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-                }
+                }*/
             }
             String message = "Ο πελάτης με email" + "'" + requestMap.get("email") + "'" + " υπάρχει ήδη..";
             ResponseMessage response = new ResponseMessage(message, null);
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-
         } catch (Exception ex) {
-            log.info("{}", ex);
+            log.error("Error adding customer: {}", ex.getMessage());
         }
 
         String message = "Τα βασικά στοιχεία είναι υποχρεωτικά..";
@@ -165,11 +226,11 @@ public class CustomerServiceImpl implements CustomerService {
                     ResponseMessage response = new ResponseMessage(message, null);
                     return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
                 }
-                if (!Objects.equals(updateCustomer.getEmail(), requestMap.get("email"))) {
-                    updateCustomer.setEmail((String) requestMap.get("email"));
+                if (!Objects.equals(updateCustomer.getContactInfo().getEmail(), requestMap.get("email"))) {
+                    updateCustomer.setContactInfo((ContactInfo) requestMap.get("email"));
                 }
                 if (validation.isValidNumbersAndLengthCustomer(requestMap)) {
-                updateCustomer.setPhone((String) requestMap.get("phone"));
+                updateCustomer.setContactInfo((ContactInfo) requestMap.get("phone"));
                 } else {
                     String message = "Το τηλέφωνο πρέπει να περιέχει 10 αριθμούς ..";
                     ResponseMessage response = new ResponseMessage(message, null);

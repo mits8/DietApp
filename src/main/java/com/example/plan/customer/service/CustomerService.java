@@ -11,6 +11,8 @@ import java.util.Map;
 public interface CustomerService {
     List<Map<String, Object>> findAllCustomers();
 
+    Map<String, Object> findContactInfosByCustomerId(Long id);
+
     Map<String, Object>  findById(Long id);
 
     Map<String, Object> findCustomerByName(String firstname, String surname, LocalDate birthday);

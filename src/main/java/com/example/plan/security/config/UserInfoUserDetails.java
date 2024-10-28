@@ -24,7 +24,7 @@ public class UserInfoUserDetails implements UserDetails {
 
 
     public UserInfoUserDetails(UserInfo userInfo) {
-        name=userInfo.getEmail();
+        name=userInfo.getContactInfo().getEmail();
         password=userInfo.getPassword();
         role=userInfo.getRole();
         this.isLoggedIn = false;

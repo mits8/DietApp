@@ -20,25 +20,21 @@ public class CustomerInfoController {
     private CustomerInfoService customerInfoService;
 
     @GetMapping("/findAll")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<List<Map<String, Object>>> findCustomerInfo() {
         return new ResponseEntity<>(customerInfoService.findCustomerInfo(), HttpStatus.OK);
     }
 
     @GetMapping("/customerInfoId{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Map<String, Object> > findById(@PathVariable Long id) {
         return new ResponseEntity<>(customerInfoService.findById(id), HttpStatus.OK);
     }
 
     @PostMapping("/add/customerId{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ResponseMessage> addCustomerInfo(@RequestBody Map<String, Object> requestMap, @PathVariable Long id) {
         return customerInfoService.addCustomerInfo(requestMap, id);
     }
 
     @PostMapping("/update/customerInfoId{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ResponseMessage> updateCustomerInfo(@RequestBody Map<String, Object> requestMap, @PathVariable Long id) {
         return customerInfoService.updateCustomerInfo(requestMap, id);
     }

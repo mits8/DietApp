@@ -1,15 +1,15 @@
 package com.example.plan.enums;
 
 public enum Gender {
-    Άντρας,
-    Γυναίκα,
-    Κάτι_Άλλο;
+    Male,
+    Female,
+    Something;
 
     public boolean isMale() {
-        return this == Άντρας;
+        return this == Male;
     }
 
     public boolean isFemale() {
-        return this == Γυναίκα;
+        return this == Female;
     }
 }

@@ -20,31 +20,31 @@ public class CustomerController {
     private CustomerService customerService;
 
     @GetMapping("/findAll")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<List<Map<String, Object>>> findAllCustomers() {
         return new ResponseEntity<>(customerService.findAllCustomers(), HttpStatus.OK);
     }
 
+    @GetMapping("/find/customer/info/{id}")
+    public ResponseEntity<Map<String, Object>> findContactInfosByCustomerId(@PathVariable Long id) {
+        return new ResponseEntity<>(customerService.findContactInfosByCustomerId(id), HttpStatus.OK);
+    }
+
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Map<String, Object> > findById(@PathVariable Long id) {
         return new ResponseEntity<>(customerService.findById(id), HttpStatus.OK);
     }
 
     @GetMapping("/fullName")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Map<String, Object>> findCustomerByName(@RequestParam("firstname") String firstname, @RequestParam("surname") String surname, @RequestParam("birthday") LocalDate birthday ) {
         return new ResponseEntity<>(customerService.findCustomerByName(firstname, surname, birthday), HttpStatus.OK);
     }
 
     @PostMapping("/add")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ResponseMessage> addCustomer(@RequestBody Map<String, Object> requestMap) {
         return customerService.addCustomer(requestMap);
     }
 
     @PutMapping("/update/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ResponseMessage> updateCustomer(@RequestBody Map<String, Object> requestMap, @PathVariable Long id) {
         return customerService.updateCustomer(requestMap, id);
     }

@@ -149,8 +149,8 @@ public class PlanServiceImpl implements PlanService {
                         Map<String, Object> customerMap = new HashMap<>();
                         customerMap.put("firstname", customer.getFirstname());
                         customerMap.put("surname", customer.getSurname());
-                        customerMap.put("email", customer.getEmail());
-                        customerMap.put("phone", customer.getPhone());
+                        /*customerMap.put("email", customer.getEmail());
+                        customerMap.put("phone", customer.getPhone());*/
                         customerMap.put("city", customer.getCity());
                         customerMap.put("address", customer.getAddress());
                         customerMap.put("birthday", customer.getBirthday());
@@ -676,8 +676,8 @@ public class PlanServiceImpl implements PlanService {
                         DietCustomer customer = new DietCustomer();
                         customer.setFirstname(customerfirstname);
                         customer.setSurname(surname);
-                        customer.setEmail(email);
-                        customer.setPhone(phone);
+                        /*customer.setEmail(email);
+                        customer.setPhone(phone);*/
                         customer.setCity(city);
                         customer.setAddress(address);
                         customer.setBirthday(birthday);
