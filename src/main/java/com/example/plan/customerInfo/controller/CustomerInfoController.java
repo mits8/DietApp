@@ -20,21 +20,21 @@ public class CustomerInfoController {
     private CustomerInfoService customerInfoService;
 
     @GetMapping("/findAll")
-    public ResponseEntity<List<Map<String, Object>>> findCustomerInfo() {
-        return new ResponseEntity<>(customerInfoService.findCustomerInfo(), HttpStatus.OK);
+    public List<Map<String, Object>> findCustomerInfo() {
+        return customerInfoService.findCustomerInfo();
     }
 
-    @GetMapping("/customerInfoId{id}")
-    public ResponseEntity<Map<String, Object> > findById(@PathVariable Long id) {
-        return new ResponseEntity<>(customerInfoService.findById(id), HttpStatus.OK);
+    @GetMapping("/withCustomer/{id}")
+    public ResponseEntity<ResponseMessage> findById(@PathVariable Long id) {
+        return customerInfoService.findById(id);
     }
 
-    @PostMapping("/add/customerId{id}")
+    @PostMapping("/add/{id}")
     public ResponseEntity<ResponseMessage> addCustomerInfo(@RequestBody Map<String, Object> requestMap, @PathVariable Long id) {
         return customerInfoService.addCustomerInfo(requestMap, id);
     }
 
-    @PostMapping("/update/customerInfoId{id}")
+    @PutMapping("/update/{id}")
     public ResponseEntity<ResponseMessage> updateCustomerInfo(@RequestBody Map<String, Object> requestMap, @PathVariable Long id) {
         return customerInfoService.updateCustomerInfo(requestMap, id);
     }
@@ -44,8 +44,7 @@ public class CustomerInfoController {
         return customerInfoService.calculateBMR(id);
     }
 
-    @DeleteMapping("/delete/customerInfoId{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<ResponseMessage> deleteCustomerInfo(@PathVariable Long  id) {
         return customerInfoService.deleteCustomerInfo(id);
     }

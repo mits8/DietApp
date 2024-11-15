@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.Map;
 
 public class Utils {
@@ -21,16 +22,21 @@ public class Utils {
 
     public static LocalDate formatter(Map<String, Object> requestMap) {
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE;
 
         if (requestMap.containsKey("birthday")) {
             String date = (String) requestMap.get("birthday");
             return LocalDate.parse(date, formatter);
         }
-        if (requestMap.containsKey("startDate")) {
+        else if (requestMap.containsKey("startDate")) {
             String startDate = (String) requestMap.get("startDate");
             return LocalDate.parse(startDate, formatter);
         }
+        throw new IllegalArgumentException("No valid date field found in the requestMap");
+    }
+
+    public static LocalDate secondFormatter(Map<String, Object> requestMap) {
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE;
         if (requestMap.containsKey("endDate")) {
             String endDate = (String) requestMap.get("endDate");
             return LocalDate.parse(endDate, formatter);

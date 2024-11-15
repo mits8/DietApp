@@ -17,6 +17,7 @@ import com.example.plan.plan.entity.Plan;
 import com.example.plan.plan.repository.PlanRepository;
 import com.example.plan.plan.service.PlanService;
 import com.example.plan.utils.ResponseMessage;
+import com.example.plan.utils.Utils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.BaseFont;
@@ -34,6 +35,7 @@ import org.springframework.stereotype.Service;
 import java.io.FileOutputStream;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.*;
@@ -65,18 +67,16 @@ public class PlanServiceImpl implements PlanService {
 
     @Override
     public List<Map<String, Object>> findAll() {
-        List<Plan> plans = planRepository.findAll();
-        List<Map<String, Object>> mapList = new ArrayList<>();
-        for (Plan plan : plans) {
-            Map<String, Object> map = new HashMap<>();
-            map.put("id", plan.getId());
-            map.put("name", plan.getName());
-            map.put("startDate", plan.getStartDate());
-            map.put("endDate", plan.getEndDate());
-            map.put("duration", plan.getDuration());
-            mapList.add(map);
-        }
-        return mapList;
+        return planRepository.findAll().stream()
+                .map(plan -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("id", plan.getId());
+                    map.put("name", plan.getName());
+                    map.put("startDate", plan.getStartDate());
+                    map.put("endDate", plan.getEndDate());
+                    map.put("duration", plan.getDuration());
+                    return map;
+                }).collect(Collectors.toList());
     }
 
     @Override
@@ -698,15 +698,15 @@ public class PlanServiceImpl implements PlanService {
     }
 
     @Override
-    public ResponseEntity<ResponseMessage> updatePlan(Map<String, String> requestMap, int id) {
+    public ResponseEntity<ResponseMessage> updatePlan(Map<String, Object> requestMap, int id) {
         try {
             Optional<Plan> optionalPlan = planRepository.findById(id);
             if (optionalPlan.isPresent()) {
                 Plan updatePlan = optionalPlan.get();
-                updatePlan.setName(requestMap.get("name"));
-                updatePlan.setDuration(Duration.parse(requestMap.get("duration")));
-                updatePlan.setStartDate(LocalDate.parse(requestMap.get("startDate")));
-                updatePlan.setEndDate(LocalDate.parse(requestMap.get("endDate")));
+                updatePlan.setName((String) requestMap.get("name"));
+                updatePlan.setStartDate(Utils.formatter(requestMap));
+                updatePlan.setEndDate(Utils.secondFormatter(requestMap));
+                updatePlan.setDuration(Duration.parse((String) requestMap.get("duration")));
                 planRepository.save(updatePlan);
 
                 String message = "Το πλάνο " + "'" + requestMap.get("name") + " ενημερώθηκε επιτυχώς!";

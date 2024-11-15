@@ -7,13 +7,12 @@ import com.example.plan.plan.entity.Plan;
 import com.example.plan.user.entity.UserInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.hibernate.validator.constraints.Length;
 import org.springframework.format.annotation.DateTimeFormat;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,11 +30,9 @@ public class DietCustomer {
     @Column(name = "id")
     private Long id;
 
-    @Length(min= 5, max = 30)
     @Column(name = "firstname")
     private String firstname;
-
-    @Length(min= 5, max = 30)
+    
     @Column(name = "surname")
     private String surname;
 

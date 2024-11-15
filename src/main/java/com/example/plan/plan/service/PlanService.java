@@ -32,7 +32,7 @@ public interface PlanService {
     ResponseEntity<ResponseMessage> addCustomerToPlan(Map<String, List<Object>> requestMap, String name);
 
     @Transactional
-    ResponseEntity<ResponseMessage> updatePlan(Map<String, String> requestMap, int id);
+    ResponseEntity<ResponseMessage> updatePlan(Map<String, Object> requestMap, int id);
 
     @Transactional
     ResponseEntity<ResponseMessage> deletePlan(int id);

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CustomerRepository extends JpaRepository<DietCustomer, Long> {
@@ -25,6 +26,6 @@ public interface CustomerRepository extends JpaRepository<DietCustomer, Long> {
     int countCustomer();
 
     @Query("SELECT c FROM DietCustomer c  WHERE c.id=:id")
-    DietCustomer findCustomerById(@Param("id") Long id);
+    Optional<DietCustomer> findCustomerById(@Param("id") Long id);
 
 }

@@ -11,5 +11,7 @@ import java.util.Optional;
 @Repository
 public interface ContactInfoRepository extends JpaRepository<ContactInfo, Long> {
 
+    @Query("select co from ContactInfo co join co.dietCustomer dc where co.email = :email")
+    Optional<ContactInfo> findByEmail(String email);
 
 }

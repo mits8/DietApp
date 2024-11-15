@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -28,19 +29,17 @@ public class FoodServiceImpl implements FoodService {
 
     @Override
     public List<Map<String, Object>> findAll() {
-        List<Food> foods = foodRepository.findAll();
-        List<Map<String, Object>> mapList = new ArrayList<>();
-        Map<String, Object> map = new HashMap<>();
-        for(Food food : foods) {
-            map.put("id", food.getId());
-            map.put("name", food.getName());
-            map.put("description", food.getDescription());
-            map.put("quantity", food.getQuantity());
-            map.put("calories", food.getCalories());
-            map.put("type", food.getType());
-            mapList.add(map);
-        }
-        return mapList;
+        return foodRepository.findAll().stream()
+                .map(food -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("id", food.getId());
+                    map.put("name", food.getName());
+                    map.put("description", food.getDescription());
+                    map.put("quantity", food.getQuantity());
+                    map.put("calories", food.getCalories());
+                    map.put("type", food.getType());
+                    return map;
+                }).collect(Collectors.toList());
     }
 
     @Override
@@ -135,7 +134,7 @@ public class FoodServiceImpl implements FoodService {
             Optional<Food> existingFood = foodRepository.findById(id);
             if (existingFood.isPresent()){
                 Food updateFood = existingFood.get();
-                if (validation.isValidFieldLetters(requestMap) && validation.isValidFieldNumbers(requestMap)) {
+                //if (validation.isValidFieldLetters(requestMap) && validation.isValidFieldNumbers(requestMap)) {
                         updateFood.setName((String) (requestMap.get("name")));
                         updateFood.setDescription((String) requestMap.get("description"));
                         updateFood.setQuantity(String.valueOf( requestMap.get("quantity")));
@@ -145,11 +144,11 @@ public class FoodServiceImpl implements FoodService {
                         String message = "Το φαγητό " + "'" + requestMap.get("name") + "'" + " ενημερώθηκε επιτυχώς!";
                         ResponseMessage response = new ResponseMessage(message, requestMap);
                         return new ResponseEntity<>(response, HttpStatus.OK);
-                } else {
+                /*} else {
                     String message = "Κάποιο πεδίο είναι λάθος";
                         ResponseMessage response = new ResponseMessage(message, requestMap);
                     return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-                }
+                }*/
             }
             String message = "Το φαγητό ΔΕΝ βρέθηκε..";
             ResponseMessage response = new ResponseMessage(message, requestMap);

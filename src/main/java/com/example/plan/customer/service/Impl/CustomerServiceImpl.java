@@ -64,6 +64,7 @@ public class CustomerServiceImpl implements CustomerService {
             customerObjectMap.put("birthday", customer.getBirthday());
             customerObjectMap.put("gender", customer.getGender().toString());
             if (customer.getContactInfo() != null) {
+                customerObjectMap.put("contactInfoId", customer.getContactInfo().getContactInfoId());
                 customerObjectMap.put("mobilePhone", customer.getContactInfo().getMobilePhone());
                 customerObjectMap.put("phone", customer.getContactInfo().getPhone());
                 customerObjectMap.put("email", customer.getContactInfo().getEmail());
@@ -167,7 +168,7 @@ public class CustomerServiceImpl implements CustomerService {
                         customer.setPassword(passwordEncoder.encode((String) requestMap.get("password")));
                         customer.setCity((String) requestMap.get("city"));
                         customer.setAddress((String) requestMap.get("address"));
-                        //customer.setBirthday(Utils.formatter(requestMap));
+                        customer.setBirthday(Utils.formatter(requestMap));
                         customer.setGender(Gender.valueOf((String) requestMap.get("gender")));
 
                         //Integer userId = (Integer) requestMap.get("user_id");
@@ -179,9 +180,10 @@ public class CustomerServiceImpl implements CustomerService {
 
                         if (requestMap.get("contactInfo") != null) {
                             ContactInfo contactInfo = new ContactInfo();
-                            contactInfo.setMobilePhone((String) requestMap.get("mobilePhone"));
-                            contactInfo.setEmail((String) requestMap.get("email"));
-                            contactInfo.setPhone((String) requestMap.get("phone"));
+                            Map<String, Object> map = (Map<String, Object>) requestMap.get("contactInfo");
+                            contactInfo.setMobilePhone((String) map.get("mobilePhone"));
+                            contactInfo.setEmail((String) map.get("email"));
+                            contactInfo.setPhone((String) map.get("phone"));
                             contactInfo.setDietCustomer(savedCustomer);
                             customerContactInfoRepository.save(contactInfo);
                         }
@@ -225,16 +227,6 @@ public class CustomerServiceImpl implements CustomerService {
                     String message = "Οι χαρακτήρες πρέπει να είναι γράμματα  '5-30'..";
                     ResponseMessage response = new ResponseMessage(message, null);
                     return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-                }
-                if (!Objects.equals(updateCustomer.getContactInfo().getEmail(), requestMap.get("email"))) {
-                    updateCustomer.setContactInfo((ContactInfo) requestMap.get("email"));
-                }
-                if (validation.isValidNumbersAndLengthCustomer(requestMap)) {
-                updateCustomer.setContactInfo((ContactInfo) requestMap.get("phone"));
-                } else {
-                    String message = "Το τηλέφωνο πρέπει να περιέχει 10 αριθμούς ..";
-                    ResponseMessage response = new ResponseMessage(message, null);
-                    return new ResponseEntity<>(response , HttpStatus.BAD_REQUEST);
                 }
                 updateCustomer.setCity((String) requestMap.get("city"));
                 updateCustomer.setAddress((String) requestMap.get("address"));

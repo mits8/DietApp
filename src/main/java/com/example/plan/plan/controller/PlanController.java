@@ -71,7 +71,7 @@ public class PlanController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<ResponseMessage> updatePlan(@RequestBody Map<String, String> requestMap, @PathVariable int id) {
+    public ResponseEntity<ResponseMessage> updatePlan(@RequestBody Map<String, Object> requestMap, @PathVariable int id) {
         return planService.updatePlan(requestMap, id);
     }
 

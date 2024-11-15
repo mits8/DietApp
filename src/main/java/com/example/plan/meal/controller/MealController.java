@@ -27,7 +27,6 @@ public class MealController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Map<String, Object>> findById(@PathVariable int id) {
         return new ResponseEntity<>(mealService.findById(id), HttpStatus.OK);
     }
@@ -43,25 +42,22 @@ public class MealController {
     }
 
     @PutMapping("/update/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ResponseMessage> updateMeal(@RequestBody Map<String, Object> requestMap, @PathVariable int id) {
         return mealService.updateMeal(requestMap, id);
     }
 
     @PostMapping("/save/foods/{name}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ResponseMessage> addFoodToMeal(@RequestBody Map<String, List<Object>> requestMap,@PathVariable String name) {
         return mealService.addFoodToMeal(requestMap, name);
     }
 
-    @GetMapping("/recommendMeals/customerId{id}")
+    /*@GetMapping("/recommendMeals/customerId{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ResponseMessage> recommendMeals(@PathVariable Long id, @RequestParam("type") Type type, @RequestBody Map<String, Object> requestMap) {
         return mealService.recommendMeals(id, type, requestMap);
-    }
+    }*/
 
     @DeleteMapping("/delete/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ResponseMessage> deleteMeal(@PathVariable int  id) {
         return mealService.deleteMeal(id);
     }

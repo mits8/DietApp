@@ -10,7 +10,7 @@ import java.util.Map;
 public interface CustomerInfoService {
     List<Map<String, Object>> findCustomerInfo();
 
-    Map<String, Object>  findById(Long id);
+    ResponseEntity<ResponseMessage>  findById(Long id);
 
     //Map<String, Object> findCustomerByName(String firstname, String surname, LocalDate birthday);
 

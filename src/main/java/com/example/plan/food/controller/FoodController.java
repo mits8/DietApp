@@ -25,7 +25,6 @@ public class FoodController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Map<String, Object>> findById(@PathVariable int id) {
         return new ResponseEntity<>(foodService.findById(id), HttpStatus.OK);
     }
@@ -42,19 +41,16 @@ public class FoodController {
     }
 
     @PostMapping("/add")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ResponseMessage> addFood(@RequestBody Map<String, Object> requestMap) {
         return foodService.addFood(requestMap);
     }
 
     @PutMapping("/update/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ResponseMessage> updateFood(@RequestBody Map<String, Object> requestMap, @PathVariable int id) {
         return foodService.updateFood(requestMap, id);
     }
 
     @DeleteMapping("/delete/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ResponseMessage> deleteFood(@PathVariable int  id) {
         return foodService.deleteFood(id);
     }

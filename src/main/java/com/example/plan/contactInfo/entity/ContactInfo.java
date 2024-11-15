@@ -17,7 +17,8 @@ public class ContactInfo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "contact_info_id")
+    private Long contactInfoId;
     private String phone;
     private String email;
     private String mobilePhone;

@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -41,18 +42,16 @@ public class MealServiceImpl implements MealService {
 
     @Override
     public List<Map<String, Object>> findAll() {
-        List<Meal> meals = mealRepository.findAll();
-        List<Map<String, Object>> mapList = new ArrayList<>();
-        for (Meal meal : meals) {
-            Map<String, Object> map = new HashMap<>();
-            map.put("id", meal.getId());
-            map.put("name", meal.getName());
-            map.put("description", meal.getDescription());
-            map.put("type", meal.getType());
-            map.put("day", meal.getDay());
-            mapList.add(map);
-        }
-        return mapList;
+        return mealRepository.findAll().stream()
+                .map(meal -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("id", meal.getId());
+                    map.put("name", meal.getName());
+                    map.put("description", meal.getDescription());
+                    map.put("type", meal.getType());
+                    map.put("day", meal.getDay());
+                    return map;
+                }).collect(Collectors.toList());
     }
 
     @Override
@@ -224,7 +223,7 @@ public class MealServiceImpl implements MealService {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
-    @Override
+    /*@Override
     public ResponseEntity<ResponseMessage> recommendMeals(Long id, Type type, Map<String, Object> requestMap) {
         try {
             Optional<DietCustomer> optionalCustomer = customerRepository.findById(id);
@@ -279,7 +278,7 @@ public class MealServiceImpl implements MealService {
             ResponseMessage response = new ResponseMessage(message, null);
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }
+    }*/
 
     @Override
     public ResponseEntity<ResponseMessage> deleteMeal(int id) {

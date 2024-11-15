@@ -16,8 +16,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.text.DecimalFormat;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -32,45 +33,64 @@ public class CustomerInfoServiceImpl implements CustomerInfoService {
 
     @Override
     public List<Map<String, Object>> findCustomerInfo() {
-        List<CustomerInfo> customerInfos = customerInfoRepository.findAll();
-        List<Map<String, Object>> mapList = new ArrayList<>();
-
-        for (CustomerInfo customerInfo : customerInfos) {
-            Map<String, Object> customerInfoObjectMap = new HashMap<>();
-            customerInfoObjectMap.put("id", customerInfo.getId());
-            customerInfoObjectMap.put("createdDate", customerInfo.getCreatedDate());
-            customerInfoObjectMap.put("age", customerInfo.getAge());
-            customerInfoObjectMap.put("height", customerInfo.getHeight());
-            customerInfoObjectMap.put("water", customerInfo.getWater());
-            customerInfoObjectMap.put("weight", customerInfo.getWeight());
-            customerInfoObjectMap.put("muscleMass", customerInfo.getMuscleMass());
-            customerInfoObjectMap.put("bodyFatMass", customerInfo.getBodyFatMass());
-            customerInfoObjectMap.put("fat", customerInfo.getFat());
-            customerInfoObjectMap.put("customer_id", customerInfo.getCustomer().getId());
-            mapList.add(customerInfoObjectMap);
-        }
-        return mapList;
+        return customerInfoRepository.findAll().stream()
+                .map(customerInfo -> {
+                    String fullName;
+                    Map<String, Object> customerInfoObjectMap = new HashMap<>();
+                    customerInfoObjectMap.put("id", customerInfo.getId());
+                    customerInfoObjectMap.put("createdDate", customerInfo.getCreatedDate());
+                    if (customerInfo.getCustomer() != null) {
+                        fullName = customerInfo.getCustomer().getFirstname() + " " + customerInfo.getCustomer().getSurname();
+                        customerInfoObjectMap.put("fullName", fullName);
+                    }
+                    customerInfoObjectMap.put("age", customerInfo.getAge());
+                    customerInfoObjectMap.put("height", customerInfo.getHeight());
+                    customerInfoObjectMap.put("water", customerInfo.getWater());
+                    customerInfoObjectMap.put("weight", customerInfo.getWeight());
+                    customerInfoObjectMap.put("muscleMass", customerInfo.getMuscleMass());
+                    customerInfoObjectMap.put("bodyFatMass", customerInfo.getBodyFatMass());
+                    customerInfoObjectMap.put("fat", customerInfo.getFat());
+                    customerInfoObjectMap.put("customer_id", customerInfo.getCustomer().getId());
+                    return customerInfoObjectMap;
+                }).collect(Collectors.toList());
     }
 
     @Override
-    public Map<String, Object> findById(Long id) {
-        Optional<CustomerInfo> existingCustomerInfo = customerInfoRepository.findById(id);
-        if (existingCustomerInfo.isPresent()) {
-            CustomerInfo customerInfo = existingCustomerInfo.get();
-            Map<String, Object> customerInfoObjectMap = new HashMap<>();
-            customerInfoObjectMap.put("id", customerInfo.getId());
-            customerInfoObjectMap.put("createdDate", customerInfo.getCreatedDate());
-            customerInfoObjectMap.put("age", customerInfo.getAge());
-            customerInfoObjectMap.put("height", customerInfo.getHeight());
-            customerInfoObjectMap.put("water", customerInfo.getWater());
-            customerInfoObjectMap.put("weight", customerInfo.getWeight());
-            customerInfoObjectMap.put("muscleMass", customerInfo.getMuscleMass());
-            customerInfoObjectMap.put("bodyFatMass", customerInfo.getBodyFatMass());
-            customerInfoObjectMap.put("fat", customerInfo.getFat());
-            customerInfoObjectMap.put("customer_id", customerInfo.getCustomer());
-            return  customerInfoObjectMap;
-        } else {
-            throw new RuntimeException("Ο πελάτης δεν βρέθηκε..");
+    public ResponseEntity<ResponseMessage> findById(Long id) {
+        List<Map<String, Object>> customerInfoList = new ArrayList<>();
+
+        try {
+            Optional<DietCustomer> existingCustomer = customerRepository.findById(id);
+            if (existingCustomer.isPresent()) {
+                customerInfoList = customerInfoRepository.findCustomerInfosByCustomer(id).stream()
+                        .map(customerInfo -> {
+                            Map<String, Object> customerInfoObjectMap = new HashMap<>();
+                            customerInfoObjectMap.put("id", customerInfo.getId());
+                            customerInfoObjectMap.put("createdDate", customerInfo.getCreatedDate());
+                            customerInfoObjectMap.put("age", customerInfo.getAge());
+                            customerInfoObjectMap.put("height", customerInfo.getHeight());
+                            customerInfoObjectMap.put("water", customerInfo.getWater());
+                            customerInfoObjectMap.put("weight", customerInfo.getWeight());
+                            customerInfoObjectMap.put("muscleMass", customerInfo.getMuscleMass());
+                            customerInfoObjectMap.put("bodyFatMass", customerInfo.getBodyFatMass());
+                            customerInfoObjectMap.put("fat", customerInfo.getFat());
+                            customerInfoObjectMap.put("customer_id", customerInfo.getCustomer().getId());
+                            return customerInfoObjectMap;
+                        })
+                        .collect(Collectors.toList());
+
+                String message = "Customer details retrieved successfully!";
+                ResponseMessage responseMessage = new ResponseMessage(message, customerInfoList);
+                return new ResponseEntity<>(responseMessage, HttpStatus.OK);
+            } else {
+                String message = "Customer not found.";
+                ResponseMessage response = new ResponseMessage(message, null);
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            log.error("Error retrieving customer info: ", e);
+            String errorMessage = "An error occurred while retrieving customer information.";
+            return new ResponseEntity<>(new ResponseMessage(errorMessage, null), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -81,15 +101,14 @@ public class CustomerInfoServiceImpl implements CustomerInfoService {
 
             if (existingCustomer.isPresent()) {
                 CustomerInfo customerInfo = new CustomerInfo();
-                customerInfo.setCreatedDate(LocalDateTime.now());
-                customerInfo.setAge((Integer) requestMap.get("age"));
-                customerInfo.setActivityLevel((Integer) requestMap.get("activityLevel"));
-                customerInfo.setHeight((Double) requestMap.get("height"));
-                customerInfo.setWater((Double) requestMap.get("water"));
-                customerInfo.setWeight((Double) requestMap.get("weight"));
-                customerInfo.setMuscleMass((Double) requestMap.get("muscleMass"));
-                customerInfo.setBodyFatMass((Double) requestMap.get("bodyFatMass"));
-                customerInfo.setFat((Double) requestMap.get("fat"));
+                customerInfo.setCreatedDate(LocalDate.now());
+                customerInfo.setHeight(Double.valueOf((String) requestMap.get("height")));
+                customerInfo.setWeight(Double.valueOf((String) requestMap.get("weight")));
+                //customerInfo.setWater(Double.valueOf((String) requestMap.get("water")));
+                customerInfo.setMuscleMass(Double.valueOf((String) requestMap.get("muscleMass")));
+                customerInfo.setBodyFatMass(Double.valueOf((String) requestMap.get("bodyFatMass")));
+                customerInfo.setFat(Double.valueOf((String) requestMap.get("fat")));
+                //customerInfo.setActivityLevel(Integer.valueOf((String) requestMap.get("activityLevel")));
                 customerInfo.setCustomer(existingCustomer.get());
                 customerInfoRepository.save(customerInfo);
 
@@ -113,13 +132,10 @@ public class CustomerInfoServiceImpl implements CustomerInfoService {
             Optional<CustomerInfo> existingCustomerInfo = customerInfoRepository.findById(id);
             if (existingCustomerInfo.isPresent()) {
                 CustomerInfo updateCustomerInfo = existingCustomerInfo.get();
-                    updateCustomerInfo.setAge((Integer) requestMap.get("age"));
-                    updateCustomerInfo.setHeight((Double) requestMap.get("height"));
-                    updateCustomerInfo.setWater((Double) requestMap.get("water"));
-                    updateCustomerInfo.setWeight((Double) requestMap.get("weight"));
-                    updateCustomerInfo.setMuscleMass((Double) requestMap.get("muscleMass"));
-                    updateCustomerInfo.setBodyFatMass((Double) requestMap.get("bodyFatMass"));
-                    updateCustomerInfo.setFat((Double) requestMap.get("fat"));
+                updateCustomerInfo.setHeight(getDoubleValue(requestMap, "height"));
+                updateCustomerInfo.setWeight(getDoubleValue(requestMap, "weight"));
+                updateCustomerInfo.setBodyFatMass(getDoubleValue(requestMap, "bodyFatMass"));
+                updateCustomerInfo.setFat(getDoubleValue(requestMap, "fat"));
                     existingCustomer.ifPresent(updateCustomerInfo::setCustomer);
 
                     customerInfoRepository.save(updateCustomerInfo);
@@ -138,6 +154,17 @@ public class CustomerInfoServiceImpl implements CustomerInfoService {
         String message = "Κάτι πήγε λάθος..";
         ResponseMessage response = new ResponseMessage(message, null);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    private Double getDoubleValue(Map<String, Object> requestMap, String key) {
+        Object value = requestMap.get(key);
+        if (value instanceof String) {
+            return Double.valueOf((String) value);
+        }
+        if (value instanceof Number) {
+            return ((Number) value).doubleValue();
+        }
+        return 0.0;
     }
 
     @Override

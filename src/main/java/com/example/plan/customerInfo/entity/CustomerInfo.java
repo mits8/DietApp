@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.ToString;
 import org.springframework.format.annotation.NumberFormat;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -20,7 +21,7 @@ public class CustomerInfo {
     private Long id;
 
     @Column(name = "createdDate")
-    private LocalDateTime createdDate = LocalDateTime.now();
+    private LocalDate createdDate = LocalDate.now();
 
     @Column(name = "age")
     private Integer age;
