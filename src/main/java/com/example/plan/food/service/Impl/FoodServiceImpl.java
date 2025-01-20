@@ -99,7 +99,7 @@ public class FoodServiceImpl implements FoodService {
         try {
             Food foodName = foodRepository.findFoodName((String) requestMap.get("name"));
             if (foodName == null) {
-                if (validation.isValidFieldLetters(requestMap) && validation.isValidFieldNumbers(requestMap)) {
+                //if (validation.isValidFieldLetters(requestMap) && validation.isValidFieldNumbers(requestMap)) {
                     Food food = new Food();
                     food.setName((String) requestMap.get("name"));
                     food.setDescription((String) requestMap.get("description"));
@@ -110,11 +110,11 @@ public class FoodServiceImpl implements FoodService {
                     String message = "Το φαγητό " + "'" + requestMap.get("name") + "'" + " γράφτηκε επιτυχώς!";
                     ResponseMessage response = new ResponseMessage(message, requestMap);
                     return new ResponseEntity<>(response, HttpStatus.OK);
-                } else {
+                /*} else {
                     String message = "Κάποιο πεδίο είναι λάθος..";
                     ResponseMessage response = new ResponseMessage(message, requestMap);
                     return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-                }
+                }*/
             }
             String message = "Το φαγητό " + "'" + requestMap.get("name") + "'" + " υπάρχει ήδη..";
             ResponseMessage response = new ResponseMessage(message, requestMap);

@@ -1,5 +1,6 @@
 package com.example.plan.email.service.Impl;
 
+import com.example.plan.dto.email.EmailRequest;
 import com.example.plan.email.service.EmailService;
 import com.example.plan.security.auth.service.Impl.AuthEncryptDecrypt;
 import com.example.plan.user.entity.UserInfo;
@@ -26,8 +27,11 @@ import java.util.Objects;
 @Service
 public class EmailServiceImpl implements EmailService {
 
-    @Value("${spring.mail.username")
+    @Value("${spring.mail.username}")
     private String fromEmail;
+
+    @Value("${file.dest-dir}")
+    private String destDir;
 
     private String subject = "Προσοχή";
 
@@ -46,27 +50,26 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public ResponseEntity<ResponseMessage> sendEmail(Map<String, Object> requestMap) {
+    public ResponseEntity<ResponseMessage> sendEmail(EmailRequest emailRequest) {
         try {
-            String email = (String) requestMap.get("email");
+
         //    Customer existingCustomer = customerRepository.findByEmail((String) requestMap.get("email"));
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
 
             mimeMessageHelper.setFrom(fromEmail);
-            mimeMessageHelper.setTo(email);
+            mimeMessageHelper.setTo(emailRequest.getCustomerEmail());
             //mimeMessageHelper.setCc(emailDTO.getCc());
             mimeMessageHelper.setSubject(subjectOfDietProgram);
-            mimeMessageHelper.setText((String) requestMap.get("body"));
+            mimeMessageHelper.setText(emailRequest.getBody(), true);
 
-            if (requestMap.containsKey("filename")) {
-                String fileName = (String) requestMap.get("filename");
-                Path filePath = Paths.get("C:\\Users\\dchatzop\\Videos\\Thesis\\PDF\\", fileName);
-                mimeMessageHelper.addAttachment(fileName, new FileDataSource(filePath.toFile()));
+            if (emailRequest.getFileName() != null) {
+                Path filePath = Paths.get(destDir, emailRequest.getFileName());
+                mimeMessageHelper.addAttachment(emailRequest.getFileName(), new FileDataSource(filePath.toFile()));
 
                 mailSender.send(mimeMessage);
                 String message = "Το email στάλθηκε!";
-                ResponseMessage response = new ResponseMessage(message, fileName);
+                ResponseMessage response = new ResponseMessage(message, emailRequest.getFileName());
                 return new ResponseEntity<>(response, HttpStatus.OK);
             }
             String message = "Το email δεν στάλθηκε..";

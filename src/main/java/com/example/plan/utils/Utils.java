@@ -23,13 +23,19 @@ public class Utils {
     public static LocalDate formatter(Map<String, Object> requestMap) {
 
         DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE;
+        DateTimeFormatter formatter2 = DateTimeFormatter.ISO_DATE_TIME;
 
         if (requestMap.containsKey("birthday")) {
             String date = (String) requestMap.get("birthday");
-            return LocalDate.parse(date, formatter);
+            return LocalDate.parse(date, formatter2);
         }
-        else if (requestMap.containsKey("startDate")) {
-            String startDate = (String) requestMap.get("startDate");
+        else if (requestMap.containsKey("startDate") || requestMap.containsKey("mealStartDate")) {
+            String startDate;
+            if (requestMap.containsKey("mealStartDate")) {
+                 startDate = (String) requestMap.get("mealStartDate");
+            } else {
+                startDate = (String) requestMap.get("startDate");
+            }
             return LocalDate.parse(startDate, formatter);
         }
         throw new IllegalArgumentException("No valid date field found in the requestMap");
@@ -37,8 +43,13 @@ public class Utils {
 
     public static LocalDate secondFormatter(Map<String, Object> requestMap) {
         DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE;
-        if (requestMap.containsKey("endDate")) {
-            String endDate = (String) requestMap.get("endDate");
+        if (requestMap.containsKey("endDate") || requestMap.containsKey("mealEndDate")) {
+            String endDate;
+            if (requestMap.containsKey("mealEndDate")) {
+                endDate = (String) requestMap.get("mealEndDate");
+            } else {
+                endDate = (String) requestMap.get("endDate");
+            }
             return LocalDate.parse(endDate, formatter);
         }
         throw new IllegalArgumentException("No valid date field found in the requestMap");

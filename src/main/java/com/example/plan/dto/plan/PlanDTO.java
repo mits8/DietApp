@@ -1,4 +1,4 @@
-package com.example.plan.dto.Plan;
+package com.example.plan.dto.plan;
 
 import com.example.plan.dto.customer.CustomerDTO;
 import com.example.plan.dto.food.FoodDTO;

@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -296,5 +297,34 @@ public class CustomerServiceImpl implements CustomerService {
         String message = "Κάτι πήγε λάθος..";
         ResponseMessage response = new ResponseMessage(message, null);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @Override
+    public ResponseEntity<ResponseMessage> customerData() {
+        int countCustomers = customerRepository.countCustomer();
+        List<Map<String, Object>> customers = customerRepository.customerData()
+                .stream().map(c -> {
+                    Map<String, Object> customerMap = new HashMap<>();
+                    String firstname = (String) c.get("firstname");
+                    customerMap.put("firstname", firstname);
+                    String surname = (String) c.get("surname");
+                    customerMap.put("surname", surname);
+                    String fileName = customerRepository.findFilename(firstname, surname);
+                    boolean exists = c.get("customerEmail") != null && fileName != null;
+                    if (exists) {
+                        customerMap.put("customerEmail", c.get("customerEmail"));
+                        customerMap.put("fileName", fileName + "_Report.pdf");
+                    }
+                    customerMap.put("body", "Plan Programme");
+                    return customerMap;
+                }).toList();
+        if (customers.size() != countCustomers) {
+            String message = "cont?";
+            ResponseMessage response = new ResponseMessage(message, customers);
+            return new ResponseEntity<> (response, HttpStatus.OK);
+        }
+        String message = "Οι  πελάτες βρέθηκαν!";
+        ResponseMessage response = new ResponseMessage(message, customers);
+        return new ResponseEntity<> (response, HttpStatus.OK);
     }
 }

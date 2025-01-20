@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,6 +37,10 @@ public class Meal {
     @Column(name = "day")
     @Enumerated(EnumType.STRING)
     private Day day;
+    @Column(name = "meal_start_date")
+    private LocalDate mealStartDate;
+    @Column(name = "meal_end_date")
+    private LocalDate mealEndDate;
 
     @ManyToMany(cascade = CascadeType.MERGE)
     @JoinTable(

@@ -48,4 +48,6 @@ public interface PlanService {
 
     @Transactional
     ResponseEntity<ResponseMessage> deleteAll();
+
+    ResponseEntity<ResponseMessage> showWholePlan(Map<String, Object> request, String firstname, String surname);
 }

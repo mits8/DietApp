@@ -3,6 +3,7 @@ package com.example.plan.plan.controller;
 import com.example.plan.plan.service.PlanService;
 import com.example.plan.utils.ResponseMessage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,11 @@ public class PlanController {
     @Autowired
     private PlanService planService;
 
+    @GetMapping("/show/whole/plan")
+    public ResponseEntity<ResponseMessage> showWholePlan(Map<String, Object> request, @RequestParam("firstname") String firstname, @RequestParam("surname") String surname) {
+        return planService.showWholePlan(request, firstname, surname);
+    }
+
     @GetMapping("/findAll")
     public ResponseEntity<List<Map<String, Object>>> findAll(){
         return new ResponseEntity<>(planService.findAll(), HttpStatus.OK);
@@ -31,7 +37,9 @@ public class PlanController {
     }
 
     @GetMapping("/find/Customer/byName")
-    public List<Map<String, Object>> getPlanDetailsByCustomerfirstname (@RequestParam String firstname, @RequestParam String surname, @RequestParam LocalDate birthdate) {
+    public List<Map<String, Object>> getPlanDetailsByCustomerfirstname (@RequestParam String firstname,
+                                                                        @RequestParam String surname,
+                                                                        @RequestParam LocalDate birthdate) {
        return  planService.getPlanDetailsByCustomerFullName(firstname, surname, birthdate);
     }
 
@@ -44,9 +52,9 @@ public class PlanController {
     public ResponseEntity<ResponseMessage> generateReport(Map<String, Object> requestMap,
                                                           @RequestParam String firstname,
                                                           @RequestParam String surname,
-                                                          @RequestParam @DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate startDate,
-                                                          @RequestParam @DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate endDate) {
-        return planService.generateReport(requestMap, firstname, surname, startDate, endDate);
+                                                          @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
+                                                          @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate) {
+    return planService.generateReport(requestMap, firstname, surname, startDate, endDate);
     }
 
     @PostMapping("/add")
@@ -60,7 +68,7 @@ public class PlanController {
     }
 
 
-    @PostMapping("/addMeal/{name}")
+    @PostMapping("/addMeal/addFood/addCustomer/{name}")
     public ResponseEntity<ResponseMessage> addMealToPlan(@RequestBody Map<String, List<Object>> requestMap, @PathVariable String name, @RequestParam LocalDate startDate, @RequestParam LocalDate endDate){
         return planService.addMealToPlan(requestMap, name, startDate, endDate);
     }

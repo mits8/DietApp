@@ -1,6 +1,6 @@
 package com.example.plan.dto.meal;
 
-import com.example.plan.dto.Plan.PlanDTO;
+import com.example.plan.dto.plan.PlanDTO;
 import com.example.plan.dto.food.FoodDTO;
 import com.example.plan.enums.Day;
 import com.example.plan.enums.Type;

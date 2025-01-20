@@ -1,7 +1,7 @@
 package com.example.plan.map;
 
 import com.example.plan.customer.entity.DietCustomer;
-import com.example.plan.dto.Plan.PlanDTO;
+import com.example.plan.dto.plan.PlanDTO;
 import com.example.plan.dto.customer.CustomerDTO;
 import com.example.plan.dto.customer.CustomerPlanDTO;
 import com.example.plan.dto.food.FoodDTO;

@@ -21,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -50,6 +51,9 @@ public class MealServiceImpl implements MealService {
                     map.put("description", meal.getDescription());
                     map.put("type", meal.getType());
                     map.put("day", meal.getDay());
+                    map.put("calories", meal.getCalories());
+                    map.put("mealStartDate", meal.getMealStartDate());
+                    map.put("mealEndDate", meal.getMealEndDate());
                     return map;
                 }).collect(Collectors.toList());
     }
@@ -65,6 +69,9 @@ public class MealServiceImpl implements MealService {
             map.put("description", meal.getDescription());
             map.put("type", meal.getType());
             map.put("day", meal.getDay());
+            map.put("calories", meal.getCalories());
+            map.put("mealStartDate", meal.getMealStartDate());
+            map.put("mealEndDate", meal.getMealEndDate());
 
             return map;
         } else {
@@ -83,6 +90,9 @@ public class MealServiceImpl implements MealService {
             map.put("description", meal.getDescription());
             map.put("type", meal.getType());
             map.put("day", meal.getDay());
+            map.put("calories", meal.getCalories());
+            map.put("mealStartDate", meal.getMealStartDate());
+            map.put("mealEndDate", meal.getMealEndDate());
             mapList.add(map);
         }
         return mapList;
@@ -96,8 +106,11 @@ public class MealServiceImpl implements MealService {
                 Meal meal = new Meal();
                 meal.setName(mealName);
                 meal.setDescription((String) requestMap.get("description"));
+                meal.setCalories((Double.parseDouble((String) requestMap.get("calories"))));
                 meal.setDay(Day.valueOf(String.valueOf(requestMap.get("day"))));
                 meal.setType(Type.valueOf(String.valueOf(requestMap.get("type"))));
+                meal.setMealStartDate(Utils.formatter(requestMap));
+                meal.setMealEndDate(Utils.secondFormatter(requestMap));
 
                 mealRepository.save(meal);
                 String message = "Το γεύμα '" + mealName + "' γράφτηκε επιτυχώς!";
@@ -138,12 +151,18 @@ public class MealServiceImpl implements MealService {
                     String description = (String) map.get("description");
                     Day day = Day.valueOf(String.valueOf(map.get("day")));
                     Type type = Type.valueOf(String.valueOf(map.get("type")));
+                    Double calories = (Double) map.get("calories");
+                    LocalDate mealStartDate = (LocalDate) map.get("mealStartDate");
+                    LocalDate mealEndDate = (LocalDate) map.get("mealEndDate");
 
                     meal = new Meal();
                     meal.setName(name);
                     meal.setDescription(description);
                     meal.setType(type);
                     meal.setDay(day);
+                    meal.setCalories(calories);
+                    meal.setMealStartDate(mealStartDate);
+                    meal.setMealEndDate(mealEndDate);
                     mealRepository.save(meal);
                     addFoods(meal, requestMap);
 
@@ -206,6 +225,9 @@ public class MealServiceImpl implements MealService {
                 updateMeal.setDescription((String) requestMap.get("description"));
                 updateMeal.setDay(Day.valueOf(String.valueOf(requestMap.get("day"))));
                 updateMeal.setType(Type.valueOf(String.valueOf(requestMap.get("type"))));
+                updateMeal.setCalories(Double.valueOf(String.valueOf(requestMap.get("calories"))));
+                updateMeal.setMealStartDate(Utils.formatter(requestMap));
+                updateMeal.setMealEndDate(Utils.secondFormatter(requestMap));
                 mealRepository.save(updateMeal);
                 String message = "Το γεύμα " + "'" + requestMap.get("name") + " ενημερώθηκε επιτυχώς!";
                 ResponseMessage response = new ResponseMessage(message, requestMap);

@@ -1,6 +1,6 @@
 package com.example.plan.dto.customer;
 
-import com.example.plan.dto.Plan.PlanDTO;
+import com.example.plan.dto.plan.PlanDTO;
 import com.example.plan.enums.Gender;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;

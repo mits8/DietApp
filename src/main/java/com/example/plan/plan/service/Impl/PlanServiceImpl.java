@@ -3,6 +3,7 @@ package com.example.plan.plan.service.Impl;
 import com.example.plan.constants.PlanConstants;
 import com.example.plan.customer.entity.DietCustomer;
 import com.example.plan.customer.repository.CustomerRepository;
+import com.example.plan.dto.plan.WholePlanDto;
 import com.example.plan.enums.Day;
 import com.example.plan.enums.Duration;
 import com.example.plan.enums.Gender;
@@ -27,6 +28,7 @@ import com.itextpdf.text.pdf.PdfWriter;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +37,6 @@ import org.springframework.stereotype.Service;
 import java.io.FileOutputStream;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.*;
@@ -58,12 +59,42 @@ public class PlanServiceImpl implements PlanService {
     private PlanRepository planRepository;
     private final Mapper mapper;
 
+    @Value("${file.dest-dir}")
+    private String destDir;
+
     ObjectMapper objectMapper = new ObjectMapper();
 
     public PlanServiceImpl(Mapper mapper) {
         this.mapper = mapper;
     }
 
+
+    @Override
+    public ResponseEntity<ResponseMessage> showWholePlan(Map<String, Object> request, String firstname, String surname) {
+        List<Map<String, Object>> findWholePlan = planRepository.displayWholePlan(firstname, surname);
+
+            WholePlanDto wholePlanDto = new WholePlanDto();
+        if (!findWholePlan.isEmpty()) {
+            for (Map<String, Object> wholePlan : findWholePlan) {
+                wholePlanDto.setName(wholePlan.get("name").toString());
+                wholePlanDto.setStartDate((LocalDate) wholePlan.get("startDate"));
+                wholePlanDto.setEndDate((LocalDate) wholePlan.get("endDate"));
+                wholePlanDto.setMealName((String) wholePlan.get("mealName"));
+                wholePlanDto.setDay((Day) wholePlan.get("day"));
+                wholePlanDto.setType((Type) wholePlan.get("type"));
+                wholePlanDto.setCalories((Double) wholePlan.get("calories"));
+                wholePlanDto.setCustomerFullName((String) wholePlan.get("customerFullName"));
+                wholePlanDto.setMealStartDate((LocalDate) wholePlan.get("mealStartDate"));
+                wholePlanDto.setMealEndDate((LocalDate) wholePlan.get("mealEndDate"));
+            }
+            String message = "Το πλάνο " + " βρέθηκε επιτυχώς!";
+            ResponseMessage response = new ResponseMessage(message, findWholePlan);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+        String message = "Κάτι πήγε λάθος..";
+        ResponseMessage response = new ResponseMessage(message, null);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
 
     @Override
     public List<Map<String, Object>> findAll() {
@@ -195,7 +226,7 @@ public class PlanServiceImpl implements PlanService {
             DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
             LocalDate startDateFormat = LocalDate.parse(startDate.format(dateFormatter), dateFormatter);
             LocalDate endDateFormat = LocalDate.parse(endDate.format(dateFormatter), dateFormatter);
-            List<Plan> plans = planRepository.findByCustomerNameAndDates(firstname, surname, startDateFormat, endDateFormat);
+            List<Plan> plans = planRepository.findByCustomerNameAndDates(firstname, surname, startDate, endDate);
             if (plans == null || !plans.isEmpty()) {
                 for (Plan plan : plans) {
                     Map<String, Object> planMap = new HashMap<>();
@@ -206,7 +237,7 @@ public class PlanServiceImpl implements PlanService {
                     planMap.put("duration", plan.getDuration());
                 }
 
-                String filePath = "C:\\Users\\dchatzop\\Videos\\Thesis\\PDF\\" + firstname + "_" + surname + "'" + startDate + "-" + endDate + "'" + "_Report.pdf";
+                String filePath = destDir + firstname + "_" + surname + "_" + startDate + "__" + endDate + "_Report.pdf";
 
                 Document document = new Document(PageSize.A4);
                 FileOutputStream fos = new FileOutputStream(filePath);
@@ -236,13 +267,14 @@ public class PlanServiceImpl implements PlanService {
                     Paragraph paragraph = new Paragraph(info, informationFont);
                     document.add(paragraph);
 
-                    String imagePath = "src/main/java/com/example/plan/utils/images/image.jpg";
+                    /*String imagePath = "src/main/java/com/example/plan/utils/images/image.jpg";
                     Image image = Image.getInstance(imagePath);
                     image.setAlignment(Element.ALIGN_CENTER);
                     document.add(image);
-                    document.add(new Paragraph("\n\n"));
+                    document.add(new Paragraph("\n\n"));*/
                 }
-                document.newPage();
+                //document.newPage();
+                document.add(new Paragraph("\n\n"));
                 PdfPTable table = new PdfPTable(4);
                 table.setWidthPercentage(100);
                 String[] columnTitles = {"ΔΕΥΤΕΡΑ", "ΤΡΙΤΗ", "ΤΕΤΑΡΤΗ", "ΠΕΜΠΤΗ"};
@@ -274,14 +306,15 @@ public class PlanServiceImpl implements PlanService {
 
                     for (Meal meal : mealsForDay) {
                         String boldText = String.valueOf(meal.getType());
-                        StringBuilder textBuilder = new StringBuilder("~Γεύμα: " + meal.getName() + "\n");
 
-                        for (Food food : meal.getFoods()) {
-                            totalCalories += food.getCalories();
-                            textBuilder.append("~Λεπτομέρεις: ").append(food.getDescription()).append("\n")
-                                        .append("   Ποσότητα: ").append(food.getQuantity()).append("\n")
-                                        .append("   Θερμήδες: ").append(food.getCalories()).append("\n");
+                        StringBuilder textBuilder = new StringBuilder();
+                        if (meal.getCalories() != null) {
+                            totalCalories += meal.getCalories();
                         }
+                        textBuilder.append("~Γεύμα: ").append(meal.getName()).append("\n")
+                            .append("~Λεπτομέρεις: ").append(meal.getDescription()).append("\n")
+                            .append("~Θερμήδες: ").append(meal.getCalories()).append("\n");
+
                         mealCell.addElement(new Phrase(boldText, boldFont));
                         mealCell.addElement(new Phrase(textBuilder.toString(), dataFont));
                         mealCell.addElement(new Phrase("\n"));
@@ -327,14 +360,15 @@ public class PlanServiceImpl implements PlanService {
 
                     for (Meal meal : mealsForDay) {
                         String boldText = String.valueOf(meal.getType());
-                        StringBuilder textBuilder = new StringBuilder("~Γεύμα: " + meal.getName() + "\n");
-
-                        for (Food food : meal.getFoods()) {
-                            totalCalories += food.getCalories();
-                            textBuilder.append("~Λεπτομέρεις: ").append(food.getDescription()).append("\n")
-                                        .append("   Ποσότητα: ").append(food.getQuantity()).append("\n")
-                                        .append("   Θερμήδες: ").append(food.getCalories()).append("\n");
+                        StringBuilder textBuilder = new StringBuilder();
+                        if (meal.getCalories() != null) {
+                            totalCalories += meal.getCalories();
                         }
+                        textBuilder.append("~Γεύμα: ").append(meal.getName()).append("\n")
+                                .append("~Λεπτομέρεις: ").append(meal.getDescription()).append("\n")
+                                .append("~Θερμήδες: ").append(meal.getCalories()).append("\n");
+
+
                         mealCell.addElement(new Phrase(boldText, boldFont));
                         mealCell.addElement(new Phrase(textBuilder.toString(), dataFont));
                         mealCell.addElement(new Phrase("\n"));
@@ -414,7 +448,7 @@ public class PlanServiceImpl implements PlanService {
 
             if (existingPlan.isPresent()) {
                 Plan plan = existingPlan.get();
-                addMealsAndFoodsToPlan(plan, requestMap);
+                addMealsFoodsCustomerToPlan(plan, requestMap);
             } else {
                 List<Object> plans = requestMap.get("plans");
                 for (Object objectPlan : plans) {
@@ -430,7 +464,7 @@ public class PlanServiceImpl implements PlanService {
                     plan.setStartDate(startDate);
                     plan.setEndDate(endDate);
                     plan.setDuration(duration);
-                    addMealsAndFoodsToPlan(plan, requestMap);
+                    addMealsFoodsCustomerToPlan(plan, requestMap);
                     planRepository.save(plan);
                 }
             }
@@ -446,9 +480,8 @@ public class PlanServiceImpl implements PlanService {
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    private void addMealsAndFoodsToPlan(Plan plan, Map<String, List<Object>> requestMap) {
+    private void addMealsFoodsCustomerToPlan(Plan plan, Map<String, List<Object>> requestMap) {
         List<Object> meals = requestMap.get("meals");
-        if (meals != null) {
             for (Object mealObject : meals) {
                 ObjectMapper objectMapper = new ObjectMapper();
                 Map<String, Object> mealData = objectMapper.convertValue(mealObject, Map.class);
@@ -457,7 +490,7 @@ public class PlanServiceImpl implements PlanService {
                 String mealDescr = String.valueOf(mealData.get("description"));
                 Day day = Day.valueOf((String) mealData.get("day"));
                 Type mealType = Type.valueOf((String) mealData.get("type"));
-                String quantity = String.valueOf(mealData.get("quantity"));
+                Double calories = ((Double) mealData.get("calories"));
                 Meal existingMeal = mealRepository.findByNameDayType(mealName, day, mealType);
 
                 if (existingMeal == null) {
@@ -466,6 +499,7 @@ public class PlanServiceImpl implements PlanService {
                     existingMeal.setDescription(mealDescr);
                     existingMeal.setDay(day);
                     existingMeal.setType(mealType);
+                    existingMeal.setCalories(calories);
                     mealRepository.save(existingMeal);
                 }
                 List<Object> foods = (List<Object>) mealData.get("foods");
@@ -476,7 +510,7 @@ public class PlanServiceImpl implements PlanService {
                         String foodName = String.valueOf(foodData.get("name"));
                         String foodDescr = String.valueOf(mealData.get("description"));
                         String foodQuantiity = String.valueOf(foodData.get("quantity"));
-                        Double calories = Double.valueOf(String.valueOf(foodData.get("calories")));
+                        //Double calories = Double.valueOf(String.valueOf(foodData.get("calories")));
                         Type foodType = Type.valueOf(foodData.get("type"));
 
                         Food existingFood = foodRepository.findFoodName(foodName);
@@ -490,21 +524,49 @@ public class PlanServiceImpl implements PlanService {
                             existingFood.setType(foodType);
                             foodRepository.save(existingFood);
                         }
-                        boolean relationshipMealFoodExists = mealRepository.existsMealFoodRelationship(existingMeal, existingFood);
-
-                        if (!relationshipMealFoodExists) {
-                            existingMeal.getFoods().add(existingFood);
-                        }
                     }
                 }
+                        List<Object> customer = requestMap.get("customer");
+                        Map<String, Object> customerData = objectMapper.convertValue(customer.get(0), Map.class);
 
-                boolean relationshipPlanMealExists = planRepository.existPlanMealRelationship(plan, existingMeal);
+                        String firstname = String.valueOf(customerData.get("firstname"));
+                        String surname = String.valueOf(customerData.get("surname"));
+                        String city = String.valueOf(customerData.get("city"));
+                        String address = String.valueOf(customerData.get("address"));
+                        LocalDate birthday = LocalDate.parse(String.valueOf(customerData.get("birthday")));
+                        Gender gender = Gender.valueOf((String) customerData.get("gender"));
+                        DietCustomer existingCustomer = customerRepository.findCustomerByName(firstname, surname, birthday);
+
+
+                        if (existingCustomer == null) {
+                            DietCustomer newCustomer = new DietCustomer();
+                            newCustomer.setFirstname(firstname);
+                            newCustomer.setSurname(surname);
+                            newCustomer.setCity(city);
+                            newCustomer.setAddress(address);
+                            newCustomer.setBirthday(birthday);
+                            newCustomer.setGender(gender);
+                            customerRepository.save(newCustomer);
+                            plan.getCustomers().add(newCustomer);
+                        }
+
+                        /*boolean relationshipMealFoodExists = mealRepository.existsMealFoodRelationship(existingMeal, existingFood);
+                        boolean relationshipPlanCustomerExists = planRepository.existsCustomerPlanRelationship(plan, existingCustomer);
+                        if (!relationshipPlanCustomerExists) {
+                            plan.getCustomers().add(existingCustomer);
+                        }
+                        if (!relationshipMealFoodExists) {
+                            existingMeal.getFoods().add(existingFood);
+                        }*/
+            }
+
+
+                /*boolean relationshipPlanMealExists = planRepository.existPlanMealRelationship(plan, existingMeal);
 
                 if (!relationshipPlanMealExists) {
                     plan.getMeals().add(existingMeal);
-                }
-            }
-        }
+                }*/
+
         planRepository.save(plan);
     }
 
@@ -516,6 +578,7 @@ public class PlanServiceImpl implements PlanService {
             if (existingPlan != null) {
                 plan = existingPlan;
                 addMeals(plan, requestMap);
+                addCustomer(plan, requestMap);
             } else {
                 List<Object> plans = requestMap.get("plans");
                 for (Object objectPlan : plans) {
@@ -532,6 +595,7 @@ public class PlanServiceImpl implements PlanService {
                     plan.setEndDate(endDate);
                     plan.setDuration(duration);
                     addMeals(plan, requestMap);
+                    addCustomer(plan, requestMap);
                     planRepository.save(plan);
 
                 }
@@ -554,12 +618,17 @@ public class PlanServiceImpl implements PlanService {
             for (Object mealObject : meals) {
 
                 Map<String, Object> mealData = objectMapper.convertValue(mealObject, Map.class);
-
+                if (mealData.size() <= 1) {
+                    continue;
+                }
                 String mealName = String.valueOf(mealData.get("name"));
                 String mealDescr = String.valueOf(mealData.get("description"));
                 Day day = Day.valueOf((String) mealData.get("day"));
                 Type mealType = Type.valueOf((String) mealData.get("type"));
                 Double mealCalories = (Double) mealData.get("calories");
+                LocalDate mealStartDate = LocalDate.parse((String) mealData.get("startDate"));
+                LocalDate mealEndDate = LocalDate.parse((String) mealData.get("endDate"));
+
                 Meal meal = mealRepository.findByNameDayType(mealName, day, mealType);
                 //boolean existingMeal = meal.getName().equals(mealName) && meal.getDay().equals(day) && meal.getType().equals(mealType);
                 if (meal == null) {
@@ -569,9 +638,12 @@ public class PlanServiceImpl implements PlanService {
                     newMeal.setDay(day);
                     newMeal.setType(mealType);
                     newMeal.setCalories(mealCalories);
+                    newMeal.setMealStartDate(mealStartDate);
+                    newMeal.setMealEndDate(mealEndDate);
                     mealRepository.save(newMeal);
+                    plan.getMeals().add(newMeal);
                 }
-                List<Object> foods = (List<Object>) mealData.get("foods");
+               /* List<Object> foods = (List<Object>) mealData.get("foods");
                 if (foods != null) {
                     for (Object foodObject : foods) {
                         Map<String, String> foodData = objectMapper.convertValue(foodObject, Map.class);
@@ -599,7 +671,7 @@ public class PlanServiceImpl implements PlanService {
                             meal.getFoods().add(existingFood);
                         }
                     }
-                }
+                }*/
                 if (plan != null) {
                     planRepository.save(plan);
                 }
@@ -663,8 +735,6 @@ public class PlanServiceImpl implements PlanService {
 
                     String customerfirstname = String.valueOf(customerData.get("firstname"));
                     String surname = String.valueOf(customerData.get("surname"));
-                    String email = String.valueOf(customerData.get("email"));
-                    String phone = String.valueOf(customerData.get("phone"));
                     String city = String.valueOf(customerData.get("city"));
                     String address = String.valueOf(customerData.get("address"));
                     LocalDate birthday = LocalDate.parse(String.valueOf(customerData.get("birthday")));
@@ -673,17 +743,15 @@ public class PlanServiceImpl implements PlanService {
 
 
                     if (existingCustomer == null) {
-                        DietCustomer customer = new DietCustomer();
-                        customer.setFirstname(customerfirstname);
-                        customer.setSurname(surname);
-                        /*customer.setEmail(email);
-                        customer.setPhone(phone);*/
-                        customer.setCity(city);
-                        customer.setAddress(address);
-                        customer.setBirthday(birthday);
-                        customer.setGender(gender);
-                        customerRepository.save(customer);
-                        plan.getCustomers().add(customer);
+                        DietCustomer newCustomer = new DietCustomer();
+                        newCustomer.setFirstname(customerfirstname);
+                        newCustomer.setSurname(surname);
+                        newCustomer.setCity(city);
+                        newCustomer.setAddress(address);
+                        newCustomer.setBirthday(birthday);
+                        newCustomer.setGender(gender);
+                        customerRepository.save(newCustomer);
+                        plan.getCustomers().add(newCustomer);
                     }
                     boolean relationshipPlanCustomerExists = planRepository.existsCustomerPlanRelationship(plan, existingCustomer);
                     if (!relationshipPlanCustomerExists) {

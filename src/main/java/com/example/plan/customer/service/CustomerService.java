@@ -25,4 +25,5 @@ public interface CustomerService {
 
     ResponseEntity<ResponseMessage> deleteCustomer(Long id);
 
+    ResponseEntity<ResponseMessage> customerData();
 }

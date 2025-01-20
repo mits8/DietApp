@@ -60,4 +60,9 @@ public class CustomerController {
         return customerService.deleteCustomer(id);
     }
 
+    @GetMapping("/find/data")
+    public ResponseEntity<ResponseMessage> customerData() {
+        return customerService.customerData();
+    }
+
 }

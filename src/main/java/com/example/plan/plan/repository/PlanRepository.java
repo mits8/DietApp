@@ -56,4 +56,12 @@ public interface PlanRepository extends JpaRepository<Plan, Integer> {
     @Query("SELECT COUNT(pc) > 0 FROM Plan m JOIN m.customers pc WHERE m=:plan AND pc=:customer")
     boolean existsCustomerPlanRelationship(@Param("plan") Plan plan, @Param("customer") DietCustomer customer);
 
+    @Query("SELECT p.name as name, p.startDate as startDate, p.endDate as endDate," +
+            "       m.day as day, m.type as type, m.calories as calories, m.name as mealName," +
+            "        CONCAT(c.firstname, ' ', c.surname) as customerFullName " +
+            "FROM Plan p " +
+            "JOIN p.customers c " +
+            "JOIN p.meals m " +
+            "WHERE c.firstname = :firstname and c.surname = :surname")
+    List<Map<String, Object>> displayWholePlan(@Param("firstname") String firstname, @Param("surname") String surname);
 }
